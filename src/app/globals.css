@@ -1,0 +1,40 @@
+@import "tailwindcss";
+
+/*
+ * Petra Field Operations design tokens.
+ * High contrast for outdoor/industrial use. Brand colors are placeholders:
+ * swap --color-brand-* for Petra's official palette when available.
+ */
+@theme {
+  --color-brand-50: #eef4fb;
+  --color-brand-100: #d6e4f5;
+  --color-brand-600: #1d4f8f;
+  --color-brand-700: #173f73;
+  --color-brand-800: #11305a;
+  --color-brand-900: #0b2140;
+  --color-accent-400: #fbbf24;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    sans-serif;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-neutral-100);
+  color: var(--color-neutral-950);
+  font-family: var(--font-sans);
+}
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 3px solid var(--color-accent-500);
+  outline-offset: 2px;
+}
