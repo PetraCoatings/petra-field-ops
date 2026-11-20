@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -18,9 +19,7 @@ export default async function ManageLayout({ children }: LayoutProps<"/manage">)
       <header className="bg-brand-800 text-white">
         <div className="mx-auto flex min-h-14 max-w-7xl flex-wrap items-center justify-between gap-3 px-4">
           <div className="flex items-center gap-3">
-            <span aria-hidden className="flex size-8 items-center justify-center rounded-lg bg-white/10 font-black text-accent-400">
-              P
-            </span>
+            <BrandMark size={28} onDark />
             <span className="text-lg font-bold">
               {t("common.shortName")} · {t("common.management")}
             </span>

@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "Petra Field Operations",
     short_name: "Petra Field Ops",
-    description: "Field operations for Petra Industrial Flooring crews and office.",
+    description: "Field operations for Petra crews and office.",
     start_url: "/",
     scope: "/",
     display: "standalone",

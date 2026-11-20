@@ -1,6 +1,6 @@
 # Petra Field Operations
 
-Field operations app (installable PWA) for Petra Industrial Flooring LLC: time clock, payroll review, calculators, Job Center, field work orders, daily field reports, and product/SDS libraries. English and Spanish.
+Field operations app (installable PWA) for Petra crews and office (used across the Petra companies): time clock, payroll review, calculators, Job Center, field work orders, daily field reports, and product/SDS libraries. English and Spanish.
 
 - **Plan and decisions:** [docs/ARCHITECTURE_PLAN.md](docs/ARCHITECTURE_PLAN.md)
 - **Setup, environment and tests:** [docs/SETUP.md](docs/SETUP.md)
