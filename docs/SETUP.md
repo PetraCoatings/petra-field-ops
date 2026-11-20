@@ -12,8 +12,9 @@
 
 1. In the Supabase dashboard, create a project (e.g. `petra-field-ops-dev`), region close to Texas.
 2. **Authentication → Sign In / Providers:** turn **off** "Allow new users to sign up". Only office admins invite people.
-3. **Authentication → URL Configuration:** set Site URL to your app URL and add `<app-url>/auth/confirm` to Redirect URLs.
-4. **Authentication → Emails:** paste `supabase/templates/invite.html` into the *Invite user* template and `supabase/templates/recovery.html` into *Reset password*. (These use the `token_hash` link format the app expects.)
+3. **Authentication → URL Configuration:** set Site URL to your app URL and add both `<app-url>/auth/confirm` and `<app-url>/auth/accept` to Redirect URLs.
+4. **Email templates (optional until custom SMTP is set up):** Supabase only allows editing templates once your own email sender (custom SMTP) is connected. The app works with Supabase's **default** templates: invitations land on `/auth/accept` (tokens in the URL fragment), password resets on `/auth/confirm` (`?code=`). Once custom SMTP is configured, paste `supabase/templates/invite.html` and `recovery.html` into *Invite user* and *Reset password* for bilingual emails; those use the `token_hash` format, which `/auth/confirm` also accepts.
+   - With the default templates, a password-reset link must be opened in the same browser where the reset was requested (Supabase's one-time-code security). The custom templates remove that limitation.
 5. **Authentication → Policies:** minimum password length 10, require letters and digits.
 6. Apply the database migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`.
 

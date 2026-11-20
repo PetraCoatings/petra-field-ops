@@ -50,7 +50,8 @@
     "passwordMismatch": "The two passwords don't match.",
     "passwordTooWeak": "Use at least 10 characters, with both letters and numbers.",
     "savePassword": "Save password",
-    "linkInvalid": "That link has expired or was already used. Ask for a new one."
+    "linkInvalid": "That link has expired or was already used. Ask for a new one.",
+    "finishingSignIn": "Signing you in…"
   },
   "home": {
     "greeting": "Hi, {name}",

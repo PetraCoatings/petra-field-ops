@@ -92,3 +92,15 @@ test("security headers are set", async ({ request }) => {
   expect(h["x-content-type-options"]).toBe("nosniff");
   expect(h["x-powered-by"]).toBeUndefined();
 });
+
+test("an expired default invitation link shows a clear message", async ({ page }) => {
+  await page.goto("/auth/accept?next=/set-password#error=access_denied&error_code=otp_expired");
+  await expect(page.getByRole("alert").filter({ hasText: "expired" })).toBeVisible();
+  // Tokens/errors are removed from the address bar.
+  expect(new URL(page.url()).hash).toBe("");
+});
+
+test("a bad password-reset code is rejected safely", async ({ page }) => {
+  await page.goto("/auth/confirm?code=bogus&next=/set-password");
+  await expect(page).toHaveURL(/\/login\?reason=link-invalid$/);
+});

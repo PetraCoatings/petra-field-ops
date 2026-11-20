@@ -50,7 +50,8 @@
     "passwordMismatch": "Las dos contraseñas no coinciden.",
     "passwordTooWeak": "Use al menos 10 caracteres, con letras y números.",
     "savePassword": "Guardar contraseña",
-    "linkInvalid": "Ese enlace venció o ya se usó. Pida uno nuevo."
+    "linkInvalid": "Ese enlace venció o ya se usó. Pida uno nuevo.",
+    "finishingSignIn": "Iniciando sesión…"
   },
   "home": {
     "greeting": "Hola, {name}",

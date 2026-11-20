@@ -77,7 +77,7 @@ async function invite(employeeId: string): Promise<FormState> {
   }
   const admin = createAdminClient();
   const { data, error } = await admin.auth.admin.inviteUserByEmail(emp.email, {
-    redirectTo: `${await siteOrigin()}/auth/confirm?next=/set-password`,
+    redirectTo: `${await siteOrigin()}/auth/accept?next=/set-password`,
   });
   if (error || !data.user) {
     return {
