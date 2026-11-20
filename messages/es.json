@@ -405,7 +405,7 @@
     },
     "dewPoint": {
       "title": "Punto de rocío",
-      "summary": "Verifique que la superficie esté lo suficientemente por encima del punto de rocío para recubrir.",
+      "summary": "Verifique si la superficie está lo suficientemente por encima del punto de rocío para recubrir.",
       "unit": "Unidad de temperatura",
       "airTemp": "Temperatura del aire",
       "humidity": "Humedad relativa",
