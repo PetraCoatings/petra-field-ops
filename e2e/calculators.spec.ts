@@ -7,7 +7,7 @@ import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
  */
 test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_* variables)");
 
-test("an installer uses the square footage and dew point calculators", async ({ page }) => {
+test("an installer uses the calculators", async ({ page }) => {
   // One sign-in per run on two screen sizes keeps us under Supabase's sign-in rate limit.
   test.skip(test.info().project.name === "android", "phone and desktop cover the calculators");
   const u = readRoleUsers().find((x) => x.role === "installer")!;
@@ -80,4 +80,31 @@ test("an installer uses the square footage and dew point calculators", async ({ 
 
   await page.getByLabel("Relative humidity").fill("150");
   await expect(page.getByText("Humidity must be more than 0 and at most 100%.")).toBeVisible();
+
+  // --- Spread rate / mils: owner decision Q15 examples (200 SF/gal → 8.02 mils; 10 mils → 160.4 SF/gal).
+  await page.getByRole("link", { name: "Calculators" }).click();
+  await page.getByRole("link", { name: /Spread Rate/ }).click();
+  await expect(page.getByRole("heading", { name: "Spread Rate / Mils", level: 1 })).toBeVisible();
+  const sr = page.getByRole("region", { name: "Wet film thickness" });
+  await page.getByLabel("Spread rate", { exact: true }).fill("200");
+  await expect(sr).toContainText("8.02 mils");
+  await expect(sr).toContainText("Enter volume solids to see dry film.");
+  await page.getByLabel("Volume solids").fill("75");
+  await expect(sr).toContainText("Dry film: 6.02 mils");
+
+  await page.getByRole("button", { name: "Mil thickness" }).click();
+  const cov = page.getByRole("region", { name: "Theoretical coverage" });
+  await page.getByLabel("Wet film target").fill("10");
+  await expect(cov).toContainText("160.4 SF/gal");
+  await expect(cov).toContainText("Wet 10.00 mils · Dry 7.50 mils");
+  await page.getByLabel("Loss (optional)").fill("15");
+  await expect(cov).toContainText("Practical: 136.4 SF/gal with 15% loss");
+
+  // A dry film target needs volume solids: 6 mils dry at 60% → 10 wet → 160.4.
+  await page.getByRole("button", { name: "Dry (DFT)" }).click();
+  await page.getByLabel("Volume solids").fill("");
+  await page.getByLabel("Dry film target").fill("6");
+  await expect(cov).toContainText("Required for a dry film target.");
+  await page.getByLabel("Volume solids").fill("60");
+  await expect(cov).toContainText("160.4 SF/gal");
 });

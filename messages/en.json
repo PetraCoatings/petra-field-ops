@@ -245,6 +245,8 @@
     "sqftUnit": "SF",
     "sqydUnit": "SY",
     "sqmUnit": "m²",
+    "sqftPerGalUnit": "SF/gal",
+    "milsUnit": "mils",
     "squareFootage": {
       "title": "Square Footage",
       "summary": "Add up areas and subtract columns, pits and pads.",
@@ -287,7 +289,46 @@
     },
     "spreadRate": {
       "title": "Spread Rate / Mils",
-      "summary": "Convert between square feet per gallon and mil thickness."
+      "summary": "Convert between square feet per gallon and mil thickness.",
+      "mode": "What do you know?",
+      "modes": {
+        "fromRate": "Spread rate",
+        "fromMils": "Mil thickness"
+      },
+      "basis": "Thickness type",
+      "bases": {
+        "wft": "Wet (WFT)",
+        "dft": "Dry (DFT)"
+      },
+      "spreadRate": "Spread rate",
+      "volumeSolids": "Volume solids",
+      "volumeSolidsHelp": "From the data sheet. Optional; needed for dry film.",
+      "volumeSolidsRequired": "Required for a dry film target. It's on the data sheet.",
+      "wftTarget": "Wet film target",
+      "dftTarget": "Dry film target",
+      "loss": "Loss (optional)",
+      "lossHelp": "Waste, profile and porosity. Leave blank for theoretical only.",
+      "wetFilm": "Wet film thickness",
+      "dryFilmIs": "Dry film: {dft} mils",
+      "dryFilmNeedsSolids": "Enter volume solids to see dry film.",
+      "theoreticalCoverage": "Theoretical coverage",
+      "practicalIs": "Practical: {rate} SF/gal with {loss}% loss",
+      "wetDry": "Wet {wft} mils · Dry {dft}",
+      "notSpecified": "not specified",
+      "enterRate": "Enter the spread rate.",
+      "enterMils": "Enter the mil thickness.",
+      "errors": {
+        "number": "Enter a number.",
+        "positive": "Must be greater than zero.",
+        "solidsRange": "Volume solids must be more than 0 and at most 100%.",
+        "lossRange": "Loss must be at least 0 and less than 100%."
+      },
+      "math": {
+        "constant": "1 gallon = {gal} in³. 1 ft² at 1 mil = {sqftMil} in³. So 1 gallon covers {gal} ÷ {sqftMil} = {k} ft² at 1 mil.",
+        "theoretical": "Theoretical",
+        "practical": "Practical",
+        "note": "Theoretical assumes no waste on a smooth surface. Results are rounded for display only."
+      }
     },
     "materialQuantity": {
       "title": "Material Quantity",

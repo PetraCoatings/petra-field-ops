@@ -10,7 +10,7 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 | Phase | Status |
 |---|---|
 | 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Done; sign-in tested for every role against the dev Supabase project |
-| 2. Calculators | In progress: square footage and dew point done; spread rate / mils, material quantity, mix ratio, offline install and "Save to job" next |
+| 2. Calculators | In progress: square footage, dew point and spread rate / mils done; material quantity, mix ratio, offline install and "Save to job" next |
 | 3–9 | Not started |
 
 ## Stack

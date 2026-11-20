@@ -245,6 +245,8 @@
     "sqftUnit": "pie²",
     "sqydUnit": "yd²",
     "sqmUnit": "m²",
+    "sqftPerGalUnit": "pie²/gal",
+    "milsUnit": "mils",
     "squareFootage": {
       "title": "Pies cuadrados",
       "summary": "Sume áreas y reste columnas, fosas y bases.",
@@ -287,7 +289,46 @@
     },
     "spreadRate": {
       "title": "Rendimiento / Mils",
-      "summary": "Convierta entre pies cuadrados por galón y espesor en mils."
+      "summary": "Convierta entre pies cuadrados por galón y espesor en mils.",
+      "mode": "¿Qué dato tiene?",
+      "modes": {
+        "fromRate": "Rendimiento",
+        "fromMils": "Espesor en mils"
+      },
+      "basis": "Tipo de espesor",
+      "bases": {
+        "wft": "Húmedo (WFT)",
+        "dft": "Seco (DFT)"
+      },
+      "spreadRate": "Rendimiento",
+      "volumeSolids": "Sólidos por volumen",
+      "volumeSolidsHelp": "De la hoja técnica. Opcional; necesario para película seca.",
+      "volumeSolidsRequired": "Necesario para un espesor seco. Está en la hoja técnica.",
+      "wftTarget": "Espesor húmedo objetivo",
+      "dftTarget": "Espesor seco objetivo",
+      "loss": "Pérdida (opcional)",
+      "lossHelp": "Desperdicio, perfil y porosidad. Déjelo en blanco para solo el teórico.",
+      "wetFilm": "Espesor de película húmeda",
+      "dryFilmIs": "Película seca: {dft} mils",
+      "dryFilmNeedsSolids": "Ingrese los sólidos por volumen para ver la película seca.",
+      "theoreticalCoverage": "Rendimiento teórico",
+      "practicalIs": "Práctico: {rate} pie²/gal con {loss}% de pérdida",
+      "wetDry": "Húmedo {wft} mils · Seco {dft}",
+      "notSpecified": "no especificado",
+      "enterRate": "Ingrese el rendimiento.",
+      "enterMils": "Ingrese el espesor en mils.",
+      "errors": {
+        "number": "Ingrese un número.",
+        "positive": "Debe ser mayor que cero.",
+        "solidsRange": "Los sólidos por volumen deben ser más de 0 y como máximo 100%.",
+        "lossRange": "La pérdida debe ser al menos 0 y menos de 100%."
+      },
+      "math": {
+        "constant": "1 galón = {gal} pulg³. 1 pie² a 1 mil = {sqftMil} pulg³. Entonces 1 galón cubre {gal} ÷ {sqftMil} = {k} pie² a 1 mil.",
+        "theoretical": "Teórico",
+        "practical": "Práctico",
+        "note": "El teórico supone cero desperdicio en una superficie lisa. Los resultados se redondean solo para mostrarlos."
+      }
     },
     "materialQuantity": {
       "title": "Cantidad de material",
