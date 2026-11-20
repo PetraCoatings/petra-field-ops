@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import { getTranslations } from "next-intl/server";
 import { LanguageSwitcher } from "@/components/language-switcher";
 
@@ -8,11 +9,8 @@ export default async function AuthLayout({ children }: LayoutProps<"/">) {
     <main className="flex flex-1 flex-col items-center justify-center px-4 py-10">
       <div className="w-full max-w-md space-y-6">
         <div className="text-center">
-          <div
-            aria-hidden
-            className="mx-auto mb-3 flex size-16 items-center justify-center rounded-2xl bg-brand-700 text-4xl font-black text-accent-400"
-          >
-            P
+          <div className="mx-auto mb-3 flex justify-center">
+            <BrandMark size={72} />
           </div>
           <p className="text-2xl font-bold text-neutral-950">{t("appName")}</p>
         </div>

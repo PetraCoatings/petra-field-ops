@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
@@ -23,9 +24,7 @@ export default async function FieldLayout({ children }: LayoutProps<"/">) {
       <header className="sticky top-0 z-10 bg-brand-800 pt-[env(safe-area-inset-top)] text-white shadow">
         <div className="mx-auto flex min-h-14 w-full max-w-3xl items-center justify-between gap-3 px-4">
           <Link href="/" className="flex min-h-11 items-center gap-2 text-lg font-bold">
-            <span aria-hidden className="flex size-8 items-center justify-center rounded-lg bg-white/10 font-black text-accent-400">
-              P
-            </span>
+            <BrandMark size={28} onDark />
             {t("shortName")}
           </Link>
           {canAccessManagement(profile.role) && (
