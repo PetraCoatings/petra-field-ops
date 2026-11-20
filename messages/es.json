@@ -237,5 +237,104 @@
     "email": "Escriba un correo válido.",
     "number": "Escriba un número.",
     "positiveNumber": "Escriba un número mayor que cero."
+  },
+  "calculators": {
+    "comingSoon": "Próximamente en la Fase 2.",
+    "showTheMath": "Ver el cálculo",
+    "startOver": "Empezar de nuevo",
+    "sqftUnit": "pie²",
+    "sqydUnit": "yd²",
+    "sqmUnit": "m²",
+    "squareFootage": {
+      "title": "Pies cuadrados",
+      "summary": "Sume áreas y reste columnas, fosas y bases.",
+      "intro": "Ingrese cada área en pies y pulgadas (o en pies decimales, como 12.5). Use las deducciones para lo que no se va a recubrir.",
+      "name": "Nombre",
+      "areaN": "Área {n}",
+      "deductionN": "Deducción {n}",
+      "removeArea": "Quitar {name}",
+      "addOrSubtract": "Sumar o restar",
+      "add": "Sumar",
+      "subtract": "Restar",
+      "shape": "Forma",
+      "shapes": {
+        "rectangle": "Rectángulo",
+        "triangle": "Triángulo",
+        "circle": "Círculo"
+      },
+      "length": "Largo",
+      "width": "Ancho",
+      "base": "Base",
+      "height": "Altura",
+      "diameter": "Diámetro",
+      "quantity": "Cantidad",
+      "feet": "pies",
+      "inches": "pulgadas",
+      "enterDimensions": "Ingrese las medidas",
+      "addArea": "Agregar área",
+      "addDeduction": "Deducción",
+      "netArea": "Área neta",
+      "addedMinusSubtracted": "{added} sumado − {subtracted} restado",
+      "notCounted": "{count, plural, one {# área aún no se cuenta. Complétela o corríjala arriba.} other {# áreas aún no se cuentan. Complételas o corríjalas arriba.}}",
+      "mathNote": "Cada línea se redondea solo para mostrarla. El total usa los valores exactos.",
+      "errors": {
+        "invalid": "Ingrese solo números, como 12 pies 6 pulg o 12.5 pies.",
+        "inchesTooLarge": "Las pulgadas deben ser menos de 12. Ponga los pies completos en la casilla de pies.",
+        "zero": "Debe ser mayor que cero.",
+        "quantity": "Ingrese un número entero, 1 o más.",
+        "negative": "Restó más de lo que sumó. Revise las deducciones."
+      }
+    },
+    "spreadRate": {
+      "title": "Rendimiento / Mils",
+      "summary": "Convierta entre pies cuadrados por galón y espesor en mils."
+    },
+    "materialQuantity": {
+      "title": "Cantidad de material",
+      "summary": "Galones y kits necesarios para un área, con desperdicio."
+    },
+    "mixRatio": {
+      "title": "Proporción de mezcla",
+      "summary": "Cantidades de Parte A y Parte B por volumen o peso."
+    },
+    "dewPoint": {
+      "title": "Punto de rocío",
+      "summary": "Verifique que la superficie esté lo suficientemente por encima del punto de rocío para recubrir.",
+      "unit": "Unidad de temperatura",
+      "airTemp": "Temperatura del aire",
+      "humidity": "Humedad relativa",
+      "substrateTemp": "Temperatura de la superficie (sustrato)",
+      "substrateHelp": "Mida la superficie del piso, no el aire.",
+      "belowZero": "Bajo cero",
+      "errors": {
+        "number": "Ingrese un número.",
+        "rhRange": "La humedad debe ser mayor que 0 y como máximo 100%."
+      },
+      "dewPoint": "Punto de rocío",
+      "minimumSubstrate": "La superficie debe estar al menos a {temp} (punto de rocío + {margin}).",
+      "enterReadings": "Ingrese la temperatura del aire y la humedad.",
+      "status": {
+        "ok": {
+          "title": "Se puede recubrir",
+          "body": "La superficie está {spread} por encima del punto de rocío. El mínimo es {margin}."
+        },
+        "belowMargin": {
+          "title": "No recubrir",
+          "body": "La superficie está solo {spread} por encima del punto de rocío. Debe estar al menos {margin} por encima."
+        },
+        "condensation": {
+          "title": "No recubrir: se está formando humedad",
+          "body": "La superficie está en o por debajo del punto de rocío ({spread} por debajo). Se está condensando humedad sobre ella."
+        }
+      },
+      "outsideRange": "La temperatura del aire está fuera del rango en que esta fórmula es precisa. Tome el resultado como aproximado.",
+      "marginNote": "Margen: {margin} por encima del punto de rocío (configuración de la empresa). Si la hoja técnica del producto exige más, siga la hoja técnica.",
+      "math": {
+        "formula": "Fórmula de Magnus, con T en °C y HR en %:",
+        "minimum": "Superficie mínima",
+        "spread": "Superficie − punto de rocío",
+        "source": "Coeficientes de Alduchov y Eskridge (1996), precisos a unos 0.4 °C entre {min} °C y {max} °C. La verificación usa los valores redondeados a 0.1°, como se muestran."
+      }
+    }
   }
 }
