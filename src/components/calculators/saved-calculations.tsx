@@ -96,7 +96,8 @@ export async function SavedCalculations({ projectId, profile }: { projectId: str
         const small = i.basis === "volume" ? t("flOzUnit") : t("ozUnit");
         const both = (x: number) => {
           const s = splitUnits(x, i.basis);
-          return s.large > 0 ? `${s.large} ${large} ${n(s.small, 1)} ${small}` : `${n(s.small, 1)} ${small}`;
+          if (s.large === 0) return `${n(s.small, 1)} ${small}`;
+          return s.small === 0 ? `${s.large} ${large}` : `${s.large} ${large} ${n(s.small, 1)} ${small}`;
         };
         return {
           headline: t("saved.mixRatio.headline", { a: both(o.a), b: both(o.b) }),
