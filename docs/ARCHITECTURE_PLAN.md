@@ -1,6 +1,6 @@
 # Petra Field Operations — Architecture & Development Plan
 
-**Status:** Proposal, awaiting approval. No application code has been written yet.
+**Status:** Owner answers incorporated (§0). Awaiting final go-ahead for Phase 1.
 **Owner:** Petra Industrial Flooring LLC (PIF)
 **Scope:** Covers the 11 items in section 23 of the master development prompt ("Required First Response").
 
@@ -8,6 +8,30 @@
 > - **[Q#]** is an open question listed in §11. It must be answered before the phase that depends on it.
 > - **[Assumption]** is a default I'll use unless you tell me otherwise.
 > - **[Verify]** is a fact I'll confirm against current vendor documentation before building the feature that depends on it. I won't rely on memory for it.
+
+---
+
+## 0. Decisions from owner review (2026‑11‑20)
+
+These answers override any conflicting default elsewhere in this document.
+
+| # | Decision | How the app implements it |
+|---|---|---|
+| Q1 | Workweek runs **Monday → Sunday**. | Fixed 168‑hour workweek starting **Monday 12:00 AM, America/Chicago** **[Assumption: midnight Central]**, stored as an effective-dated setting. Pay frequency (weekly or bi-weekly) is still open and is only needed by Phase 6. |
+| Q2 | **Everyone clocks in.** | Every role has the Time Clock. Each employee has `flsa_status`. Payroll overtime math runs for nonexempt (hourly) employees only. Exempt staff, if any, record time but get no OT calculation. |
+| Q3 | Crews both meet at the shop and go direct. Out-of-town hotel work is common. No written attorney policy. Owner wants hours the office can **enter manually** into Gusto, with weighted-average OT across the 3 rates. | **Conservative default:** all recorded Drive and Ride time counts as hours worked toward the 40-hour threshold. This may overpay slightly in edge cases (for example, passenger time outside normal hours on overnight trips) but never underpays. The clock screen will show a short plain-language reminder: *"Don't clock in for your normal drive from home to the job or shop. Hotel time isn't work time."* A written travel policy reviewed by a CPA or attorney is still recommended. |
+| Q4 | Lunch is 30–60 min. Employees may clock out for lunch **or** work through it. | Lunch is a **"Start lunch / End lunch"** action (an unpaid break segment). Working through lunch simply means no break is recorded. **Rule:** a break of **30 minutes or more** is unpaid. A break **under 30 minutes is counted as paid** and flagged for review, because short breaks are generally compensable under federal rules. A break left open is flagged as a missing "End lunch". |
+| Q5 | The $40/day out-of-town per diem is paid in cash outside payroll. Year-end bonuses are handled outside the app. | The engine computes **only Job, Drive and Ride hourly pay plus weighted-average OT**. Nothing about per diem or bonuses is tracked. Note: a discretionary year-end bonus doesn't affect overtime. A bonus that is promised or formula-based can, so confirm with your CPA if bonuses are ever announced in advance. |
+| Q6 | Hours are entered into Gusto **by hand** and will stay that way. | No Gusto integration. Phase 6 delivers a **payroll entry sheet** (on screen, PDF and CSV) laid out in the order the office manager enters it into Gusto. Before Phase 6 I'll verify how Gusto's manual-entry screen treats multiple rates and overtime, so OT isn't counted twice. |
+| Q7 | Exact punch times, no rounding. Round only final pay to the cent. | ROUND_HALF_UP, once per employee per workweek. |
+| Q8 | Crews are assembled per project. A crew lead can clock in **anyone present**. | `crews` tables dropped. Crew membership = `project_assignments`. A crew lead's group clock-in can include any active employee. Every record is attributed to the lead, and the GPS is labelled as the lead's device. |
+| Q9 | Crew members may edit their own time, limited to recent entries. | **Self-edit window: 24 hours from the time being changed**, enforced in the database, not just the screen. Each edit requires a short reason and is audited, and the original is preserved. After 24 hours, or once the week is submitted, the employee can only **request** a change, which goes to the crew lead or office. The window length is an admin setting. |
+| Q10 | Employees may see **their own** rates, but rates must not be visible when someone else is looking at the screen. | Rates appear **only** on a separate **"My Pay Rates"** page, never on the home screen, Time Clock or timesheet. They're hidden behind **"Tap to show"**, which requires re-entering the password or using device Face ID / fingerprint where supported **[Verify passkey support]**. They auto-hide after 30 seconds or when the app is backgrounded. A crew lead's crew screens never include rates; this is enforced by the database, so no screen can leak them. |
+| Q11 | Personal phones only. No tablets. | Minimal offline cache (only the user's own assigned jobs and data). Sign-out wipes the local data. No company data in the phone's photo gallery unless the user saves it there themselves. GPS permission is requested with a plain explanation of *when* it's used. |
+| Q12 | Photos should be good enough for social media, but are mainly for verification. | Stored at **up to 4096 px on the long edge, high-quality JPEG (~1.5–4 MB)** plus a small thumbnail. The original capture time is kept. *Storage note: the Supabase free plan's storage fills quickly at this size, so production needs a paid plan.* |
+| Q13 | Spanish: **build it in now.** | English and Spanish from Phase 1 (`next-intl`). Language is a per-user setting with a switch on the sign-in screen. Every UI string goes through translation files. I'll write the Spanish strings; **a native speaker at Petra should review them** before launch. |
+| Q14 | Free Supabase and Vercel accounts exist. | Fine for development. Before production: **Vercel Pro** (Hobby is non-commercial) and **paid Supabase** (free projects pause when idle and have no automated backups) **[Verify current terms]**. Development and tests run against a local Postgres 16 in this environment. A hosted Supabase **dev** project (not production) can be connected later via environment secrets. |
+| Q15 | Use the exact coverage constant and a **5 °F** dew-point margin. | Constant = **1604.17** (231 in³/gal ÷ 0.144 in³ per ft²·mil), defined once in code. *This changes the prompt's examples slightly: 200 SF/gal → **8.02 mils**; 10 mils → **160.4 SF/gal**.* Tests will use the exact constant. Dew-point warning when substrate temperature is less than **5 °F (≈2.8 °C)** above dew point, unless the product's data sheet specifies a different margin. |
 
 ---
 
