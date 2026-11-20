@@ -446,6 +446,61 @@
     "lbUnit": "lb",
     "flOzUnit": "fl oz",
     "ozUnit": "oz",
-    "offlineReady": "Saved on this phone: the calculators work without signal."
+    "offlineReady": "Saved on this phone: the calculators work without signal.",
+    "save": {
+      "button": "Save to job…",
+      "loading": "Loading jobs…",
+      "needsResult": "Finish the calculation to save it.",
+      "title": "Save to job",
+      "job": "Job",
+      "chooseJob": "Choose a job",
+      "label": "Note (optional)",
+      "labelPlaceholder": "For example: Bay 2, second coat",
+      "save": "Save",
+      "saving": "Saving…",
+      "cancel": "Cancel",
+      "saved": "Saved to {project}.",
+      "openJob": "Open job",
+      "done": "Done",
+      "noJobs": "You aren't on any open jobs. Ask your crew lead or the office to add you.",
+      "errors": {
+        "offline": "Saving needs a signal. Your numbers stay on this phone, so save when you're back online.",
+        "invalid": "This result can't be saved. Check the numbers and try again.",
+        "forbidden": "You can't save to that job. You may have been taken off it.",
+        "generic": "Couldn't save. Please try again."
+      }
+    },
+    "saved": {
+      "title": "Saved calculations",
+      "empty": "Nothing saved yet. Use \"Save to job\" on any calculator.",
+      "by": "{name} · {when}",
+      "formerEmployee": "Former employee",
+      "delete": "Delete",
+      "confirmDelete": "Delete this saved result? This can't be undone.",
+      "squareFootage": {
+        "headline": "{net} SF",
+        "detail": "{count, plural, one {# area} other {# areas}} · {added} added − {subtracted} subtracted"
+      },
+      "spreadRate": {
+        "fromRate": "{rate} SF/gal → {wft} mils wet",
+        "dry": "Dry film {dft} mils ({pct}% volume solids)",
+        "fromMilsWet": "{mils} mils wet → {rate} SF/gal",
+        "fromMilsDry": "{mils} mils dry ({pct}% volume solids) → {rate} SF/gal",
+        "practical": "Practical {rate} SF/gal with {loss}% loss"
+      },
+      "materialQuantity": {
+        "headline": "{total} gal",
+        "detail": "{area} SF · {coats, plural, one {# coat} other {# coats}} · {rate} SF/gal · {waste}% waste"
+      },
+      "mixRatio": {
+        "headline": "A {a} + B {b}",
+        "detail": "{ratioA} : {ratioB} by {basis} · total {total}"
+      },
+      "dewPoint": {
+        "headline": "Dew point {dp}",
+        "detail": "Air {air} · {rh}% RH · margin {margin}",
+        "surface": "Surface {surface}"
+      }
+    }
   }
 }

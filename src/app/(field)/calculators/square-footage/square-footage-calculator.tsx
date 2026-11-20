@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { Minus, Plus, RotateCcw, Trash2 } from "lucide-react";
 import { formatNumber } from "@/components/calculators/number";
 import { Segmented } from "@/components/calculators/segmented";
+import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -108,6 +109,11 @@ export function SquareFootageCalculator() {
   const counted = inputs.filter((x): x is AreaInput => x !== null);
   const result = calculateArea(counted);
   const notCounted = areas.filter((d, i) => inputs[i] === null && !isBlank(d)).length;
+  // Saveable only when every area entered is complete and the net isn't negative.
+  const saveInputs =
+    counted.length > 0 && notCounted === 0 && result.net >= 0
+      ? { areas: areas.flatMap((d, i) => (inputs[i] ? [{ ...inputs[i], name: d.name.trim() || undefined }] : [])) }
+      : null;
   const fmt = (n: number, digits = 2) => formatNumber(locale, n, digits);
   const dimLabels = (shape: AreaShape) =>
     shape === "rectangle"
@@ -280,6 +286,8 @@ export function SquareFootageCalculator() {
           </p>
         )}
       </section>
+
+      <SaveToJob type="square_footage" inputs={saveInputs} />
 
       <ShowTheMath label={tc("showTheMath")}>
         {counted.length === 0 ? (

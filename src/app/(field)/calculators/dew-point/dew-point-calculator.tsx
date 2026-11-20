@@ -5,6 +5,7 @@ import { CircleCheck, Droplets, OctagonAlert, RotateCcw, TriangleAlert } from "l
 import { formatNumber, parseDecimal } from "@/components/calculators/number";
 import { NumberInput } from "@/components/calculators/number-input";
 import { Segmented } from "@/components/calculators/segmented";
+import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -83,6 +84,10 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
           marginF,
         })
       : null;
+
+  const saveInputs = result
+    ? { unit: draft.unit, airTemp: air.value, relativeHumidity: rh.value, substrateTemp: substrate.value }
+    : null;
 
   const switchUnit = (unit: TempUnit) => {
     if (unit === draft.unit) return;
@@ -194,6 +199,8 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
           {t("marginNote", { margin: `${formatNumber(locale, marginF, marginF % 1 === 0 ? 0 : 1)} °F` })}
         </p>
       </section>
+
+      <SaveToJob type="dew_point" inputs={saveInputs} />
 
       <ShowTheMath label={tc("showTheMath")}>
         {result ? (

@@ -21,7 +21,7 @@ export function signedInTestsEnabled(): boolean {
   );
 }
 
-function api(pathname: string, init: RequestInit = {}) {
+export function api(pathname: string, init: RequestInit = {}) {
   const key = process.env.E2E_SUPABASE_SECRET_KEY!;
   return fetch(`${process.env.E2E_SUPABASE_URL}${pathname}`, {
     ...init,

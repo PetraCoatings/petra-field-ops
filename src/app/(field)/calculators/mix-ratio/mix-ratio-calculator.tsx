@@ -5,6 +5,7 @@ import { FlaskConical, RotateCcw } from "lucide-react";
 import { formatNumber, parseDecimal } from "@/components/calculators/number";
 import { NumberInput } from "@/components/calculators/number-input";
 import { Segmented } from "@/components/calculators/segmented";
+import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -73,6 +74,10 @@ export function MixRatioCalculator() {
     ra.value !== undefined && rb.value !== undefined && amount !== undefined && amount > 0
       ? calculateMix({ ratioA: ra.value, ratioB: rb.value, known: draft.known, amount })
       : null;
+
+  const saveInputs = result
+    ? { basis: draft.basis, ratioA: ra.value, ratioB: rb.value, known: draft.known, amount }
+    : null;
 
   const both = (smallAmount: number) => {
     const s = splitUnits(smallAmount, draft.basis);
@@ -172,6 +177,8 @@ export function MixRatioCalculator() {
       <p className="rounded-xl border-l-4 border-accent-600 bg-amber-50 px-4 py-3 text-base font-medium text-amber-950">
         {isVolume ? t("warnings.volume") : t("warnings.weight")}
       </p>
+
+      <SaveToJob type="mix_ratio" inputs={saveInputs} />
 
       <ShowTheMath label={tc("showTheMath")}>
         {result && ra.value !== undefined && rb.value !== undefined && amount !== undefined ? (

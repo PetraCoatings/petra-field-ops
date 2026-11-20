@@ -5,6 +5,7 @@ import { PaintBucket, RotateCcw } from "lucide-react";
 import { formatNumber, parseDecimal } from "@/components/calculators/number";
 import { NumberInput } from "@/components/calculators/number-input";
 import { Segmented } from "@/components/calculators/segmented";
+import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -63,6 +64,16 @@ export function MaterialQuantityCalculator() {
         wastePct: waste.value!,
         kitGallons: kit.value,
       })
+    : null;
+  const saveInputs = result
+    ? {
+        areaSqft: area.value,
+        coverage:
+          draft.coverageMode === "rate" ? { mode: "rate", spreadRate: coverage.value } : { mode: "mils", wftMils: coverage.value },
+        coats: coats.value,
+        wastePct: waste.value,
+        kitGallons: kit.value,
+      }
     : null;
   const missingWasteOnly =
     !result && area.value !== undefined && spreadRate !== undefined && coats.value !== undefined && waste.value === undefined && !waste.error;
@@ -139,6 +150,8 @@ export function MaterialQuantityCalculator() {
           </p>
         )}
       </section>
+
+      <SaveToJob type="material_quantity" inputs={saveInputs} />
 
       <ShowTheMath label={tc("showTheMath")}>
         {result ? (
