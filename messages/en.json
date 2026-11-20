@@ -366,7 +366,42 @@
     },
     "mixRatio": {
       "title": "Mix Ratio",
-      "summary": "Part A and Part B amounts by volume or weight."
+      "summary": "Part A and Part B amounts by volume or weight.",
+      "basis": "Ratio is by",
+      "bases": {
+        "volume": "Volume",
+        "weight": "Weight"
+      },
+      "ratio": "Mix ratio (from the data sheet)",
+      "partA": "Part A",
+      "partB": "Part B",
+      "ratioHelp": "For example 2 : 1. Decimals are fine (4.3 : 1).",
+      "known": "What do you know?",
+      "knownOptions": {
+        "total": "Batch size",
+        "a": "Part A amount",
+        "b": "Part B amount"
+      },
+      "amountFor": {
+        "total": "Batch size",
+        "a": "Part A on hand",
+        "b": "Part B on hand"
+      },
+      "result": "Mix by {basis}",
+      "total": "Total batch: {amount}",
+      "enterInputs": "Enter the ratio and an amount.",
+      "warnings": {
+        "volume": "This ratio is by volume. Measure with marked containers, not a scale.",
+        "weight": "This ratio is by weight. Use a scale, not measuring containers."
+      },
+      "errors": {
+        "number": "Enter a number.",
+        "positive": "Must be greater than zero.",
+        "notNegative": "Can't be negative."
+      },
+      "math": {
+        "note": "Amounts are rounded to 0.1 {unit} so Part A + Part B always equals the total. {per} {unit} = 1 {large}."
+      }
     },
     "dewPoint": {
       "title": "Dew Point",
@@ -407,6 +442,9 @@
         "source": "Coefficients from Alduchov & Eskridge (1996), accurate to about 0.4 °C between {min} °C and {max} °C. The check uses the values rounded to 0.1°, as shown."
       }
     },
-    "galUnit": "gal"
+    "galUnit": "gal",
+    "lbUnit": "lb",
+    "flOzUnit": "fl oz",
+    "ozUnit": "oz"
   }
 }

@@ -366,7 +366,42 @@
     },
     "mixRatio": {
       "title": "Proporción de mezcla",
-      "summary": "Cantidades de Parte A y Parte B por volumen o peso."
+      "summary": "Cantidades de Parte A y Parte B por volumen o peso.",
+      "basis": "La proporción es por",
+      "bases": {
+        "volume": "Volumen",
+        "weight": "Peso"
+      },
+      "ratio": "Proporción de mezcla (de la hoja técnica)",
+      "partA": "Parte A",
+      "partB": "Parte B",
+      "ratioHelp": "Por ejemplo 2 : 1. Se aceptan decimales (4.3 : 1).",
+      "known": "¿Qué dato tiene?",
+      "knownOptions": {
+        "total": "Tamaño de mezcla",
+        "a": "Cantidad de A",
+        "b": "Cantidad de B"
+      },
+      "amountFor": {
+        "total": "Tamaño de mezcla",
+        "a": "Parte A disponible",
+        "b": "Parte B disponible"
+      },
+      "result": "Mezcla por {basis}",
+      "total": "Mezcla total: {amount}",
+      "enterInputs": "Ingrese la proporción y una cantidad.",
+      "warnings": {
+        "volume": "Esta proporción es por volumen. Mida con recipientes marcados, no con báscula.",
+        "weight": "Esta proporción es por peso. Use una báscula, no recipientes de medir."
+      },
+      "errors": {
+        "number": "Ingrese un número.",
+        "positive": "Debe ser mayor que cero.",
+        "notNegative": "No puede ser negativo."
+      },
+      "math": {
+        "note": "Las cantidades se redondean a 0.1 {unit} para que Parte A + Parte B siempre sume el total. {per} {unit} = 1 {large}."
+      }
     },
     "dewPoint": {
       "title": "Punto de rocío",
@@ -407,6 +442,9 @@
         "source": "Coeficientes de Alduchov y Eskridge (1996), precisos a unos 0.4 °C entre {min} °C y {max} °C. La verificación usa los valores redondeados a 0.1°, como se muestran."
       }
     },
-    "galUnit": "gal"
+    "galUnit": "gal",
+    "lbUnit": "lb",
+    "flOzUnit": "oz fl",
+    "ozUnit": "oz"
   }
 }
