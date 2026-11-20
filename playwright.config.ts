@@ -1,10 +1,10 @@
 import { defineConfig, devices } from "@playwright/test";
 
 /**
- * Browser tests. Phase 1 runs WITHOUT a real Supabase backend (pointed at an
- * unreachable placeholder) and covers everything that doesn't need a
- * signed-in session. Signed-in role tests are added once a hosted dev
- * Supabase project is connected (see docs/SETUP.md).
+ * Browser tests. Without E2E_SUPABASE_* variables the app points at an
+ * unreachable placeholder and only the signed-out tests run. With them set to
+ * a DEV Supabase project, e2e/roles.spec.ts also signs in as every role using
+ * temporary logins that are created before and deleted after the run.
  */
 const PORT = 3100;
 const env = {
@@ -14,6 +14,8 @@ const env = {
 
 export default defineConfig({
   testDir: "e2e",
+  globalSetup: "./e2e/support/global-setup.ts",
+  globalTeardown: "./e2e/support/global-teardown.ts",
   fullyParallel: true,
   reporter: process.env.CI ? "github" : "list",
   use: {

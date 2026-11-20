@@ -17,6 +17,7 @@
    - With the default templates, a password-reset link must be opened in the same browser where the reset was requested (Supabase's one-time-code security). The custom templates remove that limitation.
 5. **Authentication → Policies:** minimum password length 10, require letters and digits.
 6. Apply the database migrations: `npx supabase link --project-ref <ref>` then `npx supabase db push`.
+   - **No direct database connection?** (Claude cloud sessions can only make HTTPS requests, so port 5432 is blocked.) Paste each file in `supabase/migrations/`, oldest first, into **SQL Editor → New query** and click **Run**. Never paste anything from `supabase/tests/`.
 
 ## 2. Create the first office administrator
 
@@ -51,6 +52,7 @@ npm run dev
 | `npm run test:unit` | Pure logic (navigation rules, form parsing, translations) |
 | `npm run test:db` | Applies all migrations to a fresh PostgreSQL database and tests Row Level Security as each role, including forbidden requests. Needs `TEST_DATABASE_URL` (PostgreSQL 16+). |
 | `npm run test:e2e` | Browser tests on iPhone, Android and desktop sizes. Builds the app first. Set `PW_CHROMIUM_PATH` to use an already-installed Chromium. |
+| `npm run test:e2e` with a dev project | Also signs in as **every role** and checks which pages each may open. Set `E2E_SUPABASE_URL`, `E2E_SUPABASE_KEY` (publishable) and `E2E_SUPABASE_SECRET_KEY` to the **dev** project's values. Temporary `@example.test` logins are created before the run and deleted after it; their audit-log rows remain. Never point this at production. |
 | `npm run typecheck`, `npm run lint` | Static checks |
 | `npm run check:bundle` | After a build, fails if a server secret appears in browser code |
 

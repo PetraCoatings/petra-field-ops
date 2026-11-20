@@ -9,7 +9,7 @@ Field operations app (installable PWA) for Petra Industrial Flooring LLC: time c
 
 | Phase | Status |
 |---|---|
-| 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Built; awaiting sign-in testing against a hosted dev Supabase project |
+| 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Done; sign-in tested for every role against the dev Supabase project |
 | 2–9 | Not started |
 
 ## Stack
