@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronRight, Droplets, FlaskConical, Layers, PaintBucket, Ruler } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { OfflineReady } from "@/components/offline/offline-ready";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireProfile } from "@/lib/auth/dal";
 
@@ -25,6 +26,9 @@ export default async function CalculatorsPage() {
   return (
     <>
       <PageHeader title={t("home.modules.calculators")} backHref="/" backLabel={t("common.home")} />
+      <div className="mb-3">
+        <OfflineReady label={t("calculators.offlineReady")} />
+      </div>
       <ul className="grid gap-3 sm:grid-cols-2">
         {CALCULATORS.map(({ key, href, Icon }) => {
           const body = (

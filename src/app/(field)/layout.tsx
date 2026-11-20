@@ -2,6 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { ServiceWorkerRegistration } from "@/components/offline/service-worker-registration";
 import { Alert } from "@/components/ui/alert";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { requireProfile } from "@/lib/auth/dal";
@@ -21,6 +22,7 @@ export default async function FieldLayout({ children }: LayoutProps<"/">) {
   const profile = await requireProfile();
   return (
     <>
+      <ServiceWorkerRegistration />
       <header className="sticky top-0 z-10 bg-brand-800 pt-[env(safe-area-inset-top)] text-white shadow">
         <div className="mx-auto flex min-h-14 w-full max-w-3xl items-center justify-between gap-3 px-4">
           <Link href="/" className="flex min-h-11 items-center gap-2 text-lg font-bold">
