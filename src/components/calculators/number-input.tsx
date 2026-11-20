@@ -10,6 +10,7 @@ export function NumberInput({
   error,
   help,
   belowZeroLabel,
+  labelHidden = false,
 }: {
   id: string;
   label: string;
@@ -23,6 +24,8 @@ export function NumberInput({
    * phone number keypads often have no minus key. The text is its label.
    */
   belowZeroLabel?: string;
+  /** Keep the label for screen readers only (when a visible group heading already says it). */
+  labelHidden?: boolean;
 }) {
   const negative = value.trim().startsWith("-");
   const toggleSign = () => {
@@ -32,7 +35,7 @@ export function NumberInput({
   const describedBy = error ? `${id}-error` : help ? `${id}-help` : undefined;
   return (
     <div className="space-y-1">
-      <label htmlFor={id} className="block text-sm font-semibold text-neutral-800">
+      <label htmlFor={id} className={labelHidden ? "sr-only" : "block text-sm font-semibold text-neutral-800"}>
         {label}
       </label>
       <div className="flex gap-2">

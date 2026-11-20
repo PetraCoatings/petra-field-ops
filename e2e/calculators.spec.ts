@@ -128,4 +128,34 @@ test("an installer uses the calculators", async ({ page }) => {
   await page.getByRole("button", { name: "Wet mils" }).click();
   await page.getByLabel("Wet film per coat").fill("10");
   await expect(mq).toContainText("27.43 gal"); // 2000 × 2 ÷ 160.4167 × 1.10
+
+  // --- Mix ratio: 2:1 by volume, 3 gal batch → 2 gal A + 1 gal B.
+  await page.getByRole("link", { name: "Calculators" }).click();
+  await page.getByRole("link", { name: /Mix Ratio/ }).click();
+  await expect(page.getByRole("heading", { name: "Mix Ratio", level: 1 })).toBeVisible();
+  const mr = page.getByRole("region", { name: "Mix by volume" });
+  await page.getByLabel("Part A", { exact: true }).fill("2");
+  await page.getByLabel("Part B", { exact: true }).fill("1");
+  await page.getByLabel("Batch size, gal").fill("3");
+  await expect(mr).toContainText("2 gal 0.0 fl oz");
+  await expect(mr).toContainText("1 gal 0.0 fl oz");
+  await expect(mr).toContainText("Total batch: 3 gal 0.0 fl oz");
+
+  // Rounded parts always add up: 2:1 of 100 fl oz → 66.7 + 33.3.
+  await page.getByLabel("Batch size, gal").fill("");
+  await page.getByLabel("Batch size, fl oz").fill("100");
+  await expect(mr).toContainText("66.7 fl oz");
+  await expect(mr).toContainText("33.3 fl oz");
+  await expect(mr).toContainText("Total batch: 100.0 fl oz");
+
+  // By weight, from the Part B on hand: 4:1, 5 lb of B → 20 lb of A.
+  await page.getByRole("button", { name: "Weight" }).click();
+  await page.getByRole("button", { name: "Part B amount" }).click();
+  await page.getByLabel("Part A", { exact: true }).fill("4");
+  await page.getByLabel("Part B on hand, lb").fill("5");
+  await page.getByLabel("Part B on hand, oz").fill("");
+  const mw = page.getByRole("region", { name: "Mix by weight" });
+  await expect(mw).toContainText("20 lb 0.0 oz");
+  await expect(mw).toContainText("Total batch: 25 lb 0.0 oz");
+  await expect(page.getByText("This ratio is by weight. Use a scale")).toBeVisible();
 });
