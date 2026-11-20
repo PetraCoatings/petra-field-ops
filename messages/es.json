@@ -445,6 +445,7 @@
     "galUnit": "gal",
     "lbUnit": "lb",
     "flOzUnit": "oz fl",
-    "ozUnit": "oz"
+    "ozUnit": "oz",
+    "offlineReady": "Guardadas en este teléfono: las calculadoras funcionan sin señal."
   }
 }

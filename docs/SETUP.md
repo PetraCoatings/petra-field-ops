@@ -62,4 +62,5 @@ npm run dev
 
 - **Next.js 16:** request middleware lives in `src/proxy.ts` (the new name for `middleware.ts`). Cache Components is turned off on purpose; see `next.config.ts`.
 - **Languages:** text lives in `messages/en.json` and `messages/es.json`. A test fails if the two files ever have different keys. Spanish text should be reviewed by a native speaker at Petra before launch.
+- **Offline (airplane mode):** `public/sw.js` is a hand-written service worker, registered for signed-in users in production builds only. It saves the five calculator pages and their code, so they open with no signal. Every other page shows `public/offline.html` when offline. Job, time and pay data are never cached. Signing out (or landing on the sign-in page) clears the saved pages and remembered calculator entries. On iPhone, add the app to the Home Screen; Safari may otherwise drop saved data from sites not opened for about a week. When adding a new offline page, list it in `OFFLINE_ROUTES` in `public/sw.js`.
 - **Brand:** colors in `src/app/globals.css` (`--color-brand-*`) and the "P" icons in `public/icons/` are placeholders for Petra's real logo and colors.
