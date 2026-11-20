@@ -446,6 +446,61 @@
     "lbUnit": "lb",
     "flOzUnit": "oz fl",
     "ozUnit": "oz",
-    "offlineReady": "Guardadas en este teléfono: las calculadoras funcionan sin señal."
+    "offlineReady": "Guardadas en este teléfono: las calculadoras funcionan sin señal.",
+    "save": {
+      "button": "Guardar en trabajo…",
+      "loading": "Cargando trabajos…",
+      "needsResult": "Termine el cálculo para guardarlo.",
+      "title": "Guardar en trabajo",
+      "job": "Trabajo",
+      "chooseJob": "Elija un trabajo",
+      "label": "Nota (opcional)",
+      "labelPlaceholder": "Por ejemplo: Bahía 2, segunda capa",
+      "save": "Guardar",
+      "saving": "Guardando…",
+      "cancel": "Cancelar",
+      "saved": "Guardado en {project}.",
+      "openJob": "Abrir trabajo",
+      "done": "Listo",
+      "noJobs": "No está asignado a ningún trabajo abierto. Pida a su líder de cuadrilla o a la oficina que lo agreguen.",
+      "errors": {
+        "offline": "Para guardar se necesita señal. Sus números quedan en este teléfono; guarde cuando vuelva a tener conexión.",
+        "invalid": "Este resultado no se puede guardar. Revise los números e intente de nuevo.",
+        "forbidden": "No puede guardar en ese trabajo. Es posible que lo hayan quitado de él.",
+        "generic": "No se pudo guardar. Intente de nuevo."
+      }
+    },
+    "saved": {
+      "title": "Cálculos guardados",
+      "empty": "Nada guardado todavía. Use \"Guardar en trabajo\" en cualquier calculadora.",
+      "by": "{name} · {when}",
+      "formerEmployee": "Ex empleado",
+      "delete": "Eliminar",
+      "confirmDelete": "¿Eliminar este resultado guardado? No se puede deshacer.",
+      "squareFootage": {
+        "headline": "{net} pie²",
+        "detail": "{count, plural, one {# área} other {# áreas}} · {added} sumado − {subtracted} restado"
+      },
+      "spreadRate": {
+        "fromRate": "{rate} pie²/gal → {wft} mils húmedos",
+        "dry": "Película seca {dft} mils ({pct}% sólidos por volumen)",
+        "fromMilsWet": "{mils} mils húmedos → {rate} pie²/gal",
+        "fromMilsDry": "{mils} mils secos ({pct}% sólidos por volumen) → {rate} pie²/gal",
+        "practical": "Práctico {rate} pie²/gal con {loss}% de pérdida"
+      },
+      "materialQuantity": {
+        "headline": "{total} gal",
+        "detail": "{area} pie² · {coats, plural, one {# capa} other {# capas}} · {rate} pie²/gal · {waste}% de desperdicio"
+      },
+      "mixRatio": {
+        "headline": "A {a} + B {b}",
+        "detail": "{ratioA} : {ratioB} por {basis} · total {total}"
+      },
+      "dewPoint": {
+        "headline": "Punto de rocío {dp}",
+        "detail": "Aire {air} · {rh}% HR · margen {margin}",
+        "surface": "Superficie {surface}"
+      }
+    }
   }
 }

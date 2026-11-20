@@ -5,6 +5,7 @@ import { Layers, RotateCcw } from "lucide-react";
 import { formatNumber, parseDecimal } from "@/components/calculators/number";
 import { NumberInput } from "@/components/calculators/number-input";
 import { Segmented } from "@/components/calculators/segmented";
+import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -66,6 +67,12 @@ export function SpreadRateCalculator() {
   const milsResult =
     draft.mode === "fromMils" && mils.value !== undefined && !solids.error && !loss.error && !needsSolids
       ? fromMils({ mils: mils.value, basis: draft.basis, volumeSolidsPct: solids.value, lossPct: loss.value })
+      : null;
+
+  const saveInputs = rateResult
+    ? { mode: "fromRate", spreadRate: rate.value, volumeSolidsPct: solids.value }
+    : milsResult
+      ? { mode: "fromMils", mils: mils.value, basis: draft.basis, volumeSolidsPct: solids.value, lossPct: loss.value }
       : null;
 
   const K = f(SQFT_MILS_PER_GALLON, 2);
@@ -189,6 +196,8 @@ export function SpreadRateCalculator() {
           </>
         )}
       </section>
+
+      <SaveToJob type="spread_rate" inputs={saveInputs} />
 
       <ShowTheMath label={tc("showTheMath")}>
         <p className="font-sans">{t("math.constant", { gal: IN3_PER_GALLON, sqftMil: IN3_PER_SQFT_MIL, k: K })}</p>

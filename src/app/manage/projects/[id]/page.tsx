@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -21,7 +22,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function EditProjectPage({ params, searchParams }: PageProps<"/manage/projects/[id]">) {
-  await requireRole("project_manager", "office_admin");
+  const profile = await requireRole("project_manager", "office_admin");
   const { id } = await params;
   const { created } = await searchParams;
   if (!UUID_RE.test(id)) notFound();
@@ -80,6 +81,7 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
           removeAction={removeContact.bind(null, project.id)}
         />
       </Card>
+      <SavedCalculations projectId={project.id} profile={profile} />
     </div>
   );
 }

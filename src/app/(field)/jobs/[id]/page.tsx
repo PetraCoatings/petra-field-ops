@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { ExternalLink, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { Card, DefinitionList } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProjectStatusBadge } from "@/components/ui/status-badge";
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: PageProps<"/jobs/[id]">): Pro
 
 /** Job file (read-only in Phase 1). */
 export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
-  await requireProfile();
+  const profile = await requireProfile();
   const job = await loadJob((await params).id);
   if (!job) notFound();
 
@@ -156,6 +157,8 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
           </ul>
         )}
       </Card>
+
+      <SavedCalculations projectId={job.id} profile={profile} />
 
       <p className="text-sm text-neutral-600">{t("jobs.upcomingSections")}</p>
     </div>
