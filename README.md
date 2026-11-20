@@ -1,5 +1,17 @@
 # Petra Field Operations
 
-Field operations Progressive Web App (PWA) for Petra Industrial Flooring LLC. It covers the time clock, payroll review, calculators, the job center, field work orders, daily field reports and the product and SDS libraries.
+Field operations app (installable PWA) for Petra Industrial Flooring LLC: time clock, payroll review, calculators, Job Center, field work orders, daily field reports, and product/SDS libraries. English and Spanish.
 
-**Status:** Planning. See [docs/ARCHITECTURE_PLAN.md](docs/ARCHITECTURE_PLAN.md). Implementation starts after the plan is approved.
+- **Plan and decisions:** [docs/ARCHITECTURE_PLAN.md](docs/ARCHITECTURE_PLAN.md)
+- **Setup, environment and tests:** [docs/SETUP.md](docs/SETUP.md)
+
+## Status
+
+| Phase | Status |
+|---|---|
+| 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Built; awaiting sign-in testing against a hosted dev Supabase project |
+| 2–9 | Not started |
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS 4 · Supabase (Postgres + Row Level Security, Auth, Storage) · next-intl · Vitest · Playwright · Vercel
