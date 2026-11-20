@@ -405,7 +405,7 @@
     },
     "dewPoint": {
       "title": "Dew Point",
-      "summary": "Check the substrate is far enough above the dew point to coat.",
+      "summary": "Check if the substrate is far enough above the dew point to coat.",
       "unit": "Temperature unit",
       "airTemp": "Air temperature",
       "humidity": "Relative humidity",
