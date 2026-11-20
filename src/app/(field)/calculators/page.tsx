@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const CALCULATORS = [
   { key: "squareFootage", href: "/calculators/square-footage", Icon: Ruler },
   { key: "spreadRate", href: "/calculators/spread-rate", Icon: Layers },
-  { key: "materialQuantity", href: null, Icon: PaintBucket },
+  { key: "materialQuantity", href: "/calculators/material-quantity", Icon: PaintBucket },
   { key: "mixRatio", href: null, Icon: FlaskConical },
   { key: "dewPoint", href: "/calculators/dew-point", Icon: Droplets },
 ] as const;

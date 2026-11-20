@@ -107,4 +107,25 @@ test("an installer uses the calculators", async ({ page }) => {
   await expect(cov).toContainText("Required for a dry film target.");
   await page.getByLabel("Volume solids").fill("60");
   await expect(cov).toContainText("160.4 SF/gal");
+
+  // --- Material quantity: 2,000 SF at 200 SF/gal, 2 coats, 10% waste, 3-gal kits → 22 gal, 8 kits.
+  await page.getByRole("link", { name: "Calculators" }).click();
+  await page.getByRole("link", { name: /Material Quantity/ }).click();
+  await expect(page.getByRole("heading", { name: "Material Quantity", level: 1 })).toBeVisible();
+  const mq = page.getByRole("region", { name: "Total material needed" });
+  await page.getByLabel("Area").fill("2000");
+  await page.getByLabel("Spread rate", { exact: true }).fill("200");
+  await page.getByLabel("Coats").fill("2");
+  // Waste must be entered explicitly before a total is shown.
+  await expect(mq).toContainText("Enter a waste % (0 for none).");
+  await page.getByLabel("Waste").fill("10");
+  await expect(mq).toContainText("22.00 gal");
+  await expect(mq).toContainText("20.00 gal + 2.00 gal waste (10%)");
+  await page.getByLabel("Kit size (optional)").fill("3");
+  await expect(mq).toContainText("8 kits of 3 gal (2.00 gal left over)");
+
+  // Coverage from a wet mil target: 10 mils = 160.4 SF/gal.
+  await page.getByRole("button", { name: "Wet mils" }).click();
+  await page.getByLabel("Wet film per coat").fill("10");
+  await expect(mq).toContainText("27.43 gal"); // 2000 × 2 ÷ 160.4167 × 1.10
 });
