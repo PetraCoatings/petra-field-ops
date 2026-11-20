@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /** The five calculators, in the order a job uses them. `href` is null until built. */
 const CALCULATORS = [
   { key: "squareFootage", href: "/calculators/square-footage", Icon: Ruler },
-  { key: "spreadRate", href: null, Icon: Layers },
+  { key: "spreadRate", href: "/calculators/spread-rate", Icon: Layers },
   { key: "materialQuantity", href: null, Icon: PaintBucket },
   { key: "mixRatio", href: null, Icon: FlaskConical },
   { key: "dewPoint", href: "/calculators/dew-point", Icon: Droplets },
