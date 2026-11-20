@@ -1,0 +1,83 @@
+import { expect, test } from "@playwright/test";
+import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
+
+/**
+ * Calculators, driven like a crew member on a phone. Needs a signed-in user
+ * (dev Supabase project), so it is skipped without the E2E_SUPABASE_* variables.
+ */
+test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_* variables)");
+
+test("an installer uses the square footage and dew point calculators", async ({ page }) => {
+  // One sign-in per run on two screen sizes keeps us under Supabase's sign-in rate limit.
+  test.skip(test.info().project.name === "android", "phone and desktop cover the calculators");
+  const u = readRoleUsers().find((x) => x.role === "installer")!;
+  await page.goto("/login");
+  await page.getByLabel("Email").fill(u.email);
+  await page.getByLabel("Password", { exact: true }).fill(u.password);
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page).toHaveURL(/\/$/);
+
+  await page.getByRole("link", { name: "Calculators" }).click();
+  await expect(page.getByRole("heading", { name: "Calculators", level: 1 })).toBeVisible();
+
+  // --- Square footage: 120' × 80' floor, office 20' 6" × 15', minus 6 columns 2' × 2'.
+  await page.getByRole("link", { name: /Square Footage/ }).click();
+  await expect(page.getByRole("heading", { name: "Square Footage", level: 1 })).toBeVisible();
+  await page.getByLabel("Length, feet").fill("120");
+  await page.getByLabel("Width, feet").fill("80");
+  await expect(page.getByText("9,600.00 SF").first()).toBeVisible();
+
+  await page.getByRole("button", { name: "Add area" }).click();
+  await page.getByLabel("Length, feet").nth(1).fill("20");
+  await page.getByLabel("Length, inches").nth(1).fill("6");
+  await page.getByLabel("Width, feet").nth(1).fill("15");
+
+  await page.getByRole("button", { name: "Deduction" }).click();
+  await page.getByLabel("Length, feet").nth(2).fill("2");
+  await page.getByLabel("Width, feet").nth(2).fill("2");
+  await page.getByLabel("How many").nth(2).fill("6");
+
+  const result = page.getByRole("region", { name: "Net area" });
+  await expect(result).toContainText("9,883.50 SF");
+  await expect(result).toContainText("9,907.50 added − 24.00 subtracted");
+
+  // Inches of 12 or more in a ft + in entry is caught, and the area isn't counted.
+  await page.getByLabel("Length, inches").nth(1).fill("14");
+  await expect(page.getByText("Inches must be less than 12.")).toBeVisible();
+  await expect(result).toContainText("1 area isn't counted yet");
+  await page.getByLabel("Length, inches").nth(1).fill("6");
+
+  // Entries survive leaving and coming back (screen lock, app switch).
+  await page.reload();
+  await expect(result).toContainText("9,883.50 SF");
+
+  await page.getByText("Show the math").click();
+  await expect(page.getByText("Area 2:")).toBeVisible();
+  await expect(page.getByText("20' 6\" × 15' 0\" = 307.50")).toBeVisible();
+
+  await page.getByRole("button", { name: "Start over" }).click();
+  await expect(result).toContainText("0.00 SF");
+
+  // --- Dew point: 70 °F, 50 % RH → 50.5 °F. Surface 60 °F is OK; 54 °F is not.
+  await page.getByRole("link", { name: "Calculators" }).click();
+  await page.getByRole("link", { name: /Dew Point/ }).click();
+  await expect(page.getByRole("heading", { name: "Dew Point", level: 1 })).toBeVisible();
+  await page.getByLabel("Air temperature").fill("70");
+  await page.getByLabel("Relative humidity").fill("50");
+  await expect(page.getByText("50.5 °F", { exact: true })).toBeVisible();
+  await page.getByLabel("Surface (substrate) temperature").fill("60");
+  await expect(page.getByText("OK to coat")).toBeVisible();
+  await page.getByLabel("Surface (substrate) temperature").fill("54");
+  await expect(page.getByText("Do not coat", { exact: true })).toBeVisible();
+  await expect(page.getByText("only 3.5 °F above the dew point")).toBeVisible();
+  await page.getByLabel("Surface (substrate) temperature").fill("50");
+  await expect(page.getByText("Do not coat: moisture forming")).toBeVisible();
+
+  // Switching to Celsius converts the readings already typed.
+  await page.getByRole("button", { name: "°C" }).click();
+  await expect(page.getByLabel("Air temperature")).toHaveValue("21.1");
+  await expect(page.getByLabel("Surface (substrate) temperature")).toHaveValue("10");
+
+  await page.getByLabel("Relative humidity").fill("150");
+  await expect(page.getByText("Humidity must be more than 0 and at most 100%.")).toBeVisible();
+});

@@ -237,5 +237,104 @@
     "email": "Enter a valid email address.",
     "number": "Enter a number.",
     "positiveNumber": "Enter a number greater than zero."
+  },
+  "calculators": {
+    "comingSoon": "Coming soon in Phase 2.",
+    "showTheMath": "Show the math",
+    "startOver": "Start over",
+    "sqftUnit": "SF",
+    "sqydUnit": "SY",
+    "sqmUnit": "m²",
+    "squareFootage": {
+      "title": "Square Footage",
+      "summary": "Add up areas and subtract columns, pits and pads.",
+      "intro": "Enter each area in feet and inches (or decimal feet, like 12.5). Use deductions for anything that won't be coated.",
+      "name": "Name",
+      "areaN": "Area {n}",
+      "deductionN": "Deduction {n}",
+      "removeArea": "Remove {name}",
+      "addOrSubtract": "Add or subtract",
+      "add": "Add",
+      "subtract": "Subtract",
+      "shape": "Shape",
+      "shapes": {
+        "rectangle": "Rectangle",
+        "triangle": "Triangle",
+        "circle": "Circle"
+      },
+      "length": "Length",
+      "width": "Width",
+      "base": "Base",
+      "height": "Height",
+      "diameter": "Diameter",
+      "quantity": "How many",
+      "feet": "feet",
+      "inches": "inches",
+      "enterDimensions": "Enter the dimensions",
+      "addArea": "Add area",
+      "addDeduction": "Deduction",
+      "netArea": "Net area",
+      "addedMinusSubtracted": "{added} added − {subtracted} subtracted",
+      "notCounted": "{count, plural, one {# area isn't counted yet. Finish or fix it above.} other {# areas aren't counted yet. Finish or fix them above.}}",
+      "mathNote": "Each line is rounded for display only. The total uses the exact values.",
+      "errors": {
+        "invalid": "Enter numbers only, like 12 ft 6 in or 12.5 ft.",
+        "inchesTooLarge": "Inches must be less than 12. Put whole feet in the ft box.",
+        "zero": "Must be greater than zero.",
+        "quantity": "Enter a whole number, 1 or more.",
+        "negative": "You've subtracted more than you added. Check the deductions."
+      }
+    },
+    "spreadRate": {
+      "title": "Spread Rate / Mils",
+      "summary": "Convert between square feet per gallon and mil thickness."
+    },
+    "materialQuantity": {
+      "title": "Material Quantity",
+      "summary": "Gallons and kits needed for an area, with waste."
+    },
+    "mixRatio": {
+      "title": "Mix Ratio",
+      "summary": "Part A and Part B amounts by volume or weight."
+    },
+    "dewPoint": {
+      "title": "Dew Point",
+      "summary": "Check the substrate is far enough above the dew point to coat.",
+      "unit": "Temperature unit",
+      "airTemp": "Air temperature",
+      "humidity": "Relative humidity",
+      "substrateTemp": "Surface (substrate) temperature",
+      "substrateHelp": "Measure the floor surface, not the air.",
+      "belowZero": "Below zero",
+      "errors": {
+        "number": "Enter a number.",
+        "rhRange": "Humidity must be more than 0 and at most 100%."
+      },
+      "dewPoint": "Dew point",
+      "minimumSubstrate": "Surface must be at least {temp} (dew point + {margin}).",
+      "enterReadings": "Enter air temperature and humidity.",
+      "status": {
+        "ok": {
+          "title": "OK to coat",
+          "body": "The surface is {spread} above the dew point. The minimum is {margin}."
+        },
+        "belowMargin": {
+          "title": "Do not coat",
+          "body": "The surface is only {spread} above the dew point. It must be at least {margin} above."
+        },
+        "condensation": {
+          "title": "Do not coat: moisture forming",
+          "body": "The surface is at or below the dew point ({spread} below). Moisture is condensing on it."
+        }
+      },
+      "outsideRange": "The air temperature is outside the range this formula is accurate for. Treat the result as approximate.",
+      "marginNote": "Margin: {margin} above the dew point (company setting). If the product data sheet requires more, follow the data sheet.",
+      "math": {
+        "formula": "Magnus formula, with T in °C and RH in %:",
+        "minimum": "Minimum surface",
+        "spread": "Surface − dew point",
+        "source": "Coefficients from Alduchov & Eskridge (1996), accurate to about 0.4 °C between {min} °C and {max} °C. The check uses the values rounded to 0.1°, as shown."
+      }
+    }
   }
 }
