@@ -332,7 +332,37 @@
     },
     "materialQuantity": {
       "title": "Cantidad de material",
-      "summary": "Galones y kits necesarios para un área, con desperdicio."
+      "summary": "Galones y kits necesarios para un área, con desperdicio.",
+      "area": "Área",
+      "coverageMode": "Rendimiento según",
+      "coverageModes": {
+        "rate": "Rendimiento",
+        "mils": "Mils húmedos"
+      },
+      "spreadRate": "Rendimiento",
+      "perCoat": "Por capa, de la hoja técnica u orden de trabajo.",
+      "wetMils": "Película húmeda por capa",
+      "coats": "Capas",
+      "waste": "Desperdicio",
+      "wasteHelp": "Obligatorio. Ingrese 0 si no hay.",
+      "kitSize": "Tamaño del kit (opcional)",
+      "kitHelp": "Galones por kit o cubeta.",
+      "totalNeeded": "Material total necesario",
+      "breakdown": "{base} gal + {waste} gal de desperdicio ({pct}%)",
+      "kits": "{count, plural, one {# kit} other {# kits}} de {size} gal (sobran {leftover} gal)",
+      "enterInputs": "Ingrese área, rendimiento, capas y desperdicio.",
+      "enterWaste": "Ingrese un % de desperdicio (0 si no hay).",
+      "errors": {
+        "number": "Ingrese un número.",
+        "positive": "Debe ser mayor que cero.",
+        "coats": "Ingrese un número entero, 1 o más.",
+        "wasteRange": "El desperdicio debe ser al menos 0 y menos de 100%."
+      },
+      "math": {
+        "rate": "Rendimiento",
+        "waste": "Desperdicio",
+        "note": "El desperdicio se suma a la cantidad teórica. Los kits siempre se redondean hacia arriba."
+      }
     },
     "mixRatio": {
       "title": "Proporción de mezcla",
@@ -376,6 +406,7 @@
         "spread": "Superficie − punto de rocío",
         "source": "Coeficientes de Alduchov y Eskridge (1996), precisos a unos 0.4 °C entre {min} °C y {max} °C. La verificación usa los valores redondeados a 0.1°, como se muestran."
       }
-    }
+    },
+    "galUnit": "gal"
   }
 }

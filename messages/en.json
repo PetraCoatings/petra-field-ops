@@ -332,7 +332,37 @@
     },
     "materialQuantity": {
       "title": "Material Quantity",
-      "summary": "Gallons and kits needed for an area, with waste."
+      "summary": "Gallons and kits needed for an area, with waste.",
+      "area": "Area",
+      "coverageMode": "Coverage from",
+      "coverageModes": {
+        "rate": "Spread rate",
+        "mils": "Wet mils"
+      },
+      "spreadRate": "Spread rate",
+      "perCoat": "Per coat, from the data sheet or work order.",
+      "wetMils": "Wet film per coat",
+      "coats": "Coats",
+      "waste": "Waste",
+      "wasteHelp": "Required. Enter 0 for none.",
+      "kitSize": "Kit size (optional)",
+      "kitHelp": "Gallons per kit or pail.",
+      "totalNeeded": "Total material needed",
+      "breakdown": "{base} gal + {waste} gal waste ({pct}%)",
+      "kits": "{count, plural, one {# kit} other {# kits}} of {size} gal ({leftover} gal left over)",
+      "enterInputs": "Enter area, coverage, coats and waste.",
+      "enterWaste": "Enter a waste % (0 for none).",
+      "errors": {
+        "number": "Enter a number.",
+        "positive": "Must be greater than zero.",
+        "coats": "Enter a whole number, 1 or more.",
+        "wasteRange": "Waste must be at least 0 and less than 100%."
+      },
+      "math": {
+        "rate": "Spread rate",
+        "waste": "Waste",
+        "note": "Waste is added on top of the theoretical amount. Kits always round up."
+      }
     },
     "mixRatio": {
       "title": "Mix Ratio",
@@ -376,6 +406,7 @@
         "spread": "Surface − dew point",
         "source": "Coefficients from Alduchov & Eskridge (1996), accurate to about 0.4 °C between {min} °C and {max} °C. The check uses the values rounded to 0.1°, as shown."
       }
-    }
+    },
+    "galUnit": "gal"
   }
 }
