@@ -62,6 +62,15 @@ for (const role of Object.keys(ROLE_LABEL) as TestRole[]) {
       }
     }
 
+    // Management always has a way back to the field app (the installed phone
+    // app has no browser back button).
+    if (MANAGE_PAGES[0].roles.includes(role)) {
+      await page.goto("/manage/projects");
+      await page.getByRole("link", { name: "Field app" }).click();
+      await expect(page).toHaveURL(/\/$/);
+      await expect(page.getByRole("heading", { name: `Hi, ${u.firstName}` })).toBeVisible();
+    }
+
     // Signing out ends the session.
     await page.goto("/");
     await page.getByRole("button", { name: "Sign out" }).click();
