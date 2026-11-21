@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 import { useTranslations } from "next-intl";
 import { ArrowDown, ArrowUp, Plus, X } from "lucide-react";
 
@@ -101,16 +101,19 @@ export function RowInput({
   className?: string;
   maxLength?: number;
 }) {
+  const id = useId();
   const cls =
     "block w-full rounded-lg border-2 border-neutral-300 bg-white px-3 py-2 text-base text-neutral-950 placeholder:text-neutral-400 focus:border-brand-600 focus:outline-none";
   return (
-    <label className={`block space-y-1 ${className}`}>
-      <span className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">{label}</span>
+    <div className={`space-y-1 ${className}`}>
+      <label htmlFor={id} className="block text-xs font-semibold uppercase tracking-wide text-neutral-600">
+        {label}
+      </label>
       {multiline ? (
-        <textarea value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2} maxLength={maxLength} className={cls} />
+        <textarea id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} rows={2} maxLength={maxLength} className={cls} />
       ) : (
-        <input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} maxLength={maxLength} className={`${cls} min-h-11`} />
+        <input id={id} value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} maxLength={maxLength} className={`${cls} min-h-11`} />
       )}
-    </label>
+    </div>
   );
 }

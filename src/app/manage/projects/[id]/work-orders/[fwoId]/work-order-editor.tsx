@@ -404,9 +404,12 @@ export function WorkOrderEditor({
         </h2>
         <p className="text-base text-brand-900">{hasRevisions ? t("publishHintRevision") : t("publishHintFirst")}</p>
         {hasRevisions && (
-          <label className="block space-y-1">
-            <span className="block text-sm font-semibold text-neutral-800">{t("changeSummary")}</span>
+          <div className="space-y-1">
+            <label htmlFor="wo-change-summary" className="block text-sm font-semibold text-neutral-800">
+              {t("changeSummary")}
+            </label>
             <textarea
+              id="wo-change-summary"
               value={changeSummary}
               onChange={(e) => setChangeSummary(e.target.value)}
               rows={2}
@@ -414,7 +417,7 @@ export function WorkOrderEditor({
               placeholder={t("changeSummaryPlaceholder")}
               className="block w-full rounded-xl border-2 border-neutral-300 bg-white px-3 py-2 text-base focus:border-brand-600 focus:outline-none"
             />
-          </label>
+          </div>
         )}
         <button type="button" onClick={publish} disabled={pending || uploading > 0} className={buttonClasses("primary", "lg")}>
           <Send aria-hidden className="size-5" />

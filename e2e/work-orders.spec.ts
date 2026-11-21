@@ -78,7 +78,7 @@ test("office publishes a work order; the installer reads and confirms it on a ph
     await expect(phone.getByText("6,620 sf Sika 200C Conductive System")).toBeVisible();
     await expect(phone.getByText("19 Kits + Partial")).toBeVisible();
     await expect(phone.getByText("2.18A : 1B : .15C : .3Pig")).toBeVisible();
-    await expect(phone.getByText("Important: Sand floor extremely well")).toHaveCount(0); // sr-only prefix is separate text
+    await expect(phone.getByText("Important: Sand floor extremely well")).toHaveCount(1); // announced to screen readers
     await expect(phone.locator("li", { hasText: "Sand floor extremely well" })).toHaveClass(/bg-red-50/);
     await expect(phone.getByRole("img", { name: "floor-plan.png" })).toBeVisible();
     await phone.getByRole("button", { name: "I've read revision 1" }).click();
@@ -102,7 +102,7 @@ test("office publishes a work order; the installer reads and confirms it on a ph
     await expect(phone.getByText("New: read it and tap \"I've read this\"")).toBeVisible();
     await phone.getByRole("link", { name: /Work order 1 · Conductive system/ }).click();
     await expect(phone.getByRole("heading", { name: "Updated work order: revision 2" })).toBeVisible();
-    await expect(phone.getByText("Added solvent wipe after sanding")).toBeVisible();
+    await expect(phone.getByText("What changed: Added solvent wipe after sanding")).toBeVisible();
     // Revision 1 is still exactly as published.
     await phone.getByRole("link", { name: "Revision 1" }).click();
     await expect(phone.getByText("You're looking at revision 1. The current one is revision 2.")).toBeVisible();
