@@ -2,6 +2,7 @@ import { BrandMark } from "@/components/brand-mark";
 import Link from "next/link";
 import { LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
+import { NotificationsBell } from "@/components/notifications-bell";
 import { ServiceWorkerRegistration } from "@/components/offline/service-worker-registration";
 import { Alert } from "@/components/ui/alert";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -29,12 +30,15 @@ export default async function FieldLayout({ children }: LayoutProps<"/">) {
             <BrandMark size={28} onDark />
             {t("shortName")}
           </Link>
+          <div className="flex items-center gap-2">
+          <NotificationsBell />
           {canAccessManagement(profile.role) && (
             <Link href="/manage" className={buttonClasses("secondary", "md", "border-white/40 bg-white/10 text-white hover:bg-white/20")}>
               <LayoutDashboard aria-hidden className="size-5" />
               <span className="hidden sm:inline">{t("management")}</span>
             </Link>
           )}
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-5 pb-[calc(1.25rem+env(safe-area-inset-bottom))]">

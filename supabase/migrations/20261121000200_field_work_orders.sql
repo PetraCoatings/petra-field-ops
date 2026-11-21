@@ -11,6 +11,8 @@
 --                       "what the crew was told" is always exact.
 --   fwo_acknowledgments a crew member's "I've read this revision".
 --   notifications       in-app notices (e.g. "new work order revision").
+--   storage bucket      fwo-files: drawings and photos attached to work orders
+--                       (office uploads; crews on the job can view).
 --
 -- Publishing goes through public.publish_fwo(), which checks the caller's
 -- role and does everything in one transaction (docs/ARCHITECTURE_PLAN.md §1).
@@ -141,15 +143,23 @@ language sql stable security definer set search_path = '' as $$
   )
 $$;
 
+create function app.uuid_or_null(p text) returns uuid
+language plpgsql immutable set search_path = '' as $$
+begin
+  return p::uuid;
+exception when others then
+  return null;
+end $$;
+
 create function app.revision_fwo_id(p_revision_id uuid) returns uuid
 language sql stable security definer set search_path = '' as $$
   select fwo_id from public.fwo_revisions where id = p_revision_id
 $$;
 
 revoke all on function app.assign_fwo_number(), app.protect_fwo_revision(), app.fwo_project_id(uuid),
-  app.can_view_published_fwo(uuid), app.revision_fwo_id(uuid) from public;
-grant execute on function app.fwo_project_id(uuid), app.can_view_published_fwo(uuid), app.revision_fwo_id(uuid)
-  to authenticated, service_role;
+  app.can_view_published_fwo(uuid), app.revision_fwo_id(uuid), app.uuid_or_null(text) from public;
+grant execute on function app.fwo_project_id(uuid), app.can_view_published_fwo(uuid), app.revision_fwo_id(uuid),
+  app.uuid_or_null(text) to authenticated, service_role;
 
 -- -----------------------------------------------------------------------------
 -- Publishing (the only way to create a revision)
@@ -200,7 +210,11 @@ begin
            'totalSqft', p.total_sqft,
            'flooringSystem', p.flooring_system,
            'projectManager', pm.display_name,
-           'crewLead', cl.display_name)
+           'crewLead', cl.display_name,
+           'contacts', coalesce((
+             select jsonb_agg(jsonb_build_object('name', pc.name, 'title', pc.title, 'phone', pc.phone)
+                              order by pc.is_primary desc, pc.created_at)
+             from public.project_contacts pc where pc.project_id = p.id), '[]'::jsonb))
     into v_snapshot
   from public.projects p
   left join public.customers c on c.id = p.customer_id
@@ -303,3 +317,34 @@ create policy notifications_select on public.notifications for select to authent
 create policy notifications_update on public.notifications for update to authenticated
   using (recipient_id = app.current_employee_id())
   with check (recipient_id = app.current_employee_id());
+
+-- -----------------------------------------------------------------------------
+-- File storage for drawings and photos (Supabase Storage).
+-- Private bucket; files live at  <project_id>/<fwo_id>/<file>.
+--   upload  PMs and office admins, only into a real work order's folder
+--   view    anyone who can see that work order (crews: once published)
+-- Files are never deleted by the app: an older revision may still show them.
+-- Skipped where Supabase Storage isn't installed (the local test database).
+-- -----------------------------------------------------------------------------
+do $$
+begin
+  if to_regclass('storage.objects') is null then
+    raise notice 'Supabase Storage not installed; skipping the fwo-files bucket.';
+    return;
+  end if;
+
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values ('fwo-files', 'fwo-files', false, 20971520,
+          array['image/jpeg', 'image/png', 'image/webp', 'application/pdf'])
+  on conflict (id) do nothing;
+
+  create policy fwo_files_select on storage.objects for select to authenticated
+    using (bucket_id = 'fwo-files'
+           and app.can_view_published_fwo(app.uuid_or_null((storage.foldername(name))[2])));
+
+  create policy fwo_files_insert on storage.objects for insert to authenticated
+    with check (bucket_id = 'fwo-files'
+                and app.is_office_staff()
+                and app.fwo_project_id(app.uuid_or_null((storage.foldername(name))[2]))
+                    = app.uuid_or_null((storage.foldername(name))[1]));
+end $$;

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
+import { ProjectWorkOrders } from "@/components/work-orders/project-work-orders";
 import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
@@ -57,6 +58,7 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
         }
       />
       {created && <Alert tone="success">{t("projects.created")}</Alert>}
+      <ProjectWorkOrders projectId={project.id} />
       <Card title={t("projects.editTitle")}>
         <ProjectForm
           action={updateProject.bind(null, project.id)}

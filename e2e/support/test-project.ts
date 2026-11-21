@@ -31,7 +31,33 @@ export async function createTestProject(crew: RoleUser[]): Promise<{ id: string;
   return { id, name };
 }
 
-/** Deletes the project (its assignments and saved calculations go with it). */
+/** True once the work orders migration has been applied to the dev project. */
+export async function workOrdersTableExists(): Promise<boolean> {
+  const res = await api("/rest/v1/field_work_orders?select=id&limit=1");
+  return res.ok;
+}
+
+/** Adds a site contact to the project. */
+export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
+  const res = await api("/rest/v1/project_contacts", {
+    method: "POST",
+    headers: { Prefer: "return=minimal" },
+    body: JSON.stringify({ project_id: projectId, is_primary: true, ...contact }),
+  });
+  if (!res.ok) throw new Error(`add contact failed: ${res.status} ${await res.text()}`);
+}
+
+/**
+ * Deletes the project (its assignments and saved calculations go with it).
+ * A project with a published work order can't be deleted (published revisions
+ * are permanent), so those are closed and marked as test data instead.
+ */
 export async function deleteTestProject(id: string): Promise<void> {
-  await api(`/rest/v1/projects?id=eq.${id}`, { method: "DELETE" });
+  const res = await api(`/rest/v1/projects?id=eq.${id}`, { method: "DELETE" });
+  if (!res.ok) {
+    await api(`/rest/v1/projects?id=eq.${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status: "closed", scope_summary: "Automated test data (published work order kept permanently)." }),
+    });
+  }
 }
