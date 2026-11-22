@@ -36,7 +36,7 @@ async function publish(c: Client, projectId: string, title: string, content: obj
 
 beforeAll(async () => {
   await superuser(async (c) => {
-    await c.query("truncate public.notifications, public.fwo_acknowledgments cascade");
+    await c.query("truncate public.notifications, public.fwo_acknowledgments, public.loading_checklists cascade");
     await c.query("alter table public.fwo_revisions disable trigger fwo_revisions_protect");
     await c.query("update public.field_work_orders set current_revision_id = null, status = 'void'");
     await c.query("delete from public.fwo_revisions");

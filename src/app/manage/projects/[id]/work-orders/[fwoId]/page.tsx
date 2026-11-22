@@ -6,6 +6,7 @@ import { getFormatter, getTranslations } from "next-intl/server";
 import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
+import { ChecklistSummary } from "@/components/work-orders/checklist-summary";
 import { WorkOrderStatusBadge } from "@/components/work-orders/status-badge";
 import { readContent } from "@/domain/work-orders/content";
 import { requireRole } from "@/lib/auth/dal";
@@ -100,6 +101,16 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
         )}
         {unpublished && <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-950">{t("editor.unpublished")}</span>}
       </div>
+
+      {current && (
+        <ChecklistSummary
+          projectId={id}
+          fwoId={fwoId}
+          hasTrailerList={readContent(current.content).trailerMaterials.length > 0}
+          canEdit
+          showMissingDetails
+        />
+      )}
 
       {current && (
         <div className="grid gap-4 md:grid-cols-2">

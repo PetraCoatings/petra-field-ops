@@ -660,7 +660,8 @@
     "fwoNew": "New work order {n}",
     "fwoUpdated": "Work order {n} updated to revision {revision}",
     "unread": "New",
-    "bellUnread": "{count, plural, one {# new notification} other {# new notifications}}"
+    "bellUnread": "{count, plural, one {# new notification} other {# new notifications}}",
+    "checklistMissing": "Missing from the trailer: {item}"
   },
   "templates": {
     "title": "Work order templates",
@@ -737,5 +738,46 @@
     "openJob": "Open the job",
     "contactsHidden": "From a finished job you weren't on. Customer contacts are hidden.",
     "revisionN": "Revision {n}"
+  },
+  "checklist": {
+    "title": "Loading checklist",
+    "backToJob": "Job",
+    "notStarted": "The crew lead hasn't started the loading checklist yet.",
+    "summaryNotStarted": "Not started",
+    "open": "Open",
+    "start": "Start",
+    "view": "View",
+    "outdated": "The work order was updated (revision {from} → {to}). Bring the checklist up to date to see the changes.",
+    "sync": "Update checklist",
+    "progressLabel": "Loading progress",
+    "progress": "{loaded} of {total} loaded",
+    "missingCount": "{count, plural, one {# missing} other {# missing}}",
+    "viewOnly": "The crew lead checks items off. You can follow along here.",
+    "hideLoaded": "Hide loaded items",
+    "addedOnSite": "added",
+    "removed": "removed from the work order",
+    "loadedBy": "Loaded by {name}",
+    "flaggedBy": "Flagged missing by {name}",
+    "loaded": "Loaded",
+    "missing": "Missing",
+    "status": {
+      "pending": "Not yet",
+      "loaded": "Loaded",
+      "missing": "Missing"
+    },
+    "noteLabel": "Note for {item}",
+    "notePlaceholder": "What's missing? e.g. only 18 kits in the shop",
+    "saveNote": "Save",
+    "addNote": "Add a note",
+    "editNote": "Edit note",
+    "addTitle": "Add an item that's not on the work order",
+    "newItem": "Item",
+    "newQty": "Quantity",
+    "add": "Add",
+    "errors": {
+      "forbidden": "Only the crew lead or the office can change the checklist.",
+      "generic": "Couldn't save. Please try again.",
+      "offline": "No signal. Your tap wasn't saved; try again when you're back online."
+    }
   }
 }

@@ -8,6 +8,8 @@ import type { Profile } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { signedUrls } from "@/lib/work-orders/signed-urls";
 import type { ProjectSnapshot } from "@/lib/work-orders/snapshot";
+import { canLoadTrailer } from "@/lib/work-orders/checklists";
+import { ChecklistSummary } from "./checklist-summary";
 import { WorkOrderView } from "./work-order-view";
 
 type Fwo = { id: string; fwo_number: number; title: string };
@@ -81,6 +83,8 @@ export async function WorkOrderOnJob({
           {t("view.confirmed", { n: revision.revision_number, when: when(myAck.acknowledged_at as string) })}
         </p>
       )}
+
+      <ChecklistSummary projectId={projectId} fwoId={fwo.id} hasTrailerList={content.trailerMaterials.length > 0} canEdit={canLoadTrailer(profile)} />
 
       <WorkOrderView title={fwo.title} fwoNumber={fwo.fwo_number} content={content} project={revision.project_snapshot} fileUrls={urls} showHeader={false} />
 
