@@ -55,8 +55,9 @@ export async function finishTestProject(id: string): Promise<void> {
 
 /** True once the library migration has been applied to the dev project. */
 export async function libraryFunctionsExist(): Promise<boolean> {
+  // Only signed-in employees may run it; any answer other than "not found" means it exists.
   const res = await api("/rest/v1/rpc/search_work_order_library", { method: "POST", body: JSON.stringify({ p_limit: 1 }) });
-  return res.ok;
+  return res.status !== 404;
 }
 
 /** Adds a site contact to the project. */
