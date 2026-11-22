@@ -113,7 +113,7 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
     await phone.getByRole("button", { name: "Sign in" }).click();
     await expect(phone).toHaveURL(/\/$/);
     await phone.goto(`/jobs/${job.id}`);
-    await phone.getByRole("button", { name: "Print or share PDF" }).click();
+    await phone.getByRole("button", { name: "Print or share PDF" }).first().click(); // one at the top, one at the bottom
     await expect.poll(() => phone.evaluate(() => (window as unknown as { __shared?: unknown[] }).__shared?.length ?? 0)).toBe(1);
     const shared = await phone.evaluate(() => (window as unknown as { __shared: { name: string; type: string; size: number }[] }).__shared[0]);
     expect(shared.type).toBe("application/pdf");
