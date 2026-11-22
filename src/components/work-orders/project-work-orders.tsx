@@ -5,6 +5,7 @@ import { buttonClasses } from "@/components/ui/button-styles";
 import { Card } from "@/components/ui/card";
 import { createWorkOrder } from "@/lib/actions/work-orders";
 import { createClient } from "@/lib/supabase/server";
+import { PdfLink } from "./pdf-link";
 import { WorkOrderStatusBadge } from "./status-badge";
 
 /** "Work orders" card on the Management project page. */
@@ -43,6 +44,11 @@ export async function ProjectWorkOrders({ projectId }: { projectId: string }) {
                   </span>
                   <ChevronRight aria-hidden className="size-5 text-neutral-500" />
                 </Link>
+                {rev > 0 && (
+                  <div className="pb-3">
+                    <PdfLink fwoId={w.id} revision={rev} />
+                  </div>
+                )}
               </li>
             );
           })}
