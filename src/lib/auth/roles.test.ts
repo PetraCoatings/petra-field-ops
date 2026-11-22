@@ -24,8 +24,9 @@ describe("management access", () => {
   });
 
   it("gives project managers projects but not employees, settings or audit", () => {
-    expect(manageNavFor("project_manager").map((i) => i.key)).toEqual(["dashboard", "projects"]);
+    expect(manageNavFor("project_manager").map((i) => i.key)).toEqual(["dashboard", "projects", "templates"]);
     expect(canOpenManagePath("project_manager", "/manage/projects/abc")).toBe(true);
+    expect(canOpenManagePath("project_manager", "/manage/templates/abc")).toBe(true);
     expect(canOpenManagePath("project_manager", "/manage/employees")).toBe(false);
     expect(canOpenManagePath("project_manager", "/manage/employees/123")).toBe(false);
     expect(canOpenManagePath("project_manager", "/manage/settings")).toBe(false);
@@ -36,6 +37,7 @@ describe("management access", () => {
     expect(manageNavFor("office_admin").map((i) => i.key)).toEqual([
       "dashboard",
       "projects",
+      "templates",
       "employees",
       "settings",
       "auditLog",

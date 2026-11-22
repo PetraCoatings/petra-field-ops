@@ -25,6 +25,7 @@ export type FieldModuleKey = (typeof FIELD_MODULES)[number]["key"];
 export type ManageNavKey =
   | "dashboard"
   | "projects"
+  | "templates"
   | "employees"
   | "settings"
   | "auditLog";
@@ -38,6 +39,7 @@ const MANAGE_NAV: {
 }[] = [
   { key: "dashboard", href: "/manage", roles: ["project_manager", "office_admin"], exact: true },
   { key: "projects", href: "/manage/projects", roles: ["project_manager", "office_admin"] },
+  { key: "templates", href: "/manage/templates", roles: ["project_manager", "office_admin"] },
   { key: "employees", href: "/manage/employees", roles: ["office_admin"] },
   { key: "settings", href: "/manage/settings", roles: ["office_admin"] },
   { key: "auditLog", href: "/manage/audit", roles: ["office_admin"] },

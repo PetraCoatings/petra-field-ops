@@ -106,6 +106,7 @@
     "nav": {
       "dashboard": "Panel",
       "projects": "Proyectos",
+      "templates": "Plantillas",
       "employees": "Empleados",
       "settings": "Configuración",
       "auditLog": "Registro de cambios"
@@ -651,5 +652,52 @@
     "fwoUpdated": "Orden de trabajo {n} actualizada a la revisión {revision}",
     "unread": "Nueva",
     "bellUnread": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}"
+  },
+  "templates": {
+    "title": "Plantillas de órdenes de trabajo",
+    "intro": "Partes reutilizables de una orden de trabajo: materiales, proporciones de mezcla, días del programa, seguridad, pruebas de calidad. Insértela en una orden de trabajo y ajústela para el trabajo.",
+    "newName": "Nueva plantilla",
+    "newNamePlaceholder": "Por ejemplo: Sistema conductivo Sika 200C",
+    "create": "Crear",
+    "nameTaken": "Ya existe una plantilla con este nombre.",
+    "contains": "{days, plural, one {# día} other {# días}}, {steps, plural, one {# paso} other {# pasos}}, {materials, plural, one {# material} other {# materiales}}, {mixRatios, plural, one {# proporción} other {# proporciones}}",
+    "updated": "actualizada {when}",
+    "active": "Plantillas",
+    "empty": "Aún no hay plantillas. Cree una arriba o use \"Guardar como plantilla\" en una orden de trabajo.",
+    "archived": "{count, plural, one {# plantilla archivada} other {# plantillas archivadas}}",
+    "editTitle": "Editar plantilla",
+    "archivedNote": "Esta plantilla está archivada. No aparece en la lista \"Insertar una plantilla\".",
+    "copyNote": "Al insertar una plantilla, la orden de trabajo recibe su propia copia. Cambiar una plantilla aquí nunca cambia las órdenes de trabajo existentes.",
+    "name": "Nombre de la plantilla",
+    "description": "Descripción (opcional)",
+    "descriptionPlaceholder": "Por ejemplo: instalación de 3 días, pisos ESD",
+    "archive": "Archivar",
+    "restore": "Restaurar",
+    "delete": "Eliminar",
+    "confirmDelete": "¿Eliminar esta plantilla? Las órdenes de trabajo que la usaron no se ven afectadas.",
+    "save": "Guardar plantilla",
+    "saved": "Plantilla guardada.",
+    "errors": {
+      "invalid": "Hay filas incompletas.",
+      "name": "Póngale un nombre a la plantilla.",
+      "nameTaken": "Ya existe una plantilla con este nombre.",
+      "generic": "No se pudo guardar. Intente de nuevo."
+    },
+    "tools": {
+      "title": "Plantillas",
+      "none": "Aún no hay plantillas. Créelas en",
+      "insertLabel": "Insertar una plantilla",
+      "choose": "Elija una plantilla",
+      "insert": "Insertar",
+      "inserted": "Se agregó \"{name}\". Revísela para este trabajo y luego guarde.",
+      "saveAs": "Guardar esta orden de trabajo como plantilla",
+      "saveAsName": "Nombre de la plantilla",
+      "saveAsButton": "Guardar plantilla",
+      "cancel": "Cancelar",
+      "saveAsHint": "Se omiten las fechas y los planos; todo lo demás se copia.",
+      "savedAs": "Guardada como plantilla \"{name}\".",
+      "saveInvalid": "Hay filas incompletas. Corríjalas e intente de nuevo.",
+      "openTemplate": "Abrir plantilla"
+    }
   }
 }

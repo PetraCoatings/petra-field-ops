@@ -25,12 +25,19 @@ export default async function WorkOrderEditorPage({ params }: PageProps<"/manage
   if (!fwo) notFound();
 
   const supabase = await createClient();
-  const [{ data: draft }, { data: project }, revisions, crew] = await Promise.all([
+  const [{ data: draft }, { data: project }, revisions, crew, { data: templateRows }] = await Promise.all([
     supabase.from("fwo_drafts").select("content, updated_at").eq("fwo_id", fwoId).maybeSingle(),
     supabase.from("projects").select("name").eq("id", id).maybeSingle(),
     loadRevisions(fwoId),
     crewIds(id),
+    supabase.from("work_order_templates").select("id, name, description, content").eq("is_active", true).order("name"),
   ]);
+  const templates = (templateRows ?? []).map((r) => ({
+    id: r.id as string,
+    name: r.name as string,
+    description: (r.description as string | null) ?? null,
+    content: readContent(r.content),
+  }));
   const current = revisions[0];
   const { data: acks } = current
     ? await supabase.from("fwo_acknowledgments").select("employee_id, acknowledged_at").eq("fwo_revision_id", current.id)
@@ -116,6 +123,7 @@ export default async function WorkOrderEditorPage({ params }: PageProps<"/manage
         initialContent={readContent(draft?.content)}
         hasRevisions={revisions.length > 0}
         nextRevision={(current?.revision_number ?? 0) + 1}
+        templates={templates}
       />
     </div>
   );

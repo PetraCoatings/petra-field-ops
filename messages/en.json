@@ -106,6 +106,7 @@
     "nav": {
       "dashboard": "Dashboard",
       "projects": "Projects",
+      "templates": "Templates",
       "employees": "Employees",
       "settings": "Company Settings",
       "auditLog": "Audit Log"
@@ -651,5 +652,52 @@
     "fwoUpdated": "Work order {n} updated to revision {revision}",
     "unread": "New",
     "bellUnread": "{count, plural, one {# new notification} other {# new notifications}}"
+  },
+  "templates": {
+    "title": "Work order templates",
+    "intro": "Reusable parts of a work order: materials, mix ratios, schedule days, safety, QC tests. Insert one into a work order and adjust it for the job.",
+    "newName": "New template",
+    "newNamePlaceholder": "For example: Sika 200C conductive system",
+    "create": "Create",
+    "nameTaken": "A template with this name already exists.",
+    "contains": "{days, plural, one {# day} other {# days}}, {steps, plural, one {# step} other {# steps}}, {materials, plural, one {# material} other {# materials}}, {mixRatios, plural, one {# mix ratio} other {# mix ratios}}",
+    "updated": "updated {when}",
+    "active": "Templates",
+    "empty": "No templates yet. Create one above, or use \"Save as template\" on a work order.",
+    "archived": "{count, plural, one {# archived template} other {# archived templates}}",
+    "editTitle": "Edit template",
+    "archivedNote": "This template is archived. It doesn't appear in the \"Insert a template\" list.",
+    "copyNote": "A work order gets its own copy when a template is inserted. Changing a template here never changes existing work orders.",
+    "name": "Template name",
+    "description": "Description (optional)",
+    "descriptionPlaceholder": "For example: 3-day install, ESD floors",
+    "archive": "Archive",
+    "restore": "Restore",
+    "delete": "Delete",
+    "confirmDelete": "Delete this template? Work orders that used it are not affected.",
+    "save": "Save template",
+    "saved": "Template saved.",
+    "errors": {
+      "invalid": "Some rows are incomplete.",
+      "name": "Give the template a name.",
+      "nameTaken": "A template with this name already exists.",
+      "generic": "Couldn't save. Please try again."
+    },
+    "tools": {
+      "title": "Templates",
+      "none": "No templates yet. Create them under",
+      "insertLabel": "Insert a template",
+      "choose": "Choose a template",
+      "insert": "Insert",
+      "inserted": "Added \"{name}\". Review it for this job, then save.",
+      "saveAs": "Save this work order as a template",
+      "saveAsName": "Template name",
+      "saveAsButton": "Save template",
+      "cancel": "Cancel",
+      "saveAsHint": "Dates and drawings are left out; everything else is copied.",
+      "savedAs": "Saved as template \"{name}\".",
+      "saveInvalid": "Some rows are incomplete. Fix them, then try again.",
+      "openTemplate": "Open template"
+    }
   }
 }
