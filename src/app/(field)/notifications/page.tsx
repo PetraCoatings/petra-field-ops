@@ -14,8 +14,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Row = {
   id: string;
-  type: "fwo_published";
-  data: { fwoNumber?: number; title?: string; revision?: number; projectName?: string };
+  type: "fwo_published" | "checklist_missing";
+  data: { fwoNumber?: number; title?: string; revision?: number; projectName?: string; item?: string; note?: string | null };
   read_at: string | null;
   created_at: string;
 };
@@ -65,14 +65,25 @@ export default async function NotificationsPage() {
                 >
                   <ClipboardList aria-hidden className="mt-0.5 size-6 shrink-0 text-brand-700" />
                   <span className="min-w-0 flex-1">
-                    <span className="block text-base font-bold">
-                      {(n.data.revision ?? 1) > 1
-                        ? t("fwoUpdated", { n: n.data.fwoNumber ?? 0, revision: n.data.revision ?? 1 })
-                        : t("fwoNew", { n: n.data.fwoNumber ?? 0 })}
-                    </span>
-                    <span className="block text-base text-neutral-800">
-                      {n.data.title} · {n.data.projectName}
-                    </span>
+                    {n.type === "checklist_missing" ? (
+                      <>
+                        <span className="block text-base font-bold text-red-900">{t("checklistMissing", { item: n.data.item ?? "" })}</span>
+                        <span className="block text-base text-neutral-800">
+                          {[n.data.note, n.data.projectName].filter(Boolean).join(" · ")}
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="block text-base font-bold">
+                          {(n.data.revision ?? 1) > 1
+                            ? t("fwoUpdated", { n: n.data.fwoNumber ?? 0, revision: n.data.revision ?? 1 })
+                            : t("fwoNew", { n: n.data.fwoNumber ?? 0 })}
+                        </span>
+                        <span className="block text-base text-neutral-800">
+                          {n.data.title} · {n.data.projectName}
+                        </span>
+                      </>
+                    )}
                     <span className="block text-sm text-neutral-600">
                       {format.dateTime(new Date(n.created_at), { dateStyle: "medium", timeStyle: "short" })}
                       {!n.read_at && <span className="ml-2 font-semibold text-amber-900">{t("unread")}</span>}

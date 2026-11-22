@@ -660,7 +660,8 @@
     "fwoNew": "Nueva orden de trabajo {n}",
     "fwoUpdated": "Orden de trabajo {n} actualizada a la revisión {revision}",
     "unread": "Nueva",
-    "bellUnread": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}"
+    "bellUnread": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}",
+    "checklistMissing": "Falta en el tráiler: {item}"
   },
   "templates": {
     "title": "Plantillas de órdenes de trabajo",
@@ -737,5 +738,46 @@
     "openJob": "Abrir el trabajo",
     "contactsHidden": "De un trabajo terminado en el que no estuvo. Los contactos del cliente están ocultos.",
     "revisionN": "Revisión {n}"
+  },
+  "checklist": {
+    "title": "Lista de carga",
+    "backToJob": "Trabajo",
+    "notStarted": "El líder de cuadrilla aún no ha empezado la lista de carga.",
+    "summaryNotStarted": "Sin empezar",
+    "open": "Abrir",
+    "start": "Empezar",
+    "view": "Ver",
+    "outdated": "La orden de trabajo se actualizó (revisión {from} → {to}). Actualice la lista para ver los cambios.",
+    "sync": "Actualizar lista",
+    "progressLabel": "Avance de carga",
+    "progress": "{loaded} de {total} cargados",
+    "missingCount": "{count, plural, one {# falta} other {# faltan}}",
+    "viewOnly": "El líder de cuadrilla marca los artículos. Puede seguir el avance aquí.",
+    "hideLoaded": "Ocultar artículos cargados",
+    "addedOnSite": "agregado",
+    "removed": "quitado de la orden de trabajo",
+    "loadedBy": "Cargado por {name}",
+    "flaggedBy": "Marcado como faltante por {name}",
+    "loaded": "Cargado",
+    "missing": "Falta",
+    "status": {
+      "pending": "Todavía no",
+      "loaded": "Cargado",
+      "missing": "Falta"
+    },
+    "noteLabel": "Nota para {item}",
+    "notePlaceholder": "¿Qué falta? p. ej. solo hay 18 kits en el taller",
+    "saveNote": "Guardar",
+    "addNote": "Agregar nota",
+    "editNote": "Editar nota",
+    "addTitle": "Agregar un artículo que no está en la orden de trabajo",
+    "newItem": "Artículo",
+    "newQty": "Cantidad",
+    "add": "Agregar",
+    "errors": {
+      "forbidden": "Solo el líder de cuadrilla o la oficina pueden cambiar la lista.",
+      "generic": "No se pudo guardar. Intente de nuevo.",
+      "offline": "Sin señal. No se guardó; intente de nuevo cuando tenga conexión."
+    }
   }
 }
