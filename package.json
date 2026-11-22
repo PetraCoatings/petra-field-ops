@@ -12,7 +12,8 @@
     "test:unit": "vitest run --project unit",
     "test:db": "vitest run --project db",
     "test:e2e": "playwright test --trace off",
-    "check:bundle": "node scripts/check-client-bundle.mjs"
+    "check:bundle": "node scripts/check-client-bundle.mjs",
+    "postinstall": "node scripts/copy-pdfjs-assets.mjs"
   },
   "dependencies": {
     "@react-pdf/renderer": "4.9.0",
@@ -21,6 +22,7 @@
     "lucide-react": "1.77.0",
     "next": "16.4.6",
     "next-intl": "4.15.3",
+    "pdfjs-dist": "6.4.299",
     "react": "19.3.0",
     "react-dom": "19.3.0",
     "server-only": "0.0.1",

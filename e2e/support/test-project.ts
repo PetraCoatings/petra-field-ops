@@ -129,6 +129,68 @@ export async function archiveTestLibrary(prefix: string): Promise<void> {
   await api(`/rest/v1/documents?name=like.${like}`, { method: "PATCH", body: JSON.stringify({ is_active: false }) });
 }
 
+/** Signs in through Supabase Auth and returns a fetch that acts as that person (RLS applies). */
+export async function sessionFetch(u: RoleUser): Promise<(path: string, init?: RequestInit) => Promise<Response>> {
+  const url = process.env.E2E_SUPABASE_URL!;
+  const key = process.env.E2E_SUPABASE_KEY!;
+  const tokenRes = await fetch(`${url}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: { apikey: key, "Content-Type": "application/json" },
+    body: JSON.stringify({ email: u.email, password: u.password }),
+  });
+  const { access_token } = (await tokenRes.json()) as { access_token: string };
+  return (path, init = {}) =>
+    fetch(`${url}${path}`, { ...init, headers: { apikey: key, Authorization: `Bearer ${access_token}`, "Content-Type": "application/json", ...init.headers } });
+}
+
+/**
+ * Adds a product (approved or draft) with optional TDS/SDS, or a standalone SDS,
+ * as an office admin, uploading real PDF files. Returns the document version ids.
+ */
+export async function addLibraryItem(
+  admin: RoleUser,
+  item:
+    | { kind: "product"; name: string; approved: boolean; specs?: Record<string, unknown>; tds?: Buffer; sds?: Buffer }
+    | { kind: "sds"; name: string; pdf: Buffer },
+): Promise<{ productId?: string; tds?: string; sds?: string }> {
+  const as = await sessionFetch(admin);
+  const json = async (r: Response) => {
+    if (!r.ok) throw new Error(`${r.status} ${await r.text()}`);
+    return r.json();
+  };
+  const upload = async (documentId: string, pdf: Buffer, name: string) => {
+    const path = `${documentId}/${randomBytes(6).toString("hex")}-${name}.pdf`;
+    const up = await as(`/storage/v1/object/product-docs/${path}`, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: new Uint8Array(pdf) });
+    if (!up.ok) throw new Error(`upload failed: ${up.status} ${await up.text()}`);
+    const [v] = (await json(
+      await as("/rest/v1/document_versions", {
+        method: "POST",
+        headers: { Prefer: "return=representation" },
+        body: JSON.stringify({ document_id: documentId, storage_path: path, file_name: `${name}.pdf`, file_size: pdf.length }),
+      }),
+    )) as { id: string }[];
+    return v.id;
+  };
+  const newDoc = async (body: object) =>
+    ((await json(await as("/rest/v1/documents", { method: "POST", headers: { Prefer: "return=representation" }, body: JSON.stringify(body) }))) as { id: string }[])[0].id;
+
+  if (item.kind === "sds") {
+    const docId = await newDoc({ doc_type: "sds", name: item.name });
+    return { sds: await upload(docId, item.pdf, "sds") };
+  }
+  const [prod] = (await json(
+    await as("/rest/v1/products", {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({ name: item.name, spec_status: item.approved ? "approved" : "draft", ...item.specs }),
+    }),
+  )) as { id: string }[];
+  const out: { productId?: string; tds?: string; sds?: string } = { productId: prod.id };
+  if (item.tds) out.tds = await upload(await newDoc({ doc_type: "tds", product_id: prod.id }), item.tds, "tds");
+  if (item.sds) out.sds = await upload(await newDoc({ doc_type: "sds", product_id: prod.id }), item.sds, "sds");
+  return out;
+}
+
 /** Adds a site contact to the project. */
 export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
   const res = await api("/rest/v1/project_contacts", {

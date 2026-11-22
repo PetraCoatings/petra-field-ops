@@ -912,6 +912,42 @@
       "bothParts": "Ingrese Parte A y Parte B, o ninguna.",
       "minAboveMax": "El máximo debe ser al menos el mínimo.",
       "duplicate": "Este fabricante ya tiene un producto con ese nombre."
-    }
+    },
+    "specsTemps": "Temperatura de aplicación"
+  },
+  "libraryView": {
+    "title": "Hoja de datos",
+    "back": "Volver",
+    "notFound": "No se encontró esa hoja.",
+    "loading": "Abriendo la hoja…",
+    "offlineMissing": "Sin señal, y esta hoja no está guardada en este teléfono. Ábrala una vez con señal y toque \"Guardar en este teléfono\".",
+    "error": "No se pudo mostrar esta hoja aquí.",
+    "openDirectly": "Abrir el PDF",
+    "pageOf": "Página {n} de {total}",
+    "pages": "{count, plural, one {# página} other {# páginas}}",
+    "zoomIn": "Acercar",
+    "zoomOut": "Alejar",
+    "saveOnPhone": "Guardar en este teléfono",
+    "removeFromPhone": "Quitar de este teléfono",
+    "savedNote": "Guardada en este teléfono: se abre sin señal.",
+    "fromPhone": "Sin señal: mostrando la copia guardada en este teléfono."
+  },
+  "sds": {
+    "intro": "Hojas de seguridad de todos los productos y químicos que usamos. Guarde en este teléfono las de su trabajo para abrirlas sin señal.",
+    "search": "Buscar hojas de seguridad",
+    "searchPlaceholder": "Buscar: acetona, 200C, Sika…",
+    "savedTitle": "Guardadas en este teléfono ({count})",
+    "allTitle": "Todas las hojas de seguridad ({count})",
+    "onPhone": "En el teléfono",
+    "noMatches": "Ninguna hoja coincide.",
+    "empty": "Aún no hay hojas de seguridad. La oficina las agrega en Productos y SDS."
+  },
+  "products": {
+    "search": "Buscar productos",
+    "searchPlaceholder": "Buscar: 264, imprimante, Sika…",
+    "anyManufacturer": "Cualquier fabricante",
+    "anyCategory": "Cualquier categoría",
+    "noMatches": "Ningún producto coincide.",
+    "empty": "Aún no hay productos. La oficina los agrega y aprueba en Productos y SDS."
   }
 }

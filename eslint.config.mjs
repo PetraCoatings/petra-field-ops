@@ -20,6 +20,8 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "playwright-report/**",
     "test-results/**",
+    // PDF.js files copied in by scripts/copy-pdfjs-assets.mjs
+    "public/pdfjs/**",
   ]),
 ]);
 

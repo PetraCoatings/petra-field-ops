@@ -912,6 +912,42 @@
       "bothParts": "Enter both Part A and Part B, or neither.",
       "minAboveMax": "The maximum must be at least the minimum.",
       "duplicate": "This manufacturer already has a product with that name."
-    }
+    },
+    "specsTemps": "Application temperature"
+  },
+  "libraryView": {
+    "title": "Data sheet",
+    "back": "Back",
+    "notFound": "That data sheet wasn't found.",
+    "loading": "Opening the data sheet…",
+    "offlineMissing": "No signal, and this sheet isn't saved on this phone. Open it once with signal and tap \"Save on this phone\".",
+    "error": "Couldn't show this data sheet here.",
+    "openDirectly": "Open the PDF instead",
+    "pageOf": "Page {n} of {total}",
+    "pages": "{count, plural, one {# page} other {# pages}}",
+    "zoomIn": "Zoom in",
+    "zoomOut": "Zoom out",
+    "saveOnPhone": "Save on this phone",
+    "removeFromPhone": "Remove from this phone",
+    "savedNote": "Saved on this phone: it opens with no signal.",
+    "fromPhone": "No signal: showing the copy saved on this phone."
+  },
+  "sds": {
+    "intro": "Safety data sheets for every product and chemical we use. Save the ones for your job on this phone so they open with no signal.",
+    "search": "Search safety data sheets",
+    "searchPlaceholder": "Search: acetone, 200C, Sika…",
+    "savedTitle": "Saved on this phone ({count})",
+    "allTitle": "All safety data sheets ({count})",
+    "onPhone": "On phone",
+    "noMatches": "No safety data sheets match.",
+    "empty": "No safety data sheets yet. The office adds them under Products & SDS."
+  },
+  "products": {
+    "search": "Search products",
+    "searchPlaceholder": "Search: 264, primer, Sika…",
+    "anyManufacturer": "Any manufacturer",
+    "anyCategory": "Any category",
+    "noMatches": "No products match.",
+    "empty": "No products yet. The office adds and approves them under Products & SDS."
   }
 }
