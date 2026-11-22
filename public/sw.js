@@ -5,6 +5,9 @@
  *   - The calculator pages (HTML), refreshed every time they load online.
  *   - The app's versioned code and styles (/_next/static/…) those pages need.
  *   - A small "No connection" page for everything else.
+ *   - The safety data sheet list and the in-app PDF viewer, plus the PDF.js
+ *     code the viewer needs. SDS files a crew member saves "on this phone" are
+ *     kept by the page in the petra-sds-v1 cache.
  * Nothing else is cached: job, time and pay data always come from the server.
  *
  * Rules:
@@ -21,11 +24,13 @@
  * work offline even if the crew member has never opened them.
  */
 
-const CACHE = "petra-offline-v1";
+const CACHE = "petra-offline-v2";
 const SHELL_CACHE = "petra-shell-v1";
 const OWN_CACHES = [CACHE, SHELL_CACHE];
 const OFFLINE_PAGE = "/offline.html";
 const OFFLINE_ROUTES = [
+  "/sds",
+  "/library/view",
   "/calculators",
   "/calculators/square-footage",
   "/calculators/spread-rate",
@@ -34,12 +39,13 @@ const OFFLINE_ROUTES = [
   "/calculators/dew-point",
 ];
 const NETWORK_TIMEOUT_MS = 4000;
+const PDFJS_WORKER = "/pdfjs/pdf.worker-6.4.299.min.mjs";
 const WARM_EVERY_MS = 10 * 60 * 1000;
 const META_WARMED = "/__petra-offline/warmed";
 
 const normalize = (pathname) => (pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname);
 const isOfflineRoute = (url) => OFFLINE_ROUTES.includes(normalize(url.pathname));
-const isStaticAsset = (url) => url.pathname.startsWith("/_next/static/");
+const isStaticAsset = (url) => url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/pdfjs/");
 const isCacheablePage = (res) =>
   res && res.ok && !res.redirected && (res.headers.get("content-type") || "").includes("text/html");
 
@@ -152,6 +158,7 @@ async function warm(force) {
     await cache.put(route, res);
     for (const a of assetUrls(html)) keep.add(a);
   }
+  keep.add(PDFJS_WORKER);
   for (const a of keep) {
     if (await cache.match(a)) continue;
     try {

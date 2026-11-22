@@ -17,9 +17,20 @@ import { buttonClasses } from "@/components/ui/button-styles";
  *
  * If the share sheet isn't available, falls back to opening the PDF in a new tab.
  */
-export function PdfLink({ fwoId, revision, variant = "secondary" }: { fwoId: string; revision?: number; variant?: "secondary" | "ghost" }) {
+export function PdfLink({
+  fwoId,
+  revision,
+  href: hrefOverride,
+  variant = "secondary",
+}: {
+  fwoId?: string;
+  revision?: number;
+  /** Any same-origin PDF (e.g. a data sheet) instead of a work order revision. */
+  href?: string;
+  variant?: "secondary" | "ghost";
+}) {
   const t = useTranslations("workOrders.view");
-  const href = `/jobs/library/${fwoId}/pdf${revision ? `?rev=${revision}` : ""}`;
+  const href = hrefOverride ?? `/jobs/library/${fwoId}/pdf${revision ? `?rev=${revision}` : ""}`;
   const [mode, setMode] = useState<"loading" | "share" | "print">("loading");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
