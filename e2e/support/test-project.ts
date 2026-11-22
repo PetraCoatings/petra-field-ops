@@ -112,6 +112,23 @@ export async function publishAsOffice(
   return fwoId;
 }
 
+/** True once the product library migration has been applied to the dev project. */
+export async function productLibraryExists(): Promise<boolean> {
+  const res = await api("/rest/v1/products?select=id&limit=1");
+  return res.ok;
+}
+
+/**
+ * Hides library test data (names starting with the prefix). Uploaded data
+ * sheet versions are permanent by design, so test products and documents are
+ * archived rather than deleted.
+ */
+export async function archiveTestLibrary(prefix: string): Promise<void> {
+  const like = encodeURIComponent(`${prefix}*`);
+  await api(`/rest/v1/products?name=like.${like}`, { method: "PATCH", body: JSON.stringify({ is_active: false }) });
+  await api(`/rest/v1/documents?name=like.${like}`, { method: "PATCH", body: JSON.stringify({ is_active: false }) });
+}
+
 /** Adds a site contact to the project. */
 export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
   const res = await api("/rest/v1/project_contacts", {

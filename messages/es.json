@@ -109,6 +109,7 @@
       "dashboard": "Panel",
       "projects": "Trabajos",
       "templates": "Plantillas",
+      "library": "Productos y SDS",
       "employees": "Empleados",
       "settings": "Configuración",
       "auditLog": "Registro de cambios"
@@ -239,7 +240,8 @@
     "required": "Este dato es obligatorio.",
     "email": "Escriba un correo válido.",
     "number": "Escriba un número.",
-    "positiveNumber": "Escriba un número mayor que cero."
+    "positiveNumber": "Escriba un número mayor que cero.",
+    "tooLong": "Es demasiado largo."
   },
   "calculators": {
     "comingSoon": "Próximamente en la Fase 2.",
@@ -793,6 +795,123 @@
       "forbidden": "Solo el líder de cuadrilla o la oficina pueden cambiar la lista.",
       "generic": "No se pudo guardar. Intente de nuevo.",
       "offline": "Sin señal. No se guardó; intente de nuevo cuando tenga conexión."
+    }
+  },
+  "library": {
+    "title": "Productos y hojas de seguridad",
+    "tabs": {
+      "products": "Productos",
+      "sds": "Hojas de seguridad"
+    },
+    "newProduct": "Nuevo producto",
+    "namePlaceholder": "Por ejemplo: Sikafloor 264",
+    "create": "Crear",
+    "search": "Buscar productos",
+    "searchPlaceholder": "Buscar por nombre o fabricante",
+    "productsCount": "{count, plural, one {# producto} other {# productos}}",
+    "noMatches": "Ningún producto coincide.",
+    "empty": "Aún no hay productos. Agregue uno arriba.",
+    "status": {
+      "draft": "Borrador: sin aprobar",
+      "approved": "Aprobado"
+    },
+    "archived": "Archivado",
+    "noTds": "sin TDS",
+    "noSds": "sin SDS",
+    "editTitle": "Producto",
+    "categories": {
+      "primer": "Imprimante",
+      "basecoat": "Capa base",
+      "topcoat": "Capa final",
+      "mortar": "Mortero",
+      "self_leveler": "Autonivelante",
+      "sealer": "Sellador",
+      "grout": "Lechada",
+      "cleaner": "Limpiador / solvente",
+      "aggregate": "Agregado / arena",
+      "additive": "Aditivo / pigmento",
+      "other": "Otro"
+    },
+    "fields": {
+      "name": "Nombre del producto",
+      "manufacturer": "Fabricante",
+      "category": "Categoría",
+      "product_code": "Código del producto",
+      "description": "Descripción",
+      "mix_ratio_a": "Proporción, Parte A",
+      "mix_ratio_b": "Proporción, Parte B",
+      "mix_ratio_text": "Proporción como está escrita (opcional)",
+      "ratio_basis": "La proporción es por",
+      "kit_size_gal": "Tamaño del kit",
+      "recommended_coverage_sqft_per_gal": "Rendimiento recomendado",
+      "volume_solids_pct": "Sólidos por volumen",
+      "recommended_wft_mils": "Película húmeda recomendada",
+      "recommended_dft_mils": "Película seca recomendada",
+      "min_application_temp_f": "Temperatura mínima de aplicación",
+      "max_application_temp_f": "Temperatura máxima de aplicación",
+      "max_rh_pct": "Humedad relativa máxima",
+      "min_substrate_above_dew_point_f": "Superficie sobre punto de rocío (mín.)",
+      "pot_life_minutes": "Vida útil de la mezcla",
+      "cure_notes": "Notas de curado"
+    },
+    "basis": {
+      "volume": "Volumen",
+      "weight": "Peso"
+    },
+    "notSpecified": "No especificado",
+    "sections": {
+      "basics": "Producto",
+      "specs": "Datos de la hoja técnica"
+    },
+    "specsHint": "Llene solo lo que dice la hoja técnica. Deje lo demás en blanco; la cuadrilla verá \"no especificado\", nunca una suposición.",
+    "approval": "Aprobación",
+    "approve": "Aprobar datos",
+    "unapprove": "Volver a borrador",
+    "approvedBy": "Aprobado por {name} el {when}. La cuadrilla puede ver este producto.",
+    "draftHint": "Un administrador de oficina debe aprobar los datos antes de que la cuadrilla vea este producto.",
+    "draftHintAdmin": "Revise los datos contra la hoja técnica y luego apruébelos para que la cuadrilla vea este producto.",
+    "backToDraft": "Guardado. Como cambió un dato técnico, el producto volvió a borrador para que un administrador lo apruebe.",
+    "saved": "Guardado.",
+    "fixErrors": "Revise los campos marcados.",
+    "save": "Guardar",
+    "saving": "Guardando…",
+    "archive": "Archivar",
+    "restore": "Restaurar",
+    "someone": "alguien",
+    "docTypes": {
+      "tds": "Hoja técnica (TDS)",
+      "sds": "Hoja de seguridad (SDS)"
+    },
+    "noFile": "Aún no se ha subido un archivo.",
+    "versionN": "Versión {n}",
+    "revisedOn": "revisada {date}",
+    "uploadedBy": "subida por {name}, {when}",
+    "uploadedOn": "subida {when}",
+    "olderVersions": "{count, plural, one {# versión anterior} other {# versiones anteriores}} (se conservan para las órdenes que las usaron)",
+    "sdsUploadTitle": "Agregar hojas de seguridad",
+    "sdsUploadHint": "Para lo que no es un producto aquí (solventes, limpiadores, combustible…). Seleccione varios PDF a la vez; cada uno se convierte en su propia hoja con el nombre del archivo. Las hojas de los productos se suben en la página del producto.",
+    "sdsCount": "{count, plural, one {# hoja de seguridad} other {# hojas de seguridad}}",
+    "sdsEmpty": "Aún no hay hojas de seguridad.",
+    "hidden": "Oculta",
+    "openProduct": "Abrir producto",
+    "rename": "Cambiar nombre",
+    "hide": "Ocultar",
+    "show": "Mostrar",
+    "upload": {
+      "first": "Subir PDF",
+      "newVersion": "Subir nueva versión",
+      "manySds": "Elegir PDF de hojas de seguridad",
+      "busy": "Subiendo…",
+      "uploading": "Subiendo {name}…",
+      "done": "{count, plural, one {# archivo subido.} other {# archivos subidos.}}",
+      "failed": "No se subió: {names}. Solo PDF de hasta 30 MB.",
+      "revisionDate": "Fecha de revisión de la hoja (opcional)"
+    },
+    "errors": {
+      "outOfRange": "Ese número no parece correcto para este campo.",
+      "bothParts": "Ingrese Parte A y Parte B, o ninguna.",
+      "minAboveMax": "El máximo debe ser al menos el mínimo.",
+      "duplicate": "Este fabricante ya tiene un producto con ese nombre."
     }
   }
 }

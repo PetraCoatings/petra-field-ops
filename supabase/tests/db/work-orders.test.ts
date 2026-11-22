@@ -211,3 +211,19 @@ describe("signed out", () => {
     });
   });
 });
+
+describe("deleting an employee who published", () => {
+  it("clears 'published by' and leaves the revision otherwise identical", async () => {
+    await superuser(async (c) => {
+      await c.query("begin");
+      const before = (await c.query("select content::text, project_snapshot::text, revision_number from public.fwo_revisions where id = $1", [REV1])).rows[0];
+      await c.query("delete from public.employees where id = $1", [E.pm]);
+      const after = (await c.query("select content::text, project_snapshot::text, revision_number, published_by from public.fwo_revisions where id = $1", [REV1])).rows[0];
+      expect(after.published_by).toBeNull();
+      expect({ content: after.content, project_snapshot: after.project_snapshot, revision_number: after.revision_number }).toEqual(before);
+      // Setting someone else as the publisher is still refused.
+      await expect(c.query("update public.fwo_revisions set published_by = $2 where id = $1", [REV1, E.admin])).rejects.toThrow(/cannot be changed/);
+      await c.query("rollback");
+    });
+  });
+});
