@@ -109,6 +109,7 @@
       "dashboard": "Dashboard",
       "projects": "Jobs",
       "templates": "Templates",
+      "library": "Products & SDS",
       "employees": "Employees",
       "settings": "Company Settings",
       "auditLog": "Audit Log"
@@ -239,7 +240,8 @@
     "required": "This is required.",
     "email": "Enter a valid email address.",
     "number": "Enter a number.",
-    "positiveNumber": "Enter a number greater than zero."
+    "positiveNumber": "Enter a number greater than zero.",
+    "tooLong": "That's too long."
   },
   "calculators": {
     "comingSoon": "Coming soon in Phase 2.",
@@ -793,6 +795,123 @@
       "forbidden": "Only the crew lead or the office can change the checklist.",
       "generic": "Couldn't save. Please try again.",
       "offline": "No signal. Your tap wasn't saved; try again when you're back online."
+    }
+  },
+  "library": {
+    "title": "Products & SDS",
+    "tabs": {
+      "products": "Products",
+      "sds": "Safety data sheets"
+    },
+    "newProduct": "New product",
+    "namePlaceholder": "For example: Sikafloor 264",
+    "create": "Create",
+    "search": "Search products",
+    "searchPlaceholder": "Search by name or manufacturer",
+    "productsCount": "{count, plural, one {# product} other {# products}}",
+    "noMatches": "No products match.",
+    "empty": "No products yet. Add one above.",
+    "status": {
+      "draft": "Draft: not approved",
+      "approved": "Approved"
+    },
+    "archived": "Archived",
+    "noTds": "no TDS",
+    "noSds": "no SDS",
+    "editTitle": "Product",
+    "categories": {
+      "primer": "Primer",
+      "basecoat": "Basecoat",
+      "topcoat": "Topcoat",
+      "mortar": "Mortar",
+      "self_leveler": "Self-leveler",
+      "sealer": "Sealer",
+      "grout": "Grout",
+      "cleaner": "Cleaner / solvent",
+      "aggregate": "Aggregate / sand",
+      "additive": "Additive / pigment",
+      "other": "Other"
+    },
+    "fields": {
+      "name": "Product name",
+      "manufacturer": "Manufacturer",
+      "category": "Category",
+      "product_code": "Product code",
+      "description": "Description",
+      "mix_ratio_a": "Mix ratio, Part A",
+      "mix_ratio_b": "Mix ratio, Part B",
+      "mix_ratio_text": "Mix ratio as written (optional)",
+      "ratio_basis": "Ratio is by",
+      "kit_size_gal": "Kit size",
+      "recommended_coverage_sqft_per_gal": "Recommended coverage",
+      "volume_solids_pct": "Volume solids",
+      "recommended_wft_mils": "Recommended wet film",
+      "recommended_dft_mils": "Recommended dry film",
+      "min_application_temp_f": "Min application temperature",
+      "max_application_temp_f": "Max application temperature",
+      "max_rh_pct": "Max relative humidity",
+      "min_substrate_above_dew_point_f": "Surface above dew point (min)",
+      "pot_life_minutes": "Pot life",
+      "cure_notes": "Cure notes"
+    },
+    "basis": {
+      "volume": "Volume",
+      "weight": "Weight"
+    },
+    "notSpecified": "Not specified",
+    "sections": {
+      "basics": "Product",
+      "specs": "Specs from the data sheet"
+    },
+    "specsHint": "Fill in only what the data sheet says. Leave anything else blank; crews see \"not specified\", never a guess.",
+    "approval": "Approval",
+    "approve": "Approve specs",
+    "unapprove": "Back to draft",
+    "approvedBy": "Approved by {name} on {when}. Crews can see this product.",
+    "draftHint": "An office administrator needs to approve the specs before crews see this product.",
+    "draftHintAdmin": "Check the specs against the data sheet, then approve so crews can see this product.",
+    "backToDraft": "Saved. Because a spec changed, the product went back to draft for an office administrator to approve.",
+    "saved": "Saved.",
+    "fixErrors": "Check the highlighted fields.",
+    "save": "Save",
+    "saving": "Saving…",
+    "archive": "Archive",
+    "restore": "Restore",
+    "someone": "someone",
+    "docTypes": {
+      "tds": "Technical data sheet (TDS)",
+      "sds": "Safety data sheet (SDS)"
+    },
+    "noFile": "No file uploaded yet.",
+    "versionN": "Version {n}",
+    "revisedOn": "revised {date}",
+    "uploadedBy": "uploaded by {name}, {when}",
+    "uploadedOn": "uploaded {when}",
+    "olderVersions": "{count, plural, one {# older version} other {# older versions}} (kept for work orders that used them)",
+    "sdsUploadTitle": "Add safety data sheets",
+    "sdsUploadHint": "For anything that isn't a product here (solvents, cleaners, fuel…). Select several PDFs at once; each becomes its own SDS named after the file. Product SDS are uploaded on the product's page.",
+    "sdsCount": "{count, plural, one {# safety data sheet} other {# safety data sheets}}",
+    "sdsEmpty": "No safety data sheets yet.",
+    "hidden": "Hidden",
+    "openProduct": "Open product",
+    "rename": "Rename",
+    "hide": "Hide",
+    "show": "Show",
+    "upload": {
+      "first": "Upload PDF",
+      "newVersion": "Upload new version",
+      "manySds": "Choose SDS PDFs",
+      "busy": "Uploading…",
+      "uploading": "Uploading {name}…",
+      "done": "{count, plural, one {# file uploaded.} other {# files uploaded.}}",
+      "failed": "Not uploaded: {names}. Only PDFs up to 30 MB.",
+      "revisionDate": "Revision date on the sheet (optional)"
+    },
+    "errors": {
+      "outOfRange": "That number doesn't look right for this field.",
+      "bothParts": "Enter both Part A and Part B, or neither.",
+      "minAboveMax": "The maximum must be at least the minimum.",
+      "duplicate": "This manufacturer already has a product with that name."
     }
   }
 }
