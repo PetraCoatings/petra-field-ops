@@ -547,7 +547,8 @@
       "officeNote": "Revision {n} is what the crew sees. Crew members confirm it on their phones.",
       "confirmButton": "I've read revision {n}",
       "revisionPublished": "Revision {n}, published {when}",
-      "earlierRevisions": "Earlier revisions"
+      "earlierRevisions": "Earlier revisions",
+      "downloadPdf": "Download PDF"
     },
     "editor": {
       "pageTitle": "Edit work order",
@@ -650,7 +651,16 @@
       "jobCreated": "Job created. Fill in its work order below. The address, contacts and crew are in the job details.",
       "crewCount": "{count, plural, one {# person on the crew} other {# people on the crew}}"
     },
-    "defaultTitle": "Work order"
+    "defaultTitle": "Work order",
+    "pdf": {
+      "workOrder": "Work order",
+      "revisionLine": "Revision {n} · published {when}",
+      "contactInfo": "Contact information",
+      "target": "Target",
+      "attachedPdf": "PDF, open it in the app",
+      "page": "Page",
+      "of": "of"
+    }
   },
   "notifications": {
     "title": "Notifications",

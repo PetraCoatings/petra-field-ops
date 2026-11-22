@@ -7,6 +7,7 @@ import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ChecklistSummary } from "@/components/work-orders/checklist-summary";
+import { PdfLink } from "@/components/work-orders/pdf-link";
 import { WorkOrderStatusBadge } from "@/components/work-orders/status-badge";
 import { readContent } from "@/domain/work-orders/content";
 import { requireRole } from "@/lib/auth/dal";
@@ -100,6 +101,7 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
           <span className="text-base font-semibold text-neutral-700">{t("editor.currentRevision", { n: current.revision_number })}</span>
         )}
         {unpublished && <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-950">{t("editor.unpublished")}</span>}
+        {current && <PdfLink fwoId={fwoId} revision={current.revision_number} variant="ghost" />}
       </div>
 
       {current && (
@@ -155,6 +157,10 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
                     {" "}
                     · {when(r.published_at)} · {name(r.published_by)}
                   </span>
+                  {" "}
+                  <a href={`/jobs/library/${fwoId}/pdf?rev=${r.revision_number}`} target="_blank" rel="noopener" className="text-sm font-semibold text-brand-700 underline">
+                    PDF
+                  </a>
                   {r.change_summary && <p className="text-sm text-neutral-800">{r.change_summary}</p>}
                 </li>
               ))}
