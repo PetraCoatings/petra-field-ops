@@ -131,7 +131,7 @@ export async function openNotification(formData: FormData): Promise<void> {
     .maybeSingle();
   revalidatePath("/", "layout");
   if (data?.type === "fwo_published" && data.project_id && data.entity_id) {
-    redirect(`/jobs/${data.project_id}/work-orders/${data.entity_id}`);
+    redirect(`/jobs/${data.project_id}#wo-${data.entity_id}`);
   }
   redirect("/notifications");
 }

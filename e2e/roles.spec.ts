@@ -17,7 +17,7 @@ const ROLE_LABEL: Record<TestRole, string> = {
 
 const MANAGE_PAGES: { path: string; heading: string; roles: TestRole[] }[] = [
   { path: "/manage", heading: "Dashboard", roles: ["project_manager", "office_admin"] },
-  { path: "/manage/projects", heading: "Projects", roles: ["project_manager", "office_admin"] },
+  { path: "/manage/projects", heading: "Jobs", roles: ["project_manager", "office_admin"] },
   { path: "/manage/templates", heading: "Work order templates", roles: ["project_manager", "office_admin"] },
   { path: "/manage/employees", heading: "Employees", roles: ["office_admin"] },
   { path: "/manage/settings", heading: "Company Settings", roles: ["office_admin"] },

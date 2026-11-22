@@ -5,6 +5,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { dbErrorKey } from "@/lib/db/errors";
 import { PROJECT_STATUSES } from "@/lib/db/types";
 import { type FormState, decimalString, isEmail, positiveInt, str } from "@/lib/forms/form-state";
+import { newWorkOrderContent } from "@/domain/work-orders/content";
 import { createClient } from "@/lib/supabase/server";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -76,7 +77,16 @@ export async function createProject(_prev: FormState, fd: FormData): Promise<For
     .single();
   if (error) return failure(error);
   revalidatePath("/manage/projects");
-  redirect(`/manage/projects/${data.id}?created=1`);
+
+  // A job and its work order are one thing to the crew: start Work order 1 now
+  // and open its editor. The summary starts with what's already known.
+  const sqft = values.total_sqft ? `${Number(values.total_sqft).toLocaleString("en-US")} sf ` : "";
+  const content = newWorkOrderContent();
+  content.summary[0].value = `${sqft}${values.flooring_system ?? ""}`.trim();
+  const { data: fwo } = await supabase.from("field_work_orders").insert({ project_id: data.id, title: values.name }).select("id").single();
+  if (!fwo) redirect(`/manage/projects/${data.id}?created=1`);
+  await supabase.from("fwo_drafts").insert({ fwo_id: fwo.id, content });
+  redirect(`/manage/projects/${data.id}/work-orders/${fwo.id}?created=1`);
 }
 
 export async function updateProject(projectId: string, _prev: FormState, fd: FormData): Promise<FormState> {

@@ -16,12 +16,15 @@ export async function WorkOrderView({
   content: c,
   project,
   fileUrls,
+  showHeader = true,
 }: {
   title: string;
   fwoNumber: number;
   content: WorkOrderContent;
   project: ProjectSnapshot;
   fileUrls: Map<string, string>;
+  /** False on the job screen, which shows the job's live details above the work order. */
+  showHeader?: boolean;
 }) {
   const t = await getTranslations("workOrders.view");
   const format = await getFormatter();
@@ -33,6 +36,7 @@ export async function WorkOrderView({
   return (
     <article className="space-y-4">
       {/* Header: job, address, contacts */}
+      {showHeader && (
       <header className={`${card} space-y-2`}>
         <p className="text-sm font-bold uppercase tracking-wide text-brand-700">
           {t("workOrderN", { n: fwoNumber })} · {title}
@@ -73,6 +77,7 @@ export async function WorkOrderView({
           </ul>
         )}
       </header>
+      )}
 
       {summary.length > 0 && (
         <section className={card} aria-labelledby="wo-summary">

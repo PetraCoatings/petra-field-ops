@@ -100,12 +100,14 @@
       "on_hold": "En pausa",
       "completed": "Terminado",
       "closed": "Cerrado"
-    }
+    },
+    "details": "Datos del trabajo",
+    "noWorkOrder": "La orden de trabajo de este trabajo aún no se ha publicado."
   },
   "manage": {
     "nav": {
       "dashboard": "Panel",
-      "projects": "Proyectos",
+      "projects": "Trabajos",
       "templates": "Plantillas",
       "employees": "Empleados",
       "settings": "Configuración",
@@ -113,9 +115,9 @@
     },
     "dashboard": {
       "title": "Panel",
-      "activeProjects": "Proyectos activos",
+      "activeProjects": "Trabajos activos",
       "activeEmployees": "Empleados activos",
-      "draftProjects": "Proyectos en borrador",
+      "draftProjects": "Trabajos en borrador",
       "phaseNote": "Se irán agregando más herramientas (órdenes de trabajo, hojas de horas, nómina, tiempo libre, fichas de productos) fase por fase."
     }
   },
@@ -154,10 +156,10 @@
     "inviteRetry": "El empleado se guardó, pero no se pudo enviar la invitación. Use \"Enviar invitación\" abajo para intentarlo de nuevo."
   },
   "projects": {
-    "title": "Proyectos",
-    "new": "Nuevo proyecto",
-    "newTitle": "Nuevo proyecto",
-    "editTitle": "Editar proyecto",
+    "title": "Trabajos",
+    "new": "Nuevo trabajo",
+    "newTitle": "Nuevo trabajo",
+    "editTitle": "Datos del trabajo",
     "name": "Nombre del trabajo",
     "jobNumber": "Número de trabajo",
     "customer": "Cliente",
@@ -186,9 +188,9 @@
     "contactTitle": "Puesto",
     "contactPhone": "Teléfono",
     "contactEmail": "Correo",
-    "created": "Proyecto creado.",
-    "empty": "Todavía no hay proyectos.",
-    "jobNumberTaken": "Otro proyecto ya usa ese número de trabajo.",
+    "created": "Trabajo creado.",
+    "empty": "Todavía no hay trabajos.",
+    "jobNumberTaken": "Otro trabajo ya usa ese número de trabajo.",
     "allStatuses": "Todos"
   },
   "settings": {
@@ -543,22 +545,24 @@
       "readThenConfirm": "Léala completa y luego toque \"Ya la leí\" abajo.",
       "confirmed": "Confirmó la revisión {n} el {when}.",
       "officeNote": "La revisión {n} es la que ve la cuadrilla. Los miembros la confirman en sus teléfonos.",
-      "confirmButton": "Ya leí la revisión {n}"
+      "confirmButton": "Ya leí la revisión {n}",
+      "revisionPublished": "Revisión {n}, publicada {when}",
+      "earlierRevisions": "Revisiones anteriores"
     },
     "editor": {
       "pageTitle": "Editar orden de trabajo",
-      "backToProject": "Proyecto",
+      "backToProject": "Trabajo",
       "currentRevision": "Actual: revisión {n}",
       "unpublished": "Cambios sin publicar",
       "acknowledgments": "Quién ha leído la revisión {n}",
-      "noCrew": "Este proyecto aún no tiene cuadrilla asignada.",
+      "noCrew": "Este trabajo aún no tiene cuadrilla asignada.",
       "notYet": "Todavía no",
       "history": "Historial de revisiones",
       "preview": "Vista previa",
       "backToEditor": "Volver al editor",
       "previewNote": "Este es el borrador guardado tal como lo verá la cuadrilla al publicarse. Guarde primero para ver sus cambios más recientes.",
       "title": "Título de la orden de trabajo",
-      "headerHint": "El nombre del trabajo, la dirección y los contactos de la obra vienen del proyecto.",
+      "headerHint": "El nombre del trabajo, la dirección y los contactos vienen de los datos del trabajo.",
       "sections": {
         "summary": "Resumen del trabajo",
         "trailer": "Materiales para llevar en el tráiler",
@@ -640,8 +644,13 @@
         "fileType": "{name}: solo se pueden agregar fotos (JPEG, PNG, WebP) o PDF.",
         "fileSize": "{name} pesa más de 20 MB.",
         "upload": "No se pudo subir {name}. Intente de nuevo."
-      }
-    }
+      },
+      "jobDetails": "Datos del trabajo",
+      "editJobDetails": "Editar datos del trabajo, contactos y cuadrilla",
+      "jobCreated": "Trabajo creado. Llene su orden de trabajo abajo. La dirección, los contactos y la cuadrilla están en los datos del trabajo.",
+      "crewCount": "{count, plural, one {# persona en la cuadrilla} other {# personas en la cuadrilla}}"
+    },
+    "defaultTitle": "Orden de trabajo"
   },
   "notifications": {
     "title": "Notificaciones",
@@ -699,5 +708,34 @@
       "saveInvalid": "Hay filas incompletas. Corríjalas e intente de nuevo.",
       "openTemplate": "Abrir plantilla"
     }
+  },
+  "jobCenter": {
+    "title": "Centro de trabajos",
+    "tabs": {
+      "mine": "Mis trabajos",
+      "current": "Trabajos actuales",
+      "past": "Órdenes anteriores"
+    },
+    "emptyMine": "No tiene trabajos actuales asignados. Los trabajos anteriores están en \"Órdenes anteriores\".",
+    "noDate": "Sin fecha",
+    "needsOk": "Nueva orden de trabajo: léala",
+    "searchLabel": "Buscar órdenes de trabajo anteriores",
+    "searchPlaceholder": "Buscar: 200C, conductivo, Luling, Crossbow…",
+    "search": "Buscar",
+    "year": "Año",
+    "anyYear": "Cualquier año",
+    "month": "Mes",
+    "anyMonth": "Cualquier mes",
+    "filterHint": "Las más recientes primero. Vaya hacia atrás hasta la fecha del trabajo, o busque cualquier palabra de la orden.",
+    "noMatches": "Ninguna orden coincide. Pruebe con menos palabras u otro mes.",
+    "emptyPast": "Aún no hay órdenes anteriores. Aparecen aquí cuando su trabajo se completa.",
+    "sqft": "{value} pie²",
+    "publishedOn": "Revisión {revision}, publicada {when}",
+    "oldRevision": "Está viendo la revisión {n}. La más reciente es la revisión {current}.",
+    "seeCurrent": "Ver la revisión más reciente",
+    "yourJob": "Usted está en este trabajo.",
+    "openJob": "Abrir el trabajo",
+    "contactsHidden": "De un trabajo terminado en el que no estuvo. Los contactos del cliente están ocultos.",
+    "revisionN": "Revisión {n}"
   }
 }
