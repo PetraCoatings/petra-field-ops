@@ -44,7 +44,7 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
   const lead = users.find((x) => x.role === "crew_lead")!;
   const job = await createTestProject([installer]);
   try {
-    await updateTestProject(job.id, { name: "XBow (Crossbow), RIB 2", site_city: "Luling", site_state: "TX" });
+    await updateTestProject(job.id, { name: "E2E XBow (Crossbow), RIB 2", site_city: "Luling", site_state: "TX" });
     await addTestContact(job.id, { name: "John Janacek", title: "with CRC", phone: "(512) 550-0816" });
     const content = {
       v: 1,
@@ -77,12 +77,12 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
     const current = await i.request.get(href!);
     expect(current.status()).toBe(200);
     expect(current.headers()["content-type"]).toBe("application/pdf");
-    expect(current.headers()["content-disposition"]).toContain("XBow (Crossbow), RIB 2 - WO 1 rev 2.pdf");
+    expect(current.headers()["content-disposition"]).toContain("E2E XBow (Crossbow), RIB 2 - WO 1 rev 2.pdf");
     const pdf = await current.body();
     expect(pdf.subarray(0, 5).toString()).toBe("%PDF-");
     expect(pdfPageCount(pdf)).toBe(2); // work order + drawing page
     const text = flat(pdfText(pdf));
-    for (const expected of ["WORK ORDER", "XBow (Crossbow), RIB 2", "John Janacek", "(512) 550-0816", "6,620 sf Sika 200C Conductive System", "19 Kits + Partial", "2.2A : 1B", "IMPORTANT: ", "Shop drawing", "Revision 2"]) {
+    for (const expected of ["WORK ORDER", "E2E XBow (Crossbow), RIB 2", "John Janacek", "(512) 550-0816", "6,620 sf Sika 200C Conductive System", "19 Kits + Partial", "2.2A : 1B", "IMPORTANT: ", "Shop drawing", "Revision 2"]) {
       expect(text, expected).toContain(flat(expected));
     }
 
@@ -117,7 +117,7 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
     await expect.poll(() => phone.evaluate(() => (window as unknown as { __shared?: unknown[] }).__shared?.length ?? 0)).toBe(1);
     const shared = await phone.evaluate(() => (window as unknown as { __shared: { name: string; type: string; size: number }[] }).__shared[0]);
     expect(shared.type).toBe("application/pdf");
-    expect(shared.name).toBe("XBow (Crossbow), RIB 2 - WO 1 rev 2.pdf");
+    expect(shared.name).toBe("E2E XBow (Crossbow), RIB 2 - WO 1 rev 2.pdf");
     expect(shared.size).toBeGreaterThan(1000);
     await expect(phone).toHaveURL(new RegExp(`/jobs/${job.id}$`)); // still in the app
     await phoneCtx.close();
