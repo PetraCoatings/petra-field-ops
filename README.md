@@ -11,7 +11,7 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 |---|---|
 | 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Done; sign-in tested for every role against the dev Supabase project |
 | 2. Calculators | Done: five calculators, offline (airplane mode), and "Save to job"  |
-| 3. Projects & work orders | In progress: work orders (editor, publish, revisions, crew confirmation, notifications, drawings) done; templates, loading checklists and PDF next |
+| 3. Projects & work orders | In progress: work orders and templates done; loading checklists and PDF next |
 | 4–9 | Not started |
 
 ## Stack
