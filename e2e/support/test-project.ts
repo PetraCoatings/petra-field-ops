@@ -37,6 +37,17 @@ export async function workOrdersTableExists(): Promise<boolean> {
   return res.ok;
 }
 
+/** True once the templates migration has been applied to the dev project. */
+export async function templatesTableExists(): Promise<boolean> {
+  const res = await api("/rest/v1/work_order_templates?select=id&limit=1");
+  return res.ok;
+}
+
+/** Removes templates created by a test run (names start with the given prefix). */
+export async function deleteTestTemplates(prefix: string): Promise<void> {
+  await api(`/rest/v1/work_order_templates?name=like.${encodeURIComponent(prefix)}*`, { method: "DELETE" });
+}
+
 /** Adds a site contact to the project. */
 export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
   const res = await api("/rest/v1/project_contacts", {
