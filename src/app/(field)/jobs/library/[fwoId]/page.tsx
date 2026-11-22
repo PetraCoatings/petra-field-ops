@@ -93,7 +93,7 @@ export default async function LibraryWorkOrderPage({ params, searchParams }: Pag
         )
       )}
       <PdfLink fwoId={fwoId} revision={wo.revision_number} />
-      <WorkOrderView title={wo.title} fwoNumber={wo.fwo_number} content={content} project={wo.project_snapshot} fileUrls={urls} />
+      <WorkOrderView title={wo.title} fwoNumber={wo.fwo_number} content={content} project={wo.project_snapshot} fileUrls={urls} backHref={`/jobs/library/${fwoId}?rev=${wo.revision_number}`} />
       <PdfLink fwoId={fwoId} revision={wo.revision_number} />
       {wo.current_revision_number > 1 && (
         <p className="text-sm text-neutral-700">

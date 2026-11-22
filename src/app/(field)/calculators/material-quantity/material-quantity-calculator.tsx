@@ -8,12 +8,14 @@ import { Segmented } from "@/components/calculators/segmented";
 import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
+import { ProductFill } from "@/components/calculators/product-fill";
+import type { PickerProduct } from "@/lib/library/picker-types";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { calculateMaterial, spreadRateForWftMils } from "@/domain/calculators/material";
 import { SQFT_MILS_PER_GALLON } from "@/domain/calculators/spread-rate";
 
 type CoverageMode = "rate" | "mils";
-type Draft = { area: string; coverageMode: CoverageMode; coverage: string; coats: string; waste: string; kit: string };
+type Draft = { area: string; coverageMode: CoverageMode; coverage: string; coats: string; waste: string; kit: string; productId?: string };
 const STORAGE_KEY = "petra.calc.materialQuantity.v1";
 const INITIAL: Draft = { area: "", coverageMode: "rate", coverage: "", coats: "1", waste: "", kit: "" };
 
@@ -37,7 +39,9 @@ function check(raw: string, valid: (n: number) => boolean, rangeError: ErrorKey)
   return valid(n) ? { value: n } : { error: rangeError };
 }
 
-export function MaterialQuantityCalculator() {
+const str = (n: number | null) => (n === null ? undefined : String(n));
+
+export function MaterialQuantityCalculator({ products = [] }: { products?: PickerProduct[] }) {
   const t = useTranslations("calculators.materialQuantity");
   const tc = useTranslations("calculators");
   const locale = useLocale();
@@ -82,6 +86,17 @@ export function MaterialQuantityCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <ProductFill
+          products={products}
+          value={draft.productId ?? ""}
+          relevant={(p) => p.coverage !== null || p.kitSizeGal !== null}
+          onPick={(p) =>
+            setDraft((d) => {
+              if (!p) return { ...d, productId: undefined };
+              return { ...d, productId: p.id, ...(p.coverage !== null && { coverageMode: "rate" as const, coverage: String(p.coverage) }), kit: str(p.kitSizeGal) ?? d.kit };
+            })
+          }
+        />
         <NumberInput id="mq-area" label={t("area")} suffix={tc("sqftUnit")} value={draft.area} onChange={(v) => set({ area: v })} error={err(area)} />
         <Segmented
           label={t("coverageMode")}

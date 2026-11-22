@@ -192,6 +192,23 @@ export async function addLibraryItem(
 }
 
 /** Adds a site contact to the project. */
+/** Uploads a newer version of the same data sheet (identified by any existing version id). Returns the new version id. */
+export async function addDocumentVersion(admin: RoleUser, existingVersionId: string, pdf: Buffer): Promise<string> {
+  const as = await sessionFetch(admin);
+  const r = await as(`/rest/v1/document_versions?select=document_id&id=eq.${existingVersionId}`);
+  const [{ document_id }] = (await r.json()) as { document_id: string }[];
+  const path = `${document_id}/${randomBytes(6).toString("hex")}-new.pdf`;
+  const up = await as(`/storage/v1/object/product-docs/${path}`, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: new Uint8Array(pdf) });
+  if (!up.ok) throw new Error(`upload failed: ${up.status} ${await up.text()}`);
+  const v = await as("/rest/v1/document_versions", {
+    method: "POST",
+    headers: { Prefer: "return=representation" },
+    body: JSON.stringify({ document_id, storage_path: path, file_name: "new.pdf", file_size: pdf.length }),
+  });
+  if (!v.ok) throw new Error(`new version failed: ${v.status} ${await v.text()}`);
+  return ((await v.json()) as { id: string }[])[0].id;
+}
+
 export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
   const res = await api("/rest/v1/project_contacts", {
     method: "POST",

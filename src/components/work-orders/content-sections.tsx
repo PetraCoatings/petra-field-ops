@@ -4,11 +4,13 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { AlertTriangle } from "lucide-react";
 import type { ScheduleDay, Step, WorkOrderContent } from "@/domain/work-orders/content";
+import type { PickerProduct } from "@/lib/library/picker-types";
+import { ProductsSection } from "./products-section";
 import { RowInput, RowList } from "./row-list";
 
 export type Issue = { path: string; message: string };
 
-export type SectionKey = "summary" | "trailer" | "jobsite" | "mixRatios" | "schedule" | "safety" | "qcTests" | "notes" | "custom" | "attachments";
+export type SectionKey = "summary" | "trailer" | "jobsite" | "mixRatios" | "products" | "schedule" | "safety" | "qcTests" | "notes" | "custom" | "attachments";
 export const SECTION_OF_PATH: Record<string, SectionKey> = {
   summary: "summary",
   trailerMaterials: "trailer",
@@ -20,6 +22,7 @@ export const SECTION_OF_PATH: Record<string, SectionKey> = {
   notes: "notes",
   customSections: "custom",
   attachments: "attachments",
+  products: "products",
 };
 
 export function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: React.ReactNode }) {
@@ -60,11 +63,17 @@ export function ContentSections({
   set,
   issues,
   attachments,
+  products = [],
+  pinVersions = false,
 }: {
   c: WorkOrderContent;
   set: <K extends keyof WorkOrderContent>(key: K, value: WorkOrderContent[K]) => void;
   issues: Issue[];
   attachments?: ReactNode;
+  /** Approved products to pick from. */
+  products?: PickerProduct[];
+  /** Work orders pin data sheet versions; templates don't. */
+  pinVersions?: boolean;
 }) {
   const t = useTranslations("workOrders.editor");
   const hasIssue = (key: string) => issues.some((i) => i.path.split(".")[0] === key);
@@ -140,6 +149,12 @@ export function ContentSections({
               </div>
             )}
           />
+        </Section>
+      </div>
+
+      <div className={ring("products")}>
+        <Section id="products" title={t("sections.products")} hint={pinVersions ? t("hints.productsPinned") : t("hints.products")}>
+          <ProductsSection c={c} set={set} products={products} pin={pinVersions} />
         </Section>
       </div>
 

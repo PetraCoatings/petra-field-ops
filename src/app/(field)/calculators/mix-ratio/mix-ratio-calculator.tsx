@@ -8,6 +8,8 @@ import { Segmented } from "@/components/calculators/segmented";
 import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
+import { ProductFill } from "@/components/calculators/product-fill";
+import type { PickerProduct } from "@/lib/library/picker-types";
 import { buttonClasses } from "@/components/ui/button-styles";
 import {
   calculateMix,
@@ -18,7 +20,7 @@ import {
   type MixBasis,
 } from "@/domain/calculators/mix-ratio";
 
-type Draft = { basis: MixBasis; ratioA: string; ratioB: string; known: KnownAmount; large: string; small: string };
+type Draft = { basis: MixBasis; ratioA: string; ratioB: string; known: KnownAmount; large: string; small: string; productId?: string };
 const STORAGE_KEY = "petra.calc.mixRatio.v1";
 const INITIAL: Draft = { basis: "volume", ratioA: "", ratioB: "", known: "total", large: "", small: "" };
 
@@ -48,7 +50,9 @@ function nonNegativeField(raw: string): Checked {
   return n >= 0 ? { value: n } : { error: "notNegative" };
 }
 
-export function MixRatioCalculator() {
+const str = (n: number | null) => (n === null ? undefined : String(n));
+
+export function MixRatioCalculator({ products = [] }: { products?: PickerProduct[] }) {
   const t = useTranslations("calculators.mixRatio");
   const tc = useTranslations("calculators");
   const locale = useLocale();
@@ -88,6 +92,17 @@ export function MixRatioCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <ProductFill
+          products={products}
+          value={draft.productId ?? ""}
+          relevant={(p) => p.mixRatioA !== null && p.mixRatioB !== null}
+          onPick={(p) =>
+            setDraft((d) => {
+              if (!p) return { ...d, productId: undefined };
+              return { ...d, productId: p.id, ratioA: str(p.mixRatioA) ?? d.ratioA, ratioB: str(p.mixRatioB) ?? d.ratioB, basis: p.ratioBasis ?? d.basis };
+            })
+          }
+        />
         <Segmented
           label={t("basis")}
           value={draft.basis}

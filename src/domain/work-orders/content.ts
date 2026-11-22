@@ -41,6 +41,21 @@ export const attachmentSchema = z.object({
   caption: text(200).optional(),
 });
 
+const uuid = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
+/**
+ * A product from the library, with the EXACT data sheet versions current when
+ * it was added. A newer TDS/SDS uploaded later never changes what this work
+ * order points to (the office can choose to update it in the draft).
+ */
+export const productRefSchema = z.object({
+  productId: uuid,
+  name: required(160),
+  manufacturer: text(120).optional(),
+  tdsVersionId: uuid.optional(),
+  sdsVersionId: uuid.optional(),
+});
+
 export const contentSchema = z.object({
   v: z.literal(CONTENT_VERSION).default(CONTENT_VERSION),
   /** Label/value rows: System install, Available power, Prep machine… */
@@ -57,12 +72,15 @@ export const contentSchema = z.object({
   notes: text(10_000).default(""),
   customSections: z.array(z.object({ title: required(120), body: text(10_000) })).max(20).default([]),
   attachments: z.array(attachmentSchema).max(50).default([]),
+  /** Products used on the job, with pinned data sheet versions. */
+  products: z.array(productRefSchema).max(50).default([]),
 });
 
 export type WorkOrderContent = z.infer<typeof contentSchema>;
 export type ScheduleDay = z.infer<typeof daySchema>;
 export type Step = z.infer<typeof stepSchema>;
 export type Attachment = z.infer<typeof attachmentSchema>;
+export type ProductRef = z.infer<typeof productRefSchema>;
 
 /** A new work order starts with the summary rows Petra uses and a Day 1. */
 export function newWorkOrderContent(): WorkOrderContent {
@@ -82,6 +100,7 @@ export function newWorkOrderContent(): WorkOrderContent {
     notes: "",
     customSections: [],
     attachments: [],
+    products: [],
   };
 }
 
@@ -115,7 +134,7 @@ export function dropBlankRows(raw: unknown): unknown {
     );
   }
   // Optional strings: "" → undefined
-  for (const key of ["trailerMaterials", "jobsiteMaterials", "qcTests", "attachments"] as const) {
+  for (const key of ["trailerMaterials", "jobsiteMaterials", "qcTests", "attachments", "products"] as const) {
     if (Array.isArray(c[key]))
       c[key] = (c[key] as Record<string, unknown>[]).map((r) =>
         Object.fromEntries(Object.entries(r).filter(([, v]) => !(typeof v === "string" && v.trim() === ""))),
@@ -159,7 +178,8 @@ export function isEmptyContent(c: WorkOrderContent): boolean {
     c.qcTests.length === 0 &&
     c.notes.trim() === "" &&
     c.customSections.length === 0 &&
-    c.attachments.length === 0
+    c.attachments.length === 0 &&
+    c.products.length === 0
   );
 }
 

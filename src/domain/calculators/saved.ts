@@ -71,6 +71,8 @@ export const inputSchemas = {
     airTemp: num.min(-100).max(200),
     relativeHumidity: percent,
     substrateTemp: num.min(-100).max(200).optional(),
+    /** Approved product whose data sheet margin applies (the server looks the margin up). */
+    productId: z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i).optional(),
   }),
 } as const;
 
@@ -134,7 +136,13 @@ function compute<K extends CalculationType>(type: K, inputs: SavedInputs[K], ctx
     }
     case "dew_point": {
       const i = inputs as SavedInputs["dew_point"];
-      const r = calculateDewPoint({ ...i, marginF: ctx.dewPointMarginF });
+      const r = calculateDewPoint({
+        unit: i.unit,
+        airTemp: i.airTemp,
+        relativeHumidity: i.relativeHumidity,
+        substrateTemp: i.substrateTemp,
+        marginF: ctx.dewPointMarginF,
+      });
       return {
         dewPoint: r.dewPoint,
         marginF: ctx.dewPointMarginF,

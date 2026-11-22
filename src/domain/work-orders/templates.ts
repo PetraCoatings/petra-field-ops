@@ -17,6 +17,9 @@ export function checkTemplateContent(raw: unknown): TemplateCheck {
   const parsed = contentSchema.safeParse(dropBlankRows(raw));
   if (!parsed.success) return { ok: false, issues: parsed.error.issues.map((i) => ({ path: i.path.join("."), message: i.message })) };
   if (parsed.data.attachments.length > 0) return { ok: false, issues: [{ path: "attachments", message: "Templates can't hold drawings" }] };
+  if (parsed.data.products.some((p) => p.tdsVersionId || p.sdsVersionId)) {
+    parsed.data.products = parsed.data.products.map(({ tdsVersionId: _t, sdsVersionId: _s, ...p }) => p);
+  }
   return { ok: true, content: parsed.data };
 }
 
@@ -53,6 +56,7 @@ export function insertTemplate(draft: WorkOrderContent, template: WorkOrderConte
   out.safety.push(...t.safety);
   out.qcTests.push(...t.qcTests);
   out.customSections.push(...t.customSections);
+  for (const p of t.products) if (!out.products.some((x) => x.productId === p.productId)) out.products.push(p);
   if (t.schedule.length > 0) {
     out.schedule = [...out.schedule.filter((d) => !isUntouchedDay(d)), ...t.schedule];
   }
@@ -65,6 +69,8 @@ export function toTemplateContent(c: WorkOrderContent): WorkOrderContent {
   const t = copy(c);
   t.schedule = t.schedule.map(({ date: _date, ...day }) => day);
   t.attachments = [];
+  // Data sheet versions are pinned per job; a template carries the products only.
+  t.products = t.products.map(({ tdsVersionId: _tds, sdsVersionId: _sds, ...p }) => p);
   return t;
 }
 

@@ -445,7 +445,8 @@
         "minimum": "Superficie mínima",
         "spread": "Superficie − punto de rocío",
         "source": "Coeficientes de Alduchov y Eskridge (1996), precisos a unos 0.4 °C entre {min} °C y {max} °C. La verificación usa los valores redondeados a 0.1°, como se muestran."
-      }
+      },
+      "productMarginNote": "Margen: {margin} por encima del punto de rocío, según la hoja técnica de {product}."
     },
     "galUnit": "gal",
     "lbUnit": "lb",
@@ -506,6 +507,11 @@
         "detail": "Aire {air} · {rh}% HR · margen {margin}",
         "surface": "Superficie {surface}"
       }
+    },
+    "productFill": {
+      "label": "Llenar con un producto (opcional)",
+      "none": "Sin producto: escriba los números",
+      "hint": "Copia los números de la hoja técnica aprobada del producto. Todavía puede cambiarlos."
     }
   },
   "workOrders": {
@@ -555,7 +561,8 @@
       "print": "Imprimir",
       "preparingPdf": "Preparando PDF…",
       "pdfFailed": "No se pudo preparar el PDF.",
-      "openPdf": "Abrirlo en su lugar"
+      "openPdf": "Abrirlo en su lugar",
+      "products": "Productos y hojas técnicas"
     },
     "editor": {
       "pageTitle": "Editar orden de trabajo",
@@ -581,7 +588,8 @@
         "safety": "Seguridad y EPP",
         "qcTests": "Pruebas de control de calidad",
         "notes": "Notas",
-        "custom": "Secciones personalizadas"
+        "custom": "Secciones personalizadas",
+        "products": "Productos y hojas técnicas"
       },
       "hints": {
         "summary": "Las filas en blanco no se muestran.",
@@ -593,7 +601,9 @@
         "files": "Fotos (JPEG, PNG, WebP) o PDF, hasta 20 MB cada uno.",
         "optional": "Opcional. No se muestra a la cuadrilla si está vacío.",
         "qcTests": "Opcional. Agregue una meta solo si la hay.",
-        "custom": "Opcional. Para lo que no encaje arriba."
+        "custom": "Opcional. Para lo que no encaje arriba.",
+        "productsPinned": "Elija productos de la biblioteca. Esta orden conserva las versiones de la TDS y SDS vigentes ahora, aunque luego se suban otras más nuevas.",
+        "products": "Elija productos de la biblioteca. Cada orden hecha con esta plantilla fija las hojas vigentes en ese momento."
       },
       "add": {
         "summary": "Agregar fila",
@@ -656,7 +666,21 @@
       "jobDetails": "Datos del trabajo",
       "editJobDetails": "Editar datos del trabajo, contactos y cuadrilla",
       "jobCreated": "Trabajo creado. Llene su orden de trabajo abajo. La dirección, los contactos y la cuadrilla están en los datos del trabajo.",
-      "crewCount": "{count, plural, one {# persona en la cuadrilla} other {# personas en la cuadrilla}}"
+      "crewCount": "{count, plural, one {# persona en la cuadrilla} other {# personas en la cuadrilla}}",
+      "productsSection": {
+        "choose": "Agregar un producto",
+        "chooseOption": "Elija un producto aprobado",
+        "add": "Agregar",
+        "tdsPinned": "TDS fijada",
+        "sdsPinned": "SDS fijada",
+        "noTds": "Sin TDS",
+        "noSds": "Sin SDS",
+        "newerAvailable": "Se subió una hoja más nueva.",
+        "useNewer": "Usar la versión más nueva",
+        "notInLibrary": "Ya no está en la biblioteca (archivado o en borrador).",
+        "noProducts": "Aún no hay productos aprobados. Agréguelos en Productos y SDS.",
+        "byWeight": "por peso"
+      }
     },
     "defaultTitle": "Orden de trabajo",
     "pdf": {
@@ -666,7 +690,8 @@
       "target": "Meta",
       "attachedPdf": "PDF, ábralo en la app",
       "page": "Página",
-      "of": "de"
+      "of": "de",
+      "sheetsInApp": "Las versiones exactas de la TDS y SDS de esta orden están en la app."
     }
   },
   "notifications": {

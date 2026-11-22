@@ -17,6 +17,7 @@ import { createClient } from "@/lib/supabase/client";
 import { ContentSections, SECTION_OF_PATH, Section, type Issue } from "@/components/work-orders/content-sections";
 import { RowInput, RowList } from "@/components/work-orders/row-list";
 import { TemplateTools, type TemplateOption } from "@/components/work-orders/template-tools";
+import type { PickerProduct } from "@/lib/library/picker-types";
 
 export function WorkOrderEditor({
   projectId,
@@ -26,6 +27,7 @@ export function WorkOrderEditor({
   hasRevisions,
   nextRevision,
   templates,
+  products,
 }: {
   projectId: string;
   fwoId: string;
@@ -34,6 +36,7 @@ export function WorkOrderEditor({
   hasRevisions: boolean;
   nextRevision: number;
   templates: TemplateOption[];
+  products: PickerProduct[];
 }) {
   const t = useTranslations("workOrders.editor");
   const router = useRouter();
@@ -159,6 +162,8 @@ export function WorkOrderEditor({
         c={c}
         set={set}
         issues={issues}
+        products={products}
+        pinVersions
         attachments={
           <div className={ring("attachments")}>
         <Section id="attachments" title={t("sections.attachments")} hint={t("hints.attachments")}>

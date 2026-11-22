@@ -8,6 +8,8 @@ import { Segmented } from "@/components/calculators/segmented";
 import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
+import { ProductFill } from "@/components/calculators/product-fill";
+import type { PickerProduct } from "@/lib/library/picker-types";
 import { buttonClasses } from "@/components/ui/button-styles";
 import {
   fromMils,
@@ -19,7 +21,7 @@ import {
 } from "@/domain/calculators/spread-rate";
 
 type Mode = "fromRate" | "fromMils";
-type Draft = { mode: Mode; basis: FilmBasis; rate: string; mils: string; solids: string; loss: string };
+type Draft = { mode: Mode; basis: FilmBasis; rate: string; mils: string; solids: string; loss: string; productId?: string };
 const STORAGE_KEY = "petra.calc.spreadRate.v1";
 const INITIAL: Draft = { mode: "fromRate", basis: "wft", rate: "", mils: "", solids: "", loss: "" };
 
@@ -44,7 +46,9 @@ function check(raw: string, valid: (n: number) => boolean, rangeError: ErrorKey,
   return valid(n) ? { value: n } : { error: rangeError };
 }
 
-export function SpreadRateCalculator() {
+const str = (n: number | null) => (n === null ? undefined : String(n));
+
+export function SpreadRateCalculator({ products = [] }: { products?: PickerProduct[] }) {
   const t = useTranslations("calculators.spreadRate");
   const tc = useTranslations("calculators");
   const locale = useLocale();
@@ -81,6 +85,18 @@ export function SpreadRateCalculator() {
   return (
     <div className="space-y-4">
       <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <ProductFill
+          products={products}
+          value={draft.productId ?? ""}
+          relevant={(p) => p.volumeSolids !== null || p.coverage !== null || p.wftMils !== null || p.dftMils !== null}
+          onPick={(p) =>
+            setDraft((d) => {
+              if (!p) return { ...d, productId: undefined };
+              const film = p.wftMils !== null ? { basis: "wft" as const, mils: String(p.wftMils) } : p.dftMils !== null ? { basis: "dft" as const, mils: String(p.dftMils) } : {};
+              return { ...d, productId: p.id, ...film, rate: str(p.coverage) ?? d.rate, solids: str(p.volumeSolids) ?? d.solids };
+            })
+          }
+        />
         <Segmented
           label={t("mode")}
           value={draft.mode}

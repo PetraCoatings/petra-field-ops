@@ -445,7 +445,8 @@
         "minimum": "Minimum surface",
         "spread": "Surface − dew point",
         "source": "Coefficients from Alduchov & Eskridge (1996), accurate to about 0.4 °C between {min} °C and {max} °C. The check uses the values rounded to 0.1°, as shown."
-      }
+      },
+      "productMarginNote": "Margin: {margin} above the dew point, from the {product} data sheet."
     },
     "galUnit": "gal",
     "lbUnit": "lb",
@@ -506,6 +507,11 @@
         "detail": "Air {air} · {rh}% RH · margin {margin}",
         "surface": "Surface {surface}"
       }
+    },
+    "productFill": {
+      "label": "Fill from a product (optional)",
+      "none": "No product: type the numbers",
+      "hint": "Copies the numbers from the product's approved data sheet. You can still change them."
     }
   },
   "workOrders": {
@@ -555,7 +561,8 @@
       "print": "Print",
       "preparingPdf": "Preparing PDF…",
       "pdfFailed": "Couldn't prepare the PDF.",
-      "openPdf": "Open it instead"
+      "openPdf": "Open it instead",
+      "products": "Products and data sheets"
     },
     "editor": {
       "pageTitle": "Edit work order",
@@ -581,7 +588,8 @@
         "safety": "Safety and PPE",
         "qcTests": "QC tests",
         "notes": "Notes",
-        "custom": "Custom sections"
+        "custom": "Custom sections",
+        "products": "Products and data sheets"
       },
       "hints": {
         "summary": "Rows left blank are hidden.",
@@ -593,7 +601,9 @@
         "files": "Photos (JPEG, PNG, WebP) or PDFs, up to 20 MB each.",
         "optional": "Optional. Hidden from the crew when empty.",
         "qcTests": "Optional. Add a target only if there is one.",
-        "custom": "Optional. For anything that doesn't fit above."
+        "custom": "Optional. For anything that doesn't fit above.",
+        "productsPinned": "Pick products from the library. This work order keeps the TDS and SDS versions current right now, even if newer ones are uploaded later.",
+        "products": "Pick products from the library. Each work order made from this template pins the data sheets current at that time."
       },
       "add": {
         "summary": "Add row",
@@ -656,7 +666,21 @@
       "jobDetails": "Job details",
       "editJobDetails": "Edit job details, contacts and crew",
       "jobCreated": "Job created. Fill in its work order below. The address, contacts and crew are in the job details.",
-      "crewCount": "{count, plural, one {# person on the crew} other {# people on the crew}}"
+      "crewCount": "{count, plural, one {# person on the crew} other {# people on the crew}}",
+      "productsSection": {
+        "choose": "Add a product",
+        "chooseOption": "Choose an approved product",
+        "add": "Add",
+        "tdsPinned": "TDS pinned",
+        "sdsPinned": "SDS pinned",
+        "noTds": "No TDS",
+        "noSds": "No SDS",
+        "newerAvailable": "A newer data sheet was uploaded.",
+        "useNewer": "Use the newer version",
+        "notInLibrary": "No longer in the library (archived or back to draft).",
+        "noProducts": "No approved products yet. Add them under Products & SDS.",
+        "byWeight": "by weight"
+      }
     },
     "defaultTitle": "Work order",
     "pdf": {
@@ -666,7 +690,8 @@
       "target": "Target",
       "attachedPdf": "PDF, open it in the app",
       "page": "Page",
-      "of": "of"
+      "of": "of",
+      "sheetsInApp": "The exact TDS and SDS versions for this work order are in the app."
     }
   },
   "notifications": {
