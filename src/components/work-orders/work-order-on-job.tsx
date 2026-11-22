@@ -65,6 +65,8 @@ export async function WorkOrderOnJob({
         </h2>
       )}
 
+      <PdfLink fwoId={fwo.id} revision={revision.revision_number} />
+
       {isCrew && !myAck && (
         <div className="space-y-2 rounded-2xl border-l-8 border-accent-500 bg-amber-50 p-4">
           <p className="text-xl font-bold text-amber-950">

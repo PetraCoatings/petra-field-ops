@@ -101,8 +101,10 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
           <span className="text-base font-semibold text-neutral-700">{t("editor.currentRevision", { n: current.revision_number })}</span>
         )}
         {unpublished && <span className="rounded-full bg-amber-100 px-3 py-1 text-sm font-semibold text-amber-950">{t("editor.unpublished")}</span>}
-        {current && <PdfLink fwoId={fwoId} revision={current.revision_number} variant="ghost" />}
+
       </div>
+
+      {current && <PdfLink fwoId={fwoId} revision={current.revision_number} />}
 
       {current && (
         <ChecklistSummary

@@ -1,4 +1,4 @@
-import { expect, test, type Browser, type Page } from "@playwright/test";
+import { devices, expect, test, type Browser, type Page } from "@playwright/test";
 import { flat, pdfPageCount, pdfText } from "./support/pdf-text";
 import { readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import {
@@ -85,6 +85,42 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
     for (const expected of ["WORK ORDER", "XBow (Crossbow), RIB 2", "John Janacek", "(512) 550-0816", "6,620 sf Sika 200C Conductive System", "19 Kits + Partial", "2.2A : 1B", "IMPORTANT: ", "Shop drawing", "Revision 2"]) {
       expect(text, expected).toContain(flat(expected));
     }
+
+    // ---- The buttons never navigate away from the app: Print (dialog on the page) and a download link
+    await expect(i.getByRole("button", { name: "Print" }).first()).toBeVisible();
+    await expect(i.getByRole("link", { name: "Download PDF" }).first()).toHaveAttribute("download", "");
+    await i.getByRole("button", { name: "Print" }).first().click();
+    await expect(i.locator('iframe[src^="blob:"]')).toHaveCount(1); // the PDF loads into the page for printing
+    await expect(i).toHaveURL(new RegExp(`/jobs/${job.id}$`));
+
+    // ---- On a phone: "Print or share PDF" hands the PDF to the share sheet and stays in the app.
+    // (Test browsers have no share sheet, so a stand-in records what would be shared.)
+    const phoneCtx = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+    await phoneCtx.addInitScript(() => {
+      const w = window as unknown as { __shared?: { name: string; type: string; size: number }[] };
+      Object.defineProperty(navigator, "canShare", { value: () => true, configurable: true });
+      Object.defineProperty(navigator, "share", {
+        value: async (data: { files?: File[] }) => {
+          w.__shared = (data.files ?? []).map((f) => ({ name: f.name, type: f.type, size: f.size }));
+        },
+        configurable: true,
+      });
+    });
+    const phone = await phoneCtx.newPage();
+    await phone.goto("/login");
+    await phone.getByLabel("Email").fill(installer.email);
+    await phone.getByLabel("Password", { exact: true }).fill(installer.password);
+    await phone.getByRole("button", { name: "Sign in" }).click();
+    await expect(phone).toHaveURL(/\/$/);
+    await phone.goto(`/jobs/${job.id}`);
+    await phone.getByRole("button", { name: "Print or share PDF" }).first().click(); // one at the top, one at the bottom
+    await expect.poll(() => phone.evaluate(() => (window as unknown as { __shared?: unknown[] }).__shared?.length ?? 0)).toBe(1);
+    const shared = await phone.evaluate(() => (window as unknown as { __shared: { name: string; type: string; size: number }[] }).__shared[0]);
+    expect(shared.type).toBe("application/pdf");
+    expect(shared.name).toBe("XBow (Crossbow), RIB 2 - WO 1 rev 2.pdf");
+    expect(shared.size).toBeGreaterThan(1000);
+    await expect(phone).toHaveURL(new RegExp(`/jobs/${job.id}$`)); // still in the app
+    await phoneCtx.close();
 
     // ---- Revision 1 is still exactly as published
     const old = flat(pdfText(await (await i.request.get(`/jobs/library/${fwoId}/pdf?rev=1`)).body()));

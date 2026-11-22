@@ -548,7 +548,12 @@
       "confirmButton": "I've read revision {n}",
       "revisionPublished": "Revision {n}, published {when}",
       "earlierRevisions": "Earlier revisions",
-      "downloadPdf": "Download PDF"
+      "downloadPdf": "Download PDF",
+      "printOrShare": "Print or share PDF",
+      "print": "Print",
+      "preparingPdf": "Preparing PDF…",
+      "pdfFailed": "Couldn't prepare the PDF.",
+      "openPdf": "Open it instead"
     },
     "editor": {
       "pageTitle": "Edit work order",

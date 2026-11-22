@@ -548,7 +548,12 @@
       "confirmButton": "Ya leí la revisión {n}",
       "revisionPublished": "Revisión {n}, publicada {when}",
       "earlierRevisions": "Revisiones anteriores",
-      "downloadPdf": "Descargar PDF"
+      "downloadPdf": "Descargar PDF",
+      "printOrShare": "Imprimir o compartir PDF",
+      "print": "Imprimir",
+      "preparingPdf": "Preparando PDF…",
+      "pdfFailed": "No se pudo preparar el PDF.",
+      "openPdf": "Abrirlo en su lugar"
     },
     "editor": {
       "pageTitle": "Editar orden de trabajo",
