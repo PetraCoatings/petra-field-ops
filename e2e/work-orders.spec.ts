@@ -70,9 +70,11 @@ test("office publishes a work order; the installer reads and confirms it on a ph
 
     // ---- Installer: notification → work order → confirm
     const phone = await signIn(browser, installer, true);
-    await expect(phone.getByRole("link", { name: "1 new notification" })).toBeVisible();
-    await phone.getByRole("link", { name: "1 new notification" }).click();
-    await phone.getByRole("button", { name: /New work order 1/ }).click();
+    // Other tests running at the same time may also notify this installer, so
+    // look for this job's notification rather than an exact count.
+    await expect(phone.getByRole("link", { name: /new notification/ })).toBeVisible();
+    await phone.getByRole("link", { name: /new notification/ }).click();
+    await phone.getByRole("button", { name: /New work order 1/ }).filter({ hasText: job.name }).click();
     // The notification opens the job: details and work order on one screen.
     await expect(phone.getByRole("heading", { name: job.name, level: 1 })).toBeVisible();
     await expect(phone.getByText("New work order", { exact: true })).toBeVisible();
@@ -86,7 +88,8 @@ test("office publishes a work order; the installer reads and confirms it on a ph
     await expect(phone.getByRole("img", { name: "floor-plan.png" })).toBeVisible();
     await phone.getByRole("button", { name: "I've read revision 1" }).click();
     await expect(phone.getByText(/You confirmed revision 1 on/)).toBeVisible();
-    await expect(phone.getByRole("link", { name: "Notifications" })).toBeVisible(); // bell no longer shows a count
+    await phone.goto("/notifications");
+    await expect(phone.getByRole("button", { name: /New work order 1/ }).filter({ hasText: job.name })).toHaveClass(/border-neutral-200/); // shown as read
 
     // ---- Office sees the confirmation, then publishes revision 2
     await office.reload();

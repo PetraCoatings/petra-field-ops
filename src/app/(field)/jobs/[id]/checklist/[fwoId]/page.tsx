@@ -24,12 +24,12 @@ export default async function ChecklistPage({ params }: PageProps<"/jobs/[id]/ch
   const canEdit = canLoadTrailer(profile);
   const supabase = await createClient();
 
-  let checklist = await loadChecklist(fwoId);
-  if (!checklist && canEdit) {
-    // First time a crew lead (or the office) opens it: build it from the work order.
-    const { error } = await supabase.rpc("ensure_loading_checklist", { p_fwo_id: fwoId });
-    if (!error) checklist = await loadChecklist(fwoId);
-  }
+  // Crew leads and the office: make sure the checklist exists (built from the
+  // work order the first time), THEN read it. Reading first and again after
+  // creating would return the first, empty answer: Next.js reuses identical
+  // requests within one page render.
+  if (canEdit) await supabase.rpc("ensure_loading_checklist", { p_fwo_id: fwoId });
+  const checklist = await loadChecklist(fwoId);
   const { data: project } = await supabase.from("projects").select("name").eq("id", id).maybeSingle();
   const [{ data: revs }] = await Promise.all([
     supabase.from("fwo_revisions").select("id, revision_number").eq("fwo_id", fwoId),
