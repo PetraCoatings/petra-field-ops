@@ -14,6 +14,7 @@ import { requireRole } from "@/lib/auth/dal";
 import { parseDateOnly } from "@/lib/dates";
 import { directoryNames } from "@/lib/db/queries";
 import { formatAddress } from "@/lib/db/types";
+import { pickerProducts } from "@/lib/library/picker-products";
 import { createClient } from "@/lib/supabase/server";
 import { crewIds, loadFwo, loadRevisions } from "@/lib/work-orders/queries";
 import { WorkOrderEditor } from "./work-order-editor";
@@ -42,6 +43,7 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
     crewIds(id),
     supabase.from("work_order_templates").select("id, name, description, content").eq("is_active", true).order("name"),
   ]);
+  const products = await pickerProducts();
   const templates = (templateRows ?? []).map((r) => ({
     id: r.id as string,
     name: r.name as string,
@@ -179,6 +181,7 @@ export default async function WorkOrderEditorPage({ params, searchParams }: Page
         hasRevisions={revisions.length > 0}
         nextRevision={(current?.revision_number ?? 0) + 1}
         templates={templates}
+        products={products}
       />
     </div>
   );

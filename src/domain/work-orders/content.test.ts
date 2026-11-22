@@ -99,3 +99,19 @@ describe("readContent", () => {
     expect(readContent({ v: 1, notes: "Hi" }).customSections).toEqual([]);
   });
 });
+
+describe("products with pinned data sheets", () => {
+  const P = "11111111-1111-4111-8111-111111111111";
+  const V = "22222222-2222-4222-8222-222222222222";
+  it("keeps the product and its exact data sheet versions", () => {
+    const r = checkContent({ products: [{ productId: P, name: "Sikafloor 264", manufacturer: "Sika", tdsVersionId: V, sdsVersionId: "" }] }, where);
+    expect(r.ok && r.content.products).toEqual([{ productId: P, name: "Sikafloor 264", manufacturer: "Sika", tdsVersionId: V }]);
+  });
+  it("refuses made-up ids", () => {
+    expect(checkContent({ products: [{ productId: "264", name: "Sikafloor 264" }] }, where).ok).toBe(false);
+  });
+  it("a work order with only products is not empty", () => {
+    const r = checkContent({ products: [{ productId: P, name: "Sikafloor 264" }] }, where);
+    expect(r.ok && isEmptyContent(r.content)).toBe(false);
+  });
+});

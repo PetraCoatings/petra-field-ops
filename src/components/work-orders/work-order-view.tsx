@@ -1,7 +1,9 @@
-import { AlertTriangle, ChevronDown, ExternalLink, FileText, Phone } from "lucide-react";
+import Link from "next/link";
+import { AlertTriangle, ChevronDown, ExternalLink, FileText, Phone, ShieldAlert } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import type { Step, WorkOrderContent } from "@/domain/work-orders/content";
 import { parseDateOnly } from "@/lib/dates";
+import { viewUrl } from "@/lib/library/view-url";
 import { type ProjectSnapshot, snapshotAddress } from "@/lib/work-orders/snapshot";
 
 /**
@@ -17,6 +19,7 @@ export async function WorkOrderView({
   project,
   fileUrls,
   showHeader = true,
+  backHref = "/jobs",
 }: {
   title: string;
   fwoNumber: number;
@@ -25,6 +28,8 @@ export async function WorkOrderView({
   fileUrls: Map<string, string>;
   /** False on the job screen, which shows the job's live details above the work order. */
   showHeader?: boolean;
+  /** Where the data sheet viewer's Back link returns to. */
+  backHref?: string;
 }) {
   const t = await getTranslations("workOrders.view");
   const format = await getFormatter();
@@ -140,6 +145,38 @@ export async function WorkOrderView({
               <li key={i} className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1 py-2">
                 <span className="text-base">{m.product}</span>
                 <span className="font-mono text-lg font-bold">{m.ratio}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {c.products.length > 0 && (
+        <section className={card} aria-labelledby="wo-products">
+          <h3 id="wo-products" className={h2}>
+            {t("products")}
+          </h3>
+          <ul className="divide-y divide-neutral-200">
+            {c.products.map((p) => (
+              <li key={p.productId} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                <span className="text-base">
+                  <span className="font-semibold">{p.name}</span>
+                  {p.manufacturer && <span className="text-neutral-600"> · {p.manufacturer}</span>}
+                </span>
+                <span className="flex gap-2">
+                  {p.tdsVersionId && (
+                    <Link href={viewUrl(p.tdsVersionId, `${p.name} TDS`, backHref, "tds")} className="inline-flex min-h-11 items-center gap-1 rounded-xl border-2 border-brand-600 px-3 font-semibold text-brand-700">
+                      <FileText aria-hidden className="size-5" />
+                      TDS
+                    </Link>
+                  )}
+                  {p.sdsVersionId && (
+                    <Link href={viewUrl(p.sdsVersionId, `${p.name} SDS`, backHref, "sds")} className="inline-flex min-h-11 items-center gap-1 rounded-xl border-2 border-red-700 px-3 font-semibold text-red-800">
+                      <ShieldAlert aria-hidden className="size-5" />
+                      SDS
+                    </Link>
+                  )}
+                </span>
               </li>
             ))}
           </ul>

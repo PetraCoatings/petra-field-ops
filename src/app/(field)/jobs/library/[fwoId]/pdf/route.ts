@@ -88,6 +88,8 @@ export async function GET(request: Request, ctx: RouteContext<"/jobs/library/[fw
     notes: t("view.notes"),
     attachments: t("view.attachments"),
     attachedPdf: t("pdf.attachedPdf"),
+    products: t("view.products"),
+    sheetsInApp: t("pdf.sheetsInApp"),
     important: t("view.important"),
     page: t("pdf.page"),
     of: t("pdf.of"),

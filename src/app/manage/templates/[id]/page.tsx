@@ -5,6 +5,7 @@ import { Alert } from "@/components/ui/alert";
 import { PageHeader } from "@/components/ui/page-header";
 import { readContent } from "@/domain/work-orders/content";
 import { requireRole } from "@/lib/auth/dal";
+import { pickerProducts } from "@/lib/library/picker-products";
 import { createClient } from "@/lib/supabase/server";
 import { TemplateEditor } from "./template-editor";
 
@@ -34,6 +35,7 @@ export default async function TemplatePage({ params }: PageProps<"/manage/templa
         initialDescription={(data.description as string | null) ?? ""}
         initialContent={readContent(data.content)}
         isActive={data.is_active as boolean}
+        products={await pickerProducts()}
       />
     </div>
   );

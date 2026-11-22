@@ -38,6 +38,30 @@ export type SaveDraftResult =
   | { ok: true; savedAt: string }
   | { ok: false; error: "invalid" | "title" | "generic"; issues?: { path: string; message: string }[] };
 
+/**
+ * Every pinned data sheet version must belong to that product's TDS or SDS,
+ * and the product must be approved: a draft can't point at another product's
+ * sheet or a made-up version.
+ */
+async function productRefsAreValid(products: { productId: string; tdsVersionId?: string; sdsVersionId?: string }[]): Promise<boolean> {
+  if (products.length === 0) return true;
+  const supabase = await createClient();
+  const ids = [...new Set(products.map((p) => p.productId))];
+  const { data: approved } = await supabase.from("products").select("id").in("id", ids).eq("spec_status", "approved");
+  if ((approved ?? []).length !== ids.length) return false;
+  const versionIds = products.flatMap((p) => [p.tdsVersionId, p.sdsVersionId]).filter((v): v is string => Boolean(v));
+  if (versionIds.length === 0) return true;
+  const { data: versions } = await supabase.from("document_versions").select("id, documents(product_id, doc_type)").in("id", versionIds);
+  const owner = new Map(
+    (versions ?? []).map((v) => [v.id as string, v.documents as unknown as { product_id: string | null; doc_type: "tds" | "sds" } | null]),
+  );
+  return products.every(
+    (p) =>
+      (!p.tdsVersionId || (owner.get(p.tdsVersionId)?.product_id === p.productId && owner.get(p.tdsVersionId)?.doc_type === "tds")) &&
+      (!p.sdsVersionId || (owner.get(p.sdsVersionId)?.product_id === p.productId && owner.get(p.sdsVersionId)?.doc_type === "sds")),
+  );
+}
+
 async function writeDraft(fwoId: string, title: string, rawContent: unknown) {
   const supabase = await createClient();
   const { data: fwo } = await supabase.from("field_work_orders").select("id, project_id, status").eq("id", fwoId).maybeSingle();
@@ -46,6 +70,9 @@ async function writeDraft(fwoId: string, title: string, rawContent: unknown) {
   if (!cleanTitle) return { result: { ok: false, error: "title" } as SaveDraftResult };
   const checked = checkContent(rawContent, { projectId: fwo.project_id as string, fwoId });
   if (!checked.ok) return { result: { ok: false, error: "invalid", issues: checked.issues } as SaveDraftResult };
+  if (!(await productRefsAreValid(checked.content.products))) {
+    return { result: { ok: false, error: "invalid", issues: [{ path: "products", message: "Unknown product or data sheet" }] } as SaveDraftResult };
+  }
 
   const now = new Date().toISOString();
   const [{ error: e1 }, { error: e2 }] = await Promise.all([

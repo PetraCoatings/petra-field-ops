@@ -86,3 +86,17 @@ describe("templateSummary", () => {
     expect(templateSummary(template)).toEqual({ days: 2, steps: 2, materials: 1, mixRatios: 1, other: 5 });
   });
 });
+
+describe("products in templates", () => {
+  const P = "11111111-1111-4111-8111-111111111111";
+  const V = "22222222-2222-4222-8222-222222222222";
+  it("save-as-template keeps products but not their pinned data sheet versions", () => {
+    const wo = readContent({ ...template, products: [{ productId: P, name: "Sikafloor 264", tdsVersionId: V, sdsVersionId: V }] });
+    expect(toTemplateContent(wo).products).toEqual([{ productId: P, name: "Sikafloor 264" }]);
+  });
+  it("inserting a template adds its products once", () => {
+    const t = readContent({ ...template, products: [{ productId: P, name: "Sikafloor 264" }] });
+    const r = insertTemplate(insertTemplate(newWorkOrderContent(), t), t);
+    expect(r.products).toEqual([{ productId: P, name: "Sikafloor 264" }]);
+  });
+});

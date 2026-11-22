@@ -7,6 +7,7 @@ import { Archive, ArchiveRestore, Trash2 } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { ContentSections, SECTION_OF_PATH, type Issue } from "@/components/work-orders/content-sections";
 import type { WorkOrderContent } from "@/domain/work-orders/content";
+import type { PickerProduct } from "@/lib/library/picker-types";
 import { deleteTemplate, saveTemplate, setTemplateActive } from "@/lib/actions/templates";
 
 export function TemplateEditor({
@@ -15,12 +16,14 @@ export function TemplateEditor({
   initialDescription,
   initialContent,
   isActive,
+  products,
 }: {
   id: string;
   initialName: string;
   initialDescription: string;
   initialContent: WorkOrderContent;
   isActive: boolean;
+  products: PickerProduct[];
 }) {
   const t = useTranslations("templates");
   const te = useTranslations("workOrders.editor");
@@ -97,7 +100,7 @@ export function TemplateEditor({
         </div>
       </div>
 
-      <ContentSections c={c} set={set} issues={issues} />
+      <ContentSections c={c} set={set} issues={issues} products={products} />
 
       <div className="flex flex-wrap gap-2 border-t border-neutral-300 pt-4">
         <button

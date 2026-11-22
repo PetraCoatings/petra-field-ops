@@ -89,7 +89,7 @@ export async function WorkOrderOnJob({
 
       <ChecklistSummary projectId={projectId} fwoId={fwo.id} hasTrailerList={content.trailerMaterials.length > 0} canEdit={canLoadTrailer(profile)} />
 
-      <WorkOrderView title={fwo.title} fwoNumber={fwo.fwo_number} content={content} project={revision.project_snapshot} fileUrls={urls} showHeader={false} />
+      <WorkOrderView title={fwo.title} fwoNumber={fwo.fwo_number} content={content} project={revision.project_snapshot} fileUrls={urls} showHeader={false} backHref={`/jobs/${projectId}`} />
 
       {isCrew && !myAck && (
         <form action={acknowledgeRevision} className="sticky bottom-[env(safe-area-inset-bottom)] z-10">

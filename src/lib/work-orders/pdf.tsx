@@ -30,6 +30,8 @@ export type PdfLabels = {
   notes: string;
   attachments: string;
   attachedPdf: string; // "PDF attached in the app"
+  products: string;
+  sheetsInApp: string; // "TDS and SDS in the app"
   important: string;
   page: string; // "Page"
   of: string; // "of"
@@ -195,6 +197,19 @@ export function WorkOrderPdf({
                 <Text style={[s.cell, { borderLeftWidth: 1, borderColor: "#999", fontFamily: "Helvetica-Bold" }]}>{m.ratio}</Text>
               </View>
             ))}
+          </View>
+        )}
+
+        {c.products.length > 0 && (
+          <View wrap={false} style={{ marginBottom: 8 }}>
+            <Text style={s.sectionTitle}>{L.products.toUpperCase()}:</Text>
+            {c.products.map((p, i) => (
+              <Text key={i} style={{ marginBottom: 2 }}>
+                • <Text style={{ fontFamily: "Helvetica-Bold" }}>{p.name}</Text>
+                {p.manufacturer ? ` (${p.manufacturer})` : ""}
+              </Text>
+            ))}
+            <Text style={{ fontSize: 8.5, color: "#555", marginTop: 2 }}>{L.sheetsInApp}</Text>
           </View>
         )}
 
