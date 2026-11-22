@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { requireProfile } from "@/lib/auth/dal";
+import { pickerProducts } from "@/lib/library/picker-products";
 import { MaterialQuantityCalculator } from "./material-quantity-calculator";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -15,7 +16,7 @@ export default async function MaterialQuantityPage() {
   return (
     <>
       <PageHeader title={t("calculators.materialQuantity.title")} backHref="/calculators" backLabel={t("home.modules.calculators")} />
-      <MaterialQuantityCalculator />
+      <MaterialQuantityCalculator products={await pickerProducts()} />
     </>
   );
 }

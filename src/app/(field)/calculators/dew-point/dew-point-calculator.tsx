@@ -8,6 +8,8 @@ import { Segmented } from "@/components/calculators/segmented";
 import { SaveToJob } from "@/components/calculators/save-to-job";
 import { ShowTheMath } from "@/components/calculators/show-the-math";
 import { usePersistedState } from "@/components/calculators/use-persisted-state";
+import { ProductFill } from "@/components/calculators/product-fill";
+import type { PickerProduct } from "@/lib/library/picker-types";
 import { buttonClasses } from "@/components/ui/button-styles";
 import {
   calculateDewPoint,
@@ -24,7 +26,7 @@ import {
   type TempUnit,
 } from "@/domain/calculators/dew-point";
 
-type Draft = { unit: TempUnit; air: string; rh: string; substrate: string };
+type Draft = { unit: TempUnit; air: string; rh: string; substrate: string; productId?: string };
 const STORAGE_KEY = "petra.calc.dewPoint.v1";
 const INITIAL: Draft = { unit: "F", air: "", rh: "", substrate: "" };
 
@@ -61,7 +63,7 @@ function convertReading(raw: string, to: TempUnit): string {
   return String(round1(to === "C" ? fToC(n) : cToF(n)));
 }
 
-export function DewPointCalculator({ marginF }: { marginF: number }) {
+export function DewPointCalculator({ marginF: companyMarginF, products = [] }: { marginF: number; products?: PickerProduct[] }) {
   const t = useTranslations("calculators.dewPoint");
   const tc = useTranslations("calculators");
   const locale = useLocale();
@@ -69,6 +71,10 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
   const set = (patch: Partial<Draft>) => setDraft((d) => ({ ...d, ...patch }));
   const deg = `°${draft.unit}`;
   const fmt1 = (n: number) => formatNumber(locale, n, 1);
+  // A product's own data sheet margin replaces the company margin.
+  const product = products.find((p) => p.id === draft.productId);
+  const productMargin = product?.dewPointMarginF ?? null;
+  const marginF = productMargin ?? companyMarginF;
 
   const air = checkTemp(draft.air);
   const rh = checkRh(draft.rh);
@@ -86,7 +92,7 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
       : null;
 
   const saveInputs = result
-    ? { unit: draft.unit, airTemp: air.value, relativeHumidity: rh.value, substrateTemp: substrate.value }
+    ? { unit: draft.unit, airTemp: air.value, relativeHumidity: rh.value, substrateTemp: substrate.value, productId: product?.id }
     : null;
 
   const switchUnit = (unit: TempUnit) => {
@@ -109,6 +115,13 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
   return (
     <div className="space-y-4">
       <div className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+        <ProductFill
+          products={products}
+          value={product?.id ?? ""}
+          relevant={() => true}
+          showHint={false}
+          onPick={(p) => set({ productId: p?.id })}
+        />
         <Segmented
           label={t("unit")}
           value={draft.unit}
@@ -196,7 +209,9 @@ export function DewPointCalculator({ marginF }: { marginF: number }) {
         )}
 
         <p className="text-sm text-neutral-700">
-          {t("marginNote", { margin: `${formatNumber(locale, marginF, marginF % 1 === 0 ? 0 : 1)} °F` })}
+          {productMargin !== null && product
+            ? t("productMarginNote", { product: product.name, margin: `${formatNumber(locale, marginF, marginF % 1 === 0 ? 0 : 1)} °F` })
+            : t("marginNote", { margin: `${formatNumber(locale, marginF, marginF % 1 === 0 ? 0 : 1)} °F` })}
         </p>
       </section>
 

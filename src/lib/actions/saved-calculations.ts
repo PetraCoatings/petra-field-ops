@@ -46,11 +46,26 @@ export async function saveCalculation(payload: {
     supabase.from("app_settings").select("dew_point_margin_f").single(),
   ]);
   if (!project) return { ok: false, error: "forbidden" }; // not visible to this person
-  const margin = Number(settings?.dew_point_margin_f);
+  const companyMargin = Number(settings?.dew_point_margin_f);
+  let marginF = Number.isFinite(companyMargin) && companyMargin >= 0 ? companyMargin : DEFAULT_DEW_POINT_MARGIN_F;
 
-  const validated = validateAndCompute(payload.type, payload.inputs, {
-    dewPointMarginF: Number.isFinite(margin) && margin >= 0 ? margin : DEFAULT_DEW_POINT_MARGIN_F,
-  });
+  // Dew point for a specific product: that product's data sheet margin applies, when it has one.
+  const productId = payload.type === "dew_point" ? (payload.inputs as { productId?: unknown } | null)?.productId : undefined;
+  if (productId !== undefined) {
+    if (typeof productId !== "string" || !UUID_RE.test(productId)) return { ok: false, error: "invalid" };
+    const { data: product } = await supabase
+      .from("products")
+      .select("min_substrate_above_dew_point_f")
+      .eq("id", productId)
+      .eq("spec_status", "approved")
+      .eq("is_active", true)
+      .maybeSingle();
+    if (!product) return { ok: false, error: "invalid" };
+    const m = product.min_substrate_above_dew_point_f;
+    if (m !== null && m !== undefined && Number.isFinite(Number(m)) && Number(m) >= 0) marginF = Number(m);
+  }
+
+  const validated = validateAndCompute(payload.type, payload.inputs, { dewPointMarginF: marginF });
   if (!validated) return { ok: false, error: "invalid" };
 
   const { error } = await supabase.from("saved_calculations").insert({

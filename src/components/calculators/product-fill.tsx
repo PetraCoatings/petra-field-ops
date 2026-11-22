@@ -13,12 +13,14 @@ export function ProductFill({
   value,
   onPick,
   relevant,
+  showHint = true,
 }: {
   products: PickerProduct[];
   value: string;
   onPick: (p: PickerProduct | null) => void;
   /** Only offer products that have something to fill in for this calculator. */
   relevant: (p: PickerProduct) => boolean;
+  showHint?: boolean;
 }) {
   const t = useTranslations("calculators.productFill");
   const options = products.filter(relevant);
@@ -41,6 +43,7 @@ export function ProductFill({
           </option>
         ))}
       </select>
+      {value && showHint && <p className="text-sm text-neutral-700">{t("hint")}</p>}
     </div>
   );
 }

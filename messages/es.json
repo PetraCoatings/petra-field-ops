@@ -445,7 +445,8 @@
         "minimum": "Superficie mínima",
         "spread": "Superficie − punto de rocío",
         "source": "Coeficientes de Alduchov y Eskridge (1996), precisos a unos 0.4 °C entre {min} °C y {max} °C. La verificación usa los valores redondeados a 0.1°, como se muestran."
-      }
+      },
+      "productMarginNote": "Margen: {margin} por encima del punto de rocío, según la hoja técnica de {product}."
     },
     "galUnit": "gal",
     "lbUnit": "lb",
@@ -506,6 +507,11 @@
         "detail": "Aire {air} · {rh}% HR · margen {margin}",
         "surface": "Superficie {surface}"
       }
+    },
+    "productFill": {
+      "label": "Llenar con un producto (opcional)",
+      "none": "Sin producto: escriba los números",
+      "hint": "Copia los números de la hoja técnica aprobada del producto. Todavía puede cambiarlos."
     }
   },
   "workOrders": {

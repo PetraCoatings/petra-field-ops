@@ -445,7 +445,8 @@
         "minimum": "Minimum surface",
         "spread": "Surface − dew point",
         "source": "Coefficients from Alduchov & Eskridge (1996), accurate to about 0.4 °C between {min} °C and {max} °C. The check uses the values rounded to 0.1°, as shown."
-      }
+      },
+      "productMarginNote": "Margin: {margin} above the dew point, from the {product} data sheet."
     },
     "galUnit": "gal",
     "lbUnit": "lb",
@@ -506,6 +507,11 @@
         "detail": "Air {air} · {rh}% RH · margin {margin}",
         "surface": "Surface {surface}"
       }
+    },
+    "productFill": {
+      "label": "Fill from a product (optional)",
+      "none": "No product: type the numbers",
+      "hint": "Copies the numbers from the product's approved data sheet. You can still change them."
     }
   },
   "workOrders": {

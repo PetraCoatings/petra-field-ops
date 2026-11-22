@@ -12,7 +12,7 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 | 1. Foundation (auth, roles, security, home screen, management shell, projects, employees) | Done; sign-in tested for every role against the dev Supabase project |
 | 2. Calculators | Done: five calculators, offline (airplane mode), and "Save to job"  |
 | 3. Jobs & work orders | Done: work orders (revisions, crew confirmation, drawings, notifications), templates, Job Center (my jobs + past work orders library), loading checklists, PDF export |
-| 4. Product & SDS library | In progress: office library (products, approval, TDS/SDS versions) and field tiles (product data sheets, SDS with offline save, in-app PDF viewer) done; work order product picker and calculator auto-fill next |
+| 4. Product & SDS library | Done: office library (products, approval, TDS/SDS versions), field tiles (product data sheets, SDS with offline save, in-app PDF viewer), products on work orders with pinned data sheet versions, calculator auto-fill (Dew Point uses the product's margin) |
 | 5–9 | Not started |
 
 ## Stack

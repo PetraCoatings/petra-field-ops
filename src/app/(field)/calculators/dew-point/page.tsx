@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { DEFAULT_DEW_POINT_MARGIN_F } from "@/domain/calculators/dew-point";
 import { requireProfile } from "@/lib/auth/dal";
+import { pickerProducts } from "@/lib/library/picker-products";
 import { createClient } from "@/lib/supabase/server";
 import { DewPointCalculator } from "./dew-point-calculator";
 
@@ -21,11 +22,11 @@ async function companyMarginF(): Promise<number> {
 
 export default async function DewPointPage() {
   await requireProfile();
-  const [t, marginF] = await Promise.all([getTranslations(), companyMarginF()]);
+  const [t, marginF, products] = await Promise.all([getTranslations(), companyMarginF(), pickerProducts()]);
   return (
     <>
       <PageHeader title={t("calculators.dewPoint.title")} backHref="/calculators" backLabel={t("home.modules.calculators")} />
-      <DewPointCalculator marginF={marginF} />
+      <DewPointCalculator marginF={marginF} products={products} />
     </>
   );
 }

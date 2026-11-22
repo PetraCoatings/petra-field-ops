@@ -60,6 +60,14 @@ describe("validateAndCompute", () => {
     expect(r?.inputs).not.toHaveProperty("marginF");
   });
 
+  it("dew point: keeps the product id (the server looks up that product's margin)", () => {
+    const productId = "0b6f2f8e-1d2a-4c3b-9e4f-5a6b7c8d9e0f";
+    const r = validateAndCompute("dew_point", { unit: "F", airTemp: 70, relativeHumidity: 50, productId }, { dewPointMarginF: 7 });
+    expect(r?.inputs).toMatchObject({ productId });
+    expect(r?.outputs).toMatchObject({ marginF: 7, minimumSubstrate: 57.5 });
+    expect(validateAndCompute("dew_point", { unit: "F", airTemp: 70, relativeHumidity: 50, productId: "nope" }, { dewPointMarginF: 7 })).toBeNull();
+  });
+
   it.each([
     ["unknown type", "payroll", {}],
     ["missing fields", "mix_ratio", { basis: "volume" }],
