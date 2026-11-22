@@ -547,7 +547,8 @@
       "officeNote": "La revisión {n} es la que ve la cuadrilla. Los miembros la confirman en sus teléfonos.",
       "confirmButton": "Ya leí la revisión {n}",
       "revisionPublished": "Revisión {n}, publicada {when}",
-      "earlierRevisions": "Revisiones anteriores"
+      "earlierRevisions": "Revisiones anteriores",
+      "downloadPdf": "Descargar PDF"
     },
     "editor": {
       "pageTitle": "Editar orden de trabajo",
@@ -650,7 +651,16 @@
       "jobCreated": "Trabajo creado. Llene su orden de trabajo abajo. La dirección, los contactos y la cuadrilla están en los datos del trabajo.",
       "crewCount": "{count, plural, one {# persona en la cuadrilla} other {# personas en la cuadrilla}}"
     },
-    "defaultTitle": "Orden de trabajo"
+    "defaultTitle": "Orden de trabajo",
+    "pdf": {
+      "workOrder": "Orden de trabajo",
+      "revisionLine": "Revisión {n} · publicada {when}",
+      "contactInfo": "Información de contacto",
+      "target": "Meta",
+      "attachedPdf": "PDF, ábralo en la app",
+      "page": "Página",
+      "of": "de"
+    }
   },
   "notifications": {
     "title": "Notificaciones",

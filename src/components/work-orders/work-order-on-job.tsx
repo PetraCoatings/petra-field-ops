@@ -10,6 +10,7 @@ import { signedUrls } from "@/lib/work-orders/signed-urls";
 import type { ProjectSnapshot } from "@/lib/work-orders/snapshot";
 import { canLoadTrailer } from "@/lib/work-orders/checklists";
 import { ChecklistSummary } from "./checklist-summary";
+import { PdfLink } from "./pdf-link";
 import { WorkOrderView } from "./work-order-view";
 
 type Fwo = { id: string; fwo_number: number; title: string };
@@ -100,6 +101,9 @@ export async function WorkOrderOnJob({
         </form>
       )}
 
+      <div className="flex flex-wrap items-center gap-3">
+        <PdfLink fwoId={fwo.id} revision={revision.revision_number} />
+      </div>
       <p className="flex flex-wrap items-center gap-2 text-sm text-neutral-600">
         <span>{t("view.revisionPublished", { n: revision.revision_number, when: when(revision.published_at) })}</span>
         {revision.revision_number > 1 && (

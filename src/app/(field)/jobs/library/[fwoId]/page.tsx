@@ -5,6 +5,7 @@ import { History, Info } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { PageHeader } from "@/components/ui/page-header";
+import { PdfLink } from "@/components/work-orders/pdf-link";
 import { WorkOrderView } from "@/components/work-orders/work-order-view";
 import { readContent } from "@/domain/work-orders/content";
 import { requireProfile } from "@/lib/auth/dal";
@@ -92,6 +93,7 @@ export default async function LibraryWorkOrderPage({ params, searchParams }: Pag
         )
       )}
       <WorkOrderView title={wo.title} fwoNumber={wo.fwo_number} content={content} project={wo.project_snapshot} fileUrls={urls} />
+      <PdfLink fwoId={fwoId} revision={wo.revision_number} />
       {wo.current_revision_number > 1 && (
         <p className="text-sm text-neutral-700">
           {Array.from({ length: wo.current_revision_number }, (_, i) => i + 1).map((n) => (

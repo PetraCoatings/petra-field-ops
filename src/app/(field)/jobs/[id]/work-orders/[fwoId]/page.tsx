@@ -5,6 +5,7 @@ import { CircleCheck, History, Info } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { PageHeader } from "@/components/ui/page-header";
+import { PdfLink } from "@/components/work-orders/pdf-link";
 import { WorkOrderView } from "@/components/work-orders/work-order-view";
 import { readContent } from "@/domain/work-orders/content";
 import { acknowledgeRevision } from "@/lib/actions/work-orders";
@@ -103,6 +104,7 @@ export default async function FieldWorkOrderPage({ params, searchParams }: PageP
       )}
 
       <WorkOrderView title={fwo.title} fwoNumber={fwo.fwo_number} content={content} project={shown.project_snapshot} fileUrls={urls} />
+      <PdfLink fwoId={fwoId} revision={shown.revision_number} />
 
       {isCurrent && isCrew && !myAck && (
         <form action={acknowledgeRevision} className="sticky bottom-[env(safe-area-inset-bottom)] z-10">
