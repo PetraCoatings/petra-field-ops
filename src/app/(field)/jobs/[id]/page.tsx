@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { ExternalLink, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
+import { JobWorkOrders } from "@/components/work-orders/job-work-orders";
 import { Card, DefinitionList } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProjectStatusBadge } from "@/components/ui/status-badge";
@@ -65,6 +66,8 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
           </span>
         )}
       </div>
+
+      <JobWorkOrders projectId={job.id} profile={profile} />
 
       <Card>
         <DefinitionList
