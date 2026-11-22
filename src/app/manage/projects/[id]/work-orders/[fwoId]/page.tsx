@@ -3,12 +3,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { CircleCheck, Clock } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
+import { Alert } from "@/components/ui/alert";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { WorkOrderStatusBadge } from "@/components/work-orders/status-badge";
 import { readContent } from "@/domain/work-orders/content";
 import { requireRole } from "@/lib/auth/dal";
+import { parseDateOnly } from "@/lib/dates";
 import { directoryNames } from "@/lib/db/queries";
+import { formatAddress } from "@/lib/db/types";
 import { createClient } from "@/lib/supabase/server";
 import { crewIds, loadFwo, loadRevisions } from "@/lib/work-orders/queries";
 import { WorkOrderEditor } from "./work-order-editor";
@@ -18,16 +21,21 @@ export async function generateMetadata(): Promise<Metadata> {
   return { title: t("editor.pageTitle") };
 }
 
-export default async function WorkOrderEditorPage({ params }: PageProps<"/manage/projects/[id]/work-orders/[fwoId]">) {
+export default async function WorkOrderEditorPage({ params, searchParams }: PageProps<"/manage/projects/[id]/work-orders/[fwoId]">) {
   await requireRole("project_manager", "office_admin");
   const { id, fwoId } = await params;
+  const { created } = await searchParams;
   const fwo = await loadFwo(id, fwoId);
   if (!fwo) notFound();
 
   const supabase = await createClient();
   const [{ data: draft }, { data: project }, revisions, crew, { data: templateRows }] = await Promise.all([
     supabase.from("fwo_drafts").select("content, updated_at").eq("fwo_id", fwoId).maybeSingle(),
-    supabase.from("projects").select("name").eq("id", id).maybeSingle(),
+    supabase
+      .from("projects")
+      .select("name, status, scheduled_start, site_street, site_city, site_state, site_postal_code, customers(name), project_contacts(name, title, phone)")
+      .eq("id", id)
+      .maybeSingle(),
     loadRevisions(fwoId),
     crewIds(id),
     supabase.from("work_order_templates").select("id, name, description, content").eq("is_active", true).order("name"),
@@ -57,6 +65,34 @@ export default async function WorkOrderEditorPage({ params }: PageProps<"/manage
         backHref={`/manage/projects/${id}`}
         backLabel={(project?.name as string) ?? t("editor.backToProject")}
       />
+      {created && <Alert tone="success">{t("editor.jobCreated")}</Alert>}
+
+      {project && (
+        <section aria-label={t("editor.jobDetails")} className="space-y-2 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <h2 className="text-lg font-bold">{t("editor.jobDetails")}</h2>
+            <Link href={`/manage/projects/${id}`} className="font-semibold text-brand-700 underline">
+              {t("editor.editJobDetails")}
+            </Link>
+          </div>
+          <p className="text-base text-neutral-800">
+            {[
+              (project.customers as unknown as { name: string } | null)?.name,
+              formatAddress(project as unknown as Parameters<typeof formatAddress>[0]),
+              project.scheduled_start && format.dateTime(parseDateOnly(project.scheduled_start as string), { dateStyle: "medium" }),
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+          <p className="text-sm text-neutral-700">
+            {[
+              ...((project.project_contacts as { name: string; phone: string | null }[] | null) ?? []).map((c) => [c.name, c.phone].filter(Boolean).join(" ")),
+              t("editor.crewCount", { count: crew.length }),
+            ].join(" · ")}
+          </p>
+        </section>
+      )}
+
       <div className="flex flex-wrap items-center gap-2">
         <WorkOrderStatusBadge status={fwo.status} />
         {current && (

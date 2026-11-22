@@ -48,6 +48,18 @@ export async function deleteTestTemplates(prefix: string): Promise<void> {
   await api(`/rest/v1/work_order_templates?name=like.${encodeURIComponent(prefix)}*`, { method: "DELETE" });
 }
 
+/** Marks the project completed (its work orders then appear in "Past work orders"). */
+export async function finishTestProject(id: string): Promise<void> {
+  await api(`/rest/v1/projects?id=eq.${id}`, { method: "PATCH", body: JSON.stringify({ status: "completed" }) });
+}
+
+/** True once the library migration has been applied to the dev project. */
+export async function libraryFunctionsExist(): Promise<boolean> {
+  // Only signed-in employees may run it; any answer other than "not found" means it exists.
+  const res = await api("/rest/v1/rpc/search_work_order_library", { method: "POST", body: JSON.stringify({ p_limit: 1 }) });
+  return res.status !== 404;
+}
+
 /** Adds a site contact to the project. */
 export async function addTestContact(projectId: string, contact: { name: string; title?: string; phone?: string }): Promise<void> {
   const res = await api("/rest/v1/project_contacts", {

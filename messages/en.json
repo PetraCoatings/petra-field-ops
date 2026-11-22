@@ -100,12 +100,14 @@
       "on_hold": "On Hold",
       "completed": "Completed",
       "closed": "Closed"
-    }
+    },
+    "details": "Job details",
+    "noWorkOrder": "The work order for this job hasn't been published yet."
   },
   "manage": {
     "nav": {
       "dashboard": "Dashboard",
-      "projects": "Projects",
+      "projects": "Jobs",
       "templates": "Templates",
       "employees": "Employees",
       "settings": "Company Settings",
@@ -113,9 +115,9 @@
     },
     "dashboard": {
       "title": "Dashboard",
-      "activeProjects": "Active projects",
+      "activeProjects": "Active jobs",
       "activeEmployees": "Active employees",
-      "draftProjects": "Draft projects",
+      "draftProjects": "Draft jobs",
       "phaseNote": "More tools (work orders, timesheets, payroll, time off, product libraries) will be added here phase by phase."
     }
   },
@@ -154,10 +156,10 @@
     "inviteRetry": "The employee was saved, but the invitation email could not be sent. Use \"Send invitation\" below to try again."
   },
   "projects": {
-    "title": "Projects",
-    "new": "New project",
-    "newTitle": "New project",
-    "editTitle": "Edit project",
+    "title": "Jobs",
+    "new": "New job",
+    "newTitle": "New job",
+    "editTitle": "Job details",
     "name": "Job name",
     "jobNumber": "Job number",
     "customer": "Customer",
@@ -186,9 +188,9 @@
     "contactTitle": "Title",
     "contactPhone": "Phone",
     "contactEmail": "Email",
-    "created": "Project created.",
-    "empty": "No projects yet.",
-    "jobNumberTaken": "Another project already uses that job number.",
+    "created": "Job created.",
+    "empty": "No jobs yet.",
+    "jobNumberTaken": "Another job already uses that job number.",
     "allStatuses": "All"
   },
   "settings": {
@@ -543,22 +545,24 @@
       "readThenConfirm": "Read it through, then tap \"I've read this\" at the bottom.",
       "confirmed": "You confirmed revision {n} on {when}.",
       "officeNote": "Revision {n} is what the crew sees. Crew members confirm it on their phones.",
-      "confirmButton": "I've read revision {n}"
+      "confirmButton": "I've read revision {n}",
+      "revisionPublished": "Revision {n}, published {when}",
+      "earlierRevisions": "Earlier revisions"
     },
     "editor": {
       "pageTitle": "Edit work order",
-      "backToProject": "Project",
+      "backToProject": "Job",
       "currentRevision": "Current: revision {n}",
       "unpublished": "Unpublished changes",
       "acknowledgments": "Who has read revision {n}",
-      "noCrew": "No crew assigned to this project yet.",
+      "noCrew": "No crew assigned to this job yet.",
       "notYet": "Not yet",
       "history": "Revision history",
       "preview": "Preview",
       "backToEditor": "Back to editor",
       "previewNote": "This is the saved draft as crews will see it once published. Save first to see your latest changes.",
       "title": "Work order title",
-      "headerHint": "The job name, address and site contacts come from the project.",
+      "headerHint": "The job name, address and site contacts come from the job details.",
       "sections": {
         "summary": "Job summary",
         "trailer": "Materials to bring in trailer",
@@ -640,8 +644,13 @@
         "fileType": "{name}: only photos (JPEG, PNG, WebP) or PDFs can be added.",
         "fileSize": "{name} is larger than 20 MB.",
         "upload": "{name} couldn't be uploaded. Please try again."
-      }
-    }
+      },
+      "jobDetails": "Job details",
+      "editJobDetails": "Edit job details, contacts and crew",
+      "jobCreated": "Job created. Fill in its work order below. The address, contacts and crew are in the job details.",
+      "crewCount": "{count, plural, one {# person on the crew} other {# people on the crew}}"
+    },
+    "defaultTitle": "Work order"
   },
   "notifications": {
     "title": "Notifications",
@@ -699,5 +708,34 @@
       "saveInvalid": "Some rows are incomplete. Fix them, then try again.",
       "openTemplate": "Open template"
     }
+  },
+  "jobCenter": {
+    "title": "Job Center",
+    "tabs": {
+      "mine": "My jobs",
+      "current": "Current jobs",
+      "past": "Past work orders"
+    },
+    "emptyMine": "No current jobs are assigned to you. Past jobs are under \"Past work orders\".",
+    "noDate": "No date",
+    "needsOk": "New work order: read it",
+    "searchLabel": "Search past work orders",
+    "searchPlaceholder": "Search: 200C, conductive, Luling, Crossbow…",
+    "search": "Search",
+    "year": "Year",
+    "anyYear": "Any year",
+    "month": "Month",
+    "anyMonth": "Any month",
+    "filterHint": "Newest first. Scroll back to when the job was, or search any word in the work order.",
+    "noMatches": "No work orders match. Try fewer words or a different month.",
+    "emptyPast": "No past work orders yet. Work orders appear here once their job is completed.",
+    "sqft": "{value} sf",
+    "publishedOn": "Revision {revision}, published {when}",
+    "oldRevision": "You're looking at revision {n}. The latest is revision {current}.",
+    "seeCurrent": "See latest revision",
+    "yourJob": "You're on this job.",
+    "openJob": "Open the job",
+    "contactsHidden": "From a finished job you weren't on. Customer contacts are hidden.",
+    "revisionN": "Revision {n}"
   }
 }
