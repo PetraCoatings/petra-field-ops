@@ -103,6 +103,7 @@ export default async function FieldWorkOrderPage({ params, searchParams }: PageP
         </p>
       )}
 
+      <PdfLink fwoId={fwoId} revision={shown.revision_number} />
       <WorkOrderView title={fwo.title} fwoNumber={fwo.fwo_number} content={content} project={shown.project_snapshot} fileUrls={urls} />
       <PdfLink fwoId={fwoId} revision={shown.revision_number} />
 
