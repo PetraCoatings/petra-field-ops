@@ -155,7 +155,20 @@
     "created": "Empleado agregado.",
     "empty": "Todavía no hay empleados.",
     "emailLockedHelp": "Este es el correo de acceso de una cuenta activa, así que no se puede cambiar aquí.",
-    "inviteRetry": "El empleado se guardó, pero no se pudo enviar la invitación. Use \"Enviar invitación\" abajo para intentarlo de nuevo."
+    "inviteRetry": "El empleado se guardó, pero no se pudo enviar la invitación. Use \"Enviar invitación\" abajo para intentarlo de nuevo.",
+    "invitedNotSignedIn": "Invitado el {when}, pero todavía no ha iniciado sesión. Si el correo no llegó (revise el correo no deseado), envíelo otra vez o mande por mensaje un enlace para registrarse.",
+    "notSignedIn": "Todavía no ha iniciado sesión.",
+    "resendEmail": "Enviar el correo de invitación otra vez",
+    "signUpLink": {
+      "make": "Obtener un enlace para mandar por mensaje",
+      "making": "Creando el enlace…",
+      "label": "Mande este enlace a {name} por mensaje:",
+      "copy": "Copiar enlace",
+      "copied": "Copiado",
+      "share": "Compartir…",
+      "note": "Cualquiera con este enlace puede iniciar sesión como esta persona, así que mándelo solo a ella. Funciona una vez y vence; si dice que el enlace no es válido, cree uno nuevo.",
+      "failed": "No se pudo crear el enlace ({reason})."
+    }
   },
   "projects": {
     "title": "Trabajos",
