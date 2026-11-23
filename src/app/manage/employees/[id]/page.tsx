@@ -9,6 +9,10 @@ import type { EmployeeRow } from "@/lib/db/types";
 import { createClient } from "@/lib/supabase/server";
 import { makeSignUpLink, resendInvite, sendInvite, updateEmployee } from "../actions";
 import { SignUpLink } from "../sign-up-link";
+import { PayRateForm } from "../pay-rate-form";
+import { addPayRate, deletePayRate } from "@/lib/actions/pay-rates";
+import { localDate } from "@/domain/time/zoned";
+import { serverNow } from "@/lib/time/my-time";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { EmployeeForm } from "../employee-form";
 import { InviteButton } from "../invite-button";
@@ -32,6 +36,13 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
   const t = await getTranslations();
   const format = await getFormatter();
   const account = employee.user_id ? await accountStatus(employee.user_id) : null;
+  const { data: rateRows } = await supabase.from("pay_rates").select("id, category, hourly_rate, effective_from, note").eq("employee_id", employee.id).order("category").order("effective_from", { ascending: false });
+  const rates = (rateRows ?? []) as { id: string; category: string; hourly_rate: string; effective_from: string; note: string | null }[];
+  const { data: tzRow } = await supabase.from("app_settings").select("company_timezone").single();
+  const today = localDate(serverNow(), (tzRow?.company_timezone as string) || "America/Chicago");
+  const currentIds = new Set(
+    ["job", "drive", "ride"].map((c) => rates.find((r) => r.category === c && r.effective_from <= today)?.id).filter((x): x is string => Boolean(x)),
+  );
 
   return (
     <div className="space-y-4">
@@ -43,6 +54,53 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
       )}
       <Card title={t("employees.editTitle")}>
         <EmployeeForm action={updateEmployee.bind(null, employee.id)} employee={employee} />
+      </Card>
+      <Card title={t("payRates.title")}>
+        <div className="space-y-4">
+          <p className="text-sm text-neutral-700">{t("payRates.adminHelp")}</p>
+          {rates.length === 0 ? (
+            <p className="text-base text-neutral-700">{t("payRates.none")}</p>
+          ) : (
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-neutral-200 text-neutral-600">
+                  <th className="py-2 pr-2 font-semibold">{t("payRates.category")}</th>
+                  <th className="py-2 pr-2 font-semibold">{t("payRates.rate")}</th>
+                  <th className="py-2 pr-2 font-semibold">{t("payRates.effectiveFrom")}</th>
+                  <th className="py-2 pr-2 font-semibold">{t("payRates.note")}</th>
+                  <th className="py-2" />
+                </tr>
+              </thead>
+              <tbody>
+                {rates.map((r) => {
+                  const current = currentIds.has(r.id);
+                  return (
+                    <tr key={r.id} className={`border-b border-neutral-100 ${current ? "font-semibold" : "text-neutral-600"}`}>
+                      <td className="py-2 pr-2">{t(`timeClock.categories.${r.category as "job"}`)}</td>
+                      <td className="py-2 pr-2 tabular-nums">{format.number(Number(r.hourly_rate), { style: "currency", currency: "USD" })}</td>
+                      <td className="py-2 pr-2">
+                        {format.dateTime(new Date(`${r.effective_from}T12:00:00Z`), { dateStyle: "medium", timeZone: "UTC" })}
+                        {current && <span className="ml-1 text-green-800">({t("payRates.inEffect")})</span>}
+                        {r.effective_from > today && <span className="ml-1 text-brand-700">({t("payRates.upcomingLabel")})</span>}
+                      </td>
+                      <td className="py-2 pr-2">{r.note}</td>
+                      <td className="py-2 text-right">
+                        <form action={deletePayRate}>
+                          <input type="hidden" name="id" value={r.id} />
+                          <input type="hidden" name="employeeId" value={employee.id} />
+                          <button type="submit" className="text-sm font-semibold text-red-800 underline" aria-label={t("payRates.removeLabel", { category: t(`timeClock.categories.${r.category as "job"}`), date: r.effective_from })}>
+                            {t("common.remove")}
+                          </button>
+                        </form>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+          <PayRateForm action={addPayRate.bind(null, employee.id)} today={today} />
+        </div>
       </Card>
       <Card title={t("employees.account")}>
         {employee.user_id && account?.lastSignInAt ? (

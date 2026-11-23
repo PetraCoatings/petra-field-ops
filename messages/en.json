@@ -1178,5 +1178,37 @@
       "forgot": "Probably forgot to clock out",
       "timesheets": "Timesheets"
     }
+  },
+  "payRates": {
+    "title": "Pay rates",
+    "myTitle": "My pay rates",
+    "adminHelp": "Hourly rate for each kind of time. For a raise, add a new rate with the date it starts; the old one stays for the hours before it. Only office admins and the person themselves can see these.",
+    "none": "No pay rates yet. Payroll can't be calculated for this person until Job, Drive and Ride rates are added.",
+    "category": "Kind of time",
+    "rate": "Hourly rate ($)",
+    "effectiveFrom": "Starts on",
+    "note": "Note (optional)",
+    "noteExample": "Example: Raise after 90 days",
+    "add": "Add rate",
+    "added": "Rate added.",
+    "inEffect": "in effect",
+    "upcomingLabel": "upcoming",
+    "removeLabel": "Remove the {category} rate starting {date}",
+    "errors": {
+      "rate": "Enter an hourly rate like 25 or 25.50.",
+      "date": "Choose the date the rate starts.",
+      "duplicate": "There is already a rate for that kind of time starting that day. Remove it first to change it.",
+      "password": "That password isn't right.",
+      "generic": "Something went wrong. Try again."
+    },
+    "privacy": "Your pay rates are private. Enter your password to see them. They hide again after 30 seconds or when you leave the app.",
+    "password": "Your password",
+    "show": "Show my pay rates",
+    "checking": "Checking…",
+    "hide": "Hide now",
+    "hidingIn": "Hiding in {seconds} s",
+    "current": "Current rates",
+    "perHour": "per hour",
+    "upcoming": "From {date}: {category} {rate} per hour"
   }
 }

@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Lock } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
@@ -47,6 +49,12 @@ export default async function TimesheetPage({ searchParams }: PageProps<"/time-c
         serverNow={serverNow()}
         basePath="/time-clock/timesheet"
       />
+      {!other && (
+        <Link href="/pay-rates" className="mt-6 inline-flex min-h-11 items-center gap-2 font-semibold text-brand-700 underline">
+          <Lock aria-hidden className="size-5" />
+          {t("payRates.myTitle")}
+        </Link>
+      )}
     </>
   );
 }
