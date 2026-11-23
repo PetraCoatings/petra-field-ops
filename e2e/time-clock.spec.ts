@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
-import { createTestProject, deleteTestProject, employeeId } from "./support/test-project";
+import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
 
 /**
  * Time Clock on a phone: clock in for Drive, switch to Job on a job, lunch,
@@ -194,6 +194,7 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
   const lead = users.find((x) => x.role === "crew_lead")!;
   const admin = users.find((x) => x.role === "office_admin")!;
   const job = await createTestProject([lead, installer]);
+  await updateTestProject(job.id, { crew_lead_id: await employeeId(lead) }); // the job's crew lead
   const emp = await employeeId(installer);
   // An entry from 30 hours ago: too old to fix yourself (24-hour window).
   const oldStart = Date.now() - 30 * 3_600_000;
@@ -223,7 +224,7 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await expect(me.page.getByRole("heading", { name: "My timesheet", level: 1 })).toBeVisible();
     const entries = me.page.getByRole("region", { name: "Entries" });
     const old = entries.getByRole("listitem").filter({ hasText: job.name }).first();
-    await expect(old.getByRole("button", { name: "Fix" })).toHaveCount(0);
+    await expect(old.getByRole("button", { name: "Fix", exact: true })).toHaveCount(0);
     await old.getByRole("button", { name: "Ask for a fix" }).click();
     await me.page.getByLabel("What needs fixing?").fill("I worked until 3 PM that day");
     await me.page.getByRole("button", { name: "Send request" }).click();
@@ -237,17 +238,17 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await me.page.getByLabel("End", { exact: true }).fill(chicagoLocal(start + 3_600_000));
     await me.page.getByRole("group", { name: "Category" }).getByRole("button", { name: "Drive" }).click();
     await me.page.getByRole("button", { name: "Save fix" }).click();
-    await expect(me.page.getByRole("alert")).toContainText("Write a short reason");
+    await expect(me.page.getByText("Write a short reason (at least 3 letters).")).toBeVisible();
     await me.page.getByLabel("Reason (required)").fill("Forgot to clock in for the drive");
     await me.page.getByRole("button", { name: "Save fix" }).click();
-    await expect(me.page.getByRole("status")).toContainText("Fixed.");
+    await expect(me.page.getByRole("status").filter({ hasText: "Fixed." })).toBeVisible();
     const added = me.page.getByRole("region", { name: "Entries" }).getByRole("listitem").filter({ hasText: "Forgot to clock in for the drive" });
     await expect(added).toContainText("Drive");
-    await added.getByRole("button", { name: "Fix" }).click();
+    await added.getByRole("button", { name: "Fix", exact: true }).click();
     await me.page.getByLabel("End", { exact: true }).fill(chicagoLocal(start + 90 * 60_000));
     await me.page.getByLabel("Reason (required)").fill("Drive was 90 minutes");
     await me.page.getByRole("button", { name: "Save fix" }).click();
-    await expect(me.page.getByRole("status")).toContainText("Fixed.");
+    await expect(me.page.getByRole("status").filter({ hasText: "Fixed." })).toBeVisible();
     await expect(me.page.getByText("Change history (1)")).toBeVisible();
     await expect(me.page.getByRole("region", { name: "Entries" })).toContainText("1 h 30 min");
 
@@ -262,18 +263,18 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await row.click();
     await expect(ld.page.getByText("“I worked until 3 PM that day”")).toBeVisible();
     const oldForLead = ld.page.getByRole("region", { name: "Entries" }).getByRole("listitem").filter({ hasText: job.name }).first();
-    await oldForLead.getByRole("button", { name: "Fix" }).click();
+    await oldForLead.getByRole("button", { name: "Fix", exact: true }).click();
     await ld.page.getByLabel("End", { exact: true }).fill(chicagoLocal(oldStart + 3 * 3_600_000));
     await ld.page.getByLabel("Reason (required)").fill("Per text from the installer");
     await ld.page.getByRole("button", { name: "Save fix" }).click();
-    await expect(ld.page.getByRole("status")).toContainText("Fixed.");
+    await expect(ld.page.getByRole("status").filter({ hasText: "Fixed." })).toBeVisible();
     await ld.page.getByLabel("Note (optional)").fill("Changed to 3 hours");
     await ld.page.getByRole("button", { name: "Mark resolved" }).click();
     await expect(ld.page.getByText(/Resolved by .* Changed to 3 hours/)).toBeVisible();
     await ld.page.getByRole("button", { name: "Submit week to the office" }).click();
-    await expect(ld.page.getByRole("status")).toContainText("Week submitted to the office.");
+    await expect(ld.page.getByRole("status").filter({ hasText: "Week submitted to the office." })).toBeVisible();
     await expect(ld.page.getByRole("region", { name: "Week status" })).toContainText("Submitted");
-    await expect(ld.page.getByRole("button", { name: "Fix" })).toHaveCount(0); // the lead can't change it now
+    await expect(ld.page.getByRole("button", { name: "Fix", exact: true })).toHaveCount(0); // the lead can't change it now
 
     // ---- The office approves (locks), then reopens with a reason
     const of = await signIn(admin);
@@ -282,7 +283,7 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await of.page.getByRole("link", { name: new RegExp(installer.firstName) }).filter({ hasText: "Submitted" }).click();
     await of.page.getByRole("button", { name: "Approve and lock week" }).click();
     await expect(of.page.getByRole("region", { name: "Week status" })).toContainText("Approved (locked)");
-    await expect(of.page.getByRole("button", { name: "Fix" })).toHaveCount(0);
+    await expect(of.page.getByRole("button", { name: "Fix", exact: true })).toHaveCount(0);
     await of.page.getByLabel("Reason to reopen (required)").fill("Missing drive time");
     await of.page.getByRole("button", { name: "Reopen week" }).click();
     await expect(of.page.getByRole("region", { name: "Week status" })).toContainText("Reopened by");
