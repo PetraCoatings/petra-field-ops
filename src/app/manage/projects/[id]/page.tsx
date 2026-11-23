@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
+import { IssuesCard } from "@/components/issues/issues-card";
 import { recentReports } from "@/lib/reports/list";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { ProjectWorkOrders } from "@/components/work-orders/project-work-orders";
@@ -85,6 +86,12 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
           removeAction={removeContact.bind(null, project.id)}
         />
       </Card>
+      <IssuesCard projectId={project.id} canResolve />
+      <p>
+        <a href={`/jobs/${project.id}/photos`} className="font-semibold text-brand-700 underline">
+          {t("photos.open")}
+        </a>
+      </p>
       <DailyReportsCard projectId={project.id} reports={await recentReports(project.id, 30)} canWrite={false} today="" />
       <SavedCalculations projectId={project.id} profile={profile} />
     </div>

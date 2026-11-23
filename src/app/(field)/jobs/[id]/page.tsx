@@ -4,6 +4,8 @@ import { ClipboardList, ExternalLink, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
+import { IssuesCard } from "@/components/issues/issues-card";
+import { JobPhotosCard } from "@/components/photos/job-photos-card";
 import { canWriteReport, recentReports } from "@/lib/reports/list";
 import { localDate } from "@/domain/time/zoned";
 import { clockSettings, serverNow } from "@/lib/time/my-time";
@@ -163,6 +165,10 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
           ) : null;
         })
       )}
+
+      <IssuesCard projectId={job.id} canResolve={profile.role === "project_manager" || profile.role === "office_admin" || job.crew_lead_id === profile.employeeId} />
+
+      <JobPhotosCard projectId={job.id} />
 
       <DailyReportsCard
         projectId={job.id}

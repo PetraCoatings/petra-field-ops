@@ -158,6 +158,7 @@ export async function openNotification(formData: FormData): Promise<void> {
     .maybeSingle();
   revalidatePath("/", "layout");
   if (data?.type === "time_off_requested" || data?.type === "time_off_decided") redirect("/time-off");
+  if (data?.type === "issue_reported" && data.project_id) redirect(`/jobs/${data.project_id}#issues`);
   if ((data?.type === "dfr_submitted" || data?.type === "dfr_correction") && data.project_id && typeof (data.data as { date?: unknown })?.date === "string") {
     redirect(`/jobs/${data.project_id}/reports/${(data.data as { date: string }).date}`);
   }
