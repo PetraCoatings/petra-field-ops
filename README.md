@@ -14,7 +14,9 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 | 3. Jobs & work orders | Done: work orders (revisions, crew confirmation, drawings, notifications), templates, Job Center (my jobs + past work orders library), loading checklists, PDF export |
 | 4. Product & SDS library | Done: office library (products, approval, TDS/SDS versions), field tiles (product data sheets, SDS with offline save, in-app PDF viewer), products on work orders with pinned data sheet versions, calculator auto-fill (Dew Point uses the product's margin) |
 | 5. Time Clock | Done: clock in/out, Job/Drive/Ride, lunch, GPS with status, segments that can't overlap, crew clock-in, timesheets (fixes with reasons keep the original, requests, lead submit, office approve/lock/reopen) |
-| 6–9 | Not started |
+| 6. Payroll | Done: pay rates (private), weighted-average overtime engine, Payroll page with Gusto entry sheet (PDF/CSV), mark as entered (permanent snapshot) |
+| 7. Calendar & leave | In progress: calendar (job days, holidays), private calendar links for Apple/Outlook/Google; time-off requests next |
+| 8–9 | Not started |
 
 ## Stack
 
