@@ -69,3 +69,25 @@ test("the office gets a sign-up link for someone who hasn't signed in", async ({
     if (emp[0]?.user_id) await api(`/auth/v1/admin/users/${emp[0].user_id}`, { method: "DELETE" });
   }
 });
+
+test("the password-reset email's link survives an email scanner opening it, and leads to a new password", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run is enough");
+  // The link the "Reset password" template builds (supabase/templates/recovery.html).
+  const installer = readRoleUsers().find((x) => x.role === "installer")!;
+  const res = await api("/auth/v1/admin/generate_link", { method: "POST", body: JSON.stringify({ type: "recovery", email: installer.email }) });
+  expect(res.ok).toBe(true);
+  const { hashed_token } = (await res.json()) as { hashed_token: string };
+  const link = `/auth/start?token_hash=${hashed_token}&type=recovery&next=/set-password`;
+  const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    // A scanner (Outlook Safe Links, Gmail) fetching the link first doesn't use it up.
+    expect((await c.request.get(link)).ok()).toBe(true);
+    const p = await c.newPage();
+    await p.goto(link);
+    await p.getByRole("button", { name: "Continue" }).click();
+    await expect(p).toHaveURL(/\/set-password$/);
+    await expect(p.getByLabel("New password")).toBeVisible();
+  } finally {
+    await c.close();
+  }
+});
