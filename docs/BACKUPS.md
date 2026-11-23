@@ -95,7 +95,7 @@ New repository secret**, three times:
 |---|---|
 | `SUPABASE_DB_URL` | Supabase → **Connect** → *Session pooler* connection string, with `[YOUR-PASSWORD]` replaced by the database password |
 | `SUPABASE_SECRET_KEY` | Supabase → Project Settings → **API Keys** → the secret key (same one Vercel has) |
-| `BACKUP_PASSPHRASE` | A new random password of at least 24 characters from your password manager. Save it there first. |
+| `BACKUP_PASSPHRASE` | A new random password of at least 20 characters (Apple Passwords → Create Strong Password). Save it there first. |
 
 Then run it once (see "Making a backup right now").
 

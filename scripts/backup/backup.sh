@@ -19,8 +19,8 @@
 set -euo pipefail
 : "${SUPABASE_DB_URL:?SUPABASE_DB_URL is not set}"
 : "${BACKUP_PASSPHRASE:?BACKUP_PASSPHRASE is not set}"
-if [ "${#BACKUP_PASSPHRASE}" -lt 24 ]; then
-  echo "BACKUP_PASSPHRASE must be at least 24 characters" >&2
+if [ "${#BACKUP_PASSPHRASE}" -lt 20 ]; then
+  echo "BACKUP_PASSPHRASE must be at least 20 characters" >&2
   exit 1
 fi
 OUT="${1:?usage: backup.sh OUT_DIR}"
