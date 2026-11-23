@@ -20,11 +20,12 @@ export async function DailyReportsCard({ projectId, reports, canWrite, today }: 
         <NotebookPen aria-hidden className="size-6 text-brand-700" />
         {t("title")}
       </h2>
+      {canWrite && !todays && <p className="text-sm text-neutral-700">{t("optional")}</p>}
       {canWrite && (
         <form action={openDailyReport}>
           <input type="hidden" name="projectId" value={projectId} />
           <input type="hidden" name="date" value={today} />
-          <button type="submit" className={`${buttonClasses(todays ? "secondary" : "primary", "lg")} w-full`}>
+          <button type="submit" className={`${buttonClasses("secondary", "md")} w-full`}>
             {todays ? t("openToday") : t("startToday")}
           </button>
         </form>

@@ -1399,7 +1399,7 @@
   "reports": {
     "title": "Reportes diarios",
     "pageTitle": "Reporte diario · {date}",
-    "startToday": "Empezar el reporte de hoy",
+    "startToday": "Escribir un reporte diario de hoy",
     "openToday": "Abrir el reporte de hoy",
     "startThis": "Empezar el reporte de este día",
     "noReport": "No hay reporte diario para este día.",
@@ -1506,6 +1506,7 @@
         "forbidden": "Solo la oficina revisa los reportes diarios.",
         "generic": "Algo salió mal. Inténtelo de nuevo."
       }
-    }
+    },
+    "optional": "Opcional: úselo cuando haya algo que vale la pena anotar (lecturas, material, demoras, problemas)."
   }
 }

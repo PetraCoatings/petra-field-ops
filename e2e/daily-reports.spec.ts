@@ -43,7 +43,7 @@ test("daily report: fill in, conflict, submit, send back, resubmit, accept", asy
   try {
     const page = ld.page;
     await page.goto(`/jobs/${job.id}`);
-    await page.getByRole("button", { name: "Start today's report" }).click();
+    await page.getByRole("button", { name: "Write a daily report for today" }).click();
     await expect(page).toHaveURL(new RegExp(`/jobs/${job.id}/reports/\\d{4}-\\d{2}-\\d{2}$`));
     const reportUrl = new URL(page.url()).pathname;
     await expect(page.getByRole("region", { name: "Crew on site" }).getByRole("checkbox").first()).toBeChecked();
