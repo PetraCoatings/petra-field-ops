@@ -51,7 +51,12 @@
     "passwordTooWeak": "Use at least 10 characters, with both letters and numbers.",
     "savePassword": "Save password",
     "linkInvalid": "That link has expired or was already used. Ask for a new one.",
-    "finishingSignIn": "Signing you in…"
+    "finishingSignIn": "Signing you in…",
+    "start": {
+      "title": "Welcome to Petra Field Ops",
+      "body": "Tap Continue to sign in. You'll then choose your password.",
+      "continue": "Continue"
+    }
   },
   "home": {
     "greeting": "Hi, {name}",
@@ -160,15 +165,16 @@
     "notSignedIn": "Hasn't signed in yet.",
     "resendEmail": "Send the invitation email again",
     "signUpLink": {
-      "make": "Get a sign-up link to text",
+      "make": "Get a sign-in link to text",
       "making": "Making the link…",
       "label": "Send this link to {name} by text:",
       "copy": "Copy link",
       "copied": "Copied",
       "share": "Share…",
-      "note": "Anyone with this link can sign in as this person, so send it only to them. It works once and expires; if it says the link is invalid, make a new one.",
+      "note": "Anyone with this link can sign in as this person, so send it only to them. It works once, when they tap Continue, and expires after a while; if it says the link is invalid, make a new one.",
       "failed": "Couldn't make a link ({reason})."
-    }
+    },
+    "signInLinkHelp": "Forgot their password, or the email didn't arrive? Text them a sign-in link; they'll choose a new password."
   },
   "projects": {
     "title": "Jobs",

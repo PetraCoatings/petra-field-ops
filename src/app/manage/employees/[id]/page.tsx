@@ -46,7 +46,11 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
       </Card>
       <Card title={t("employees.account")}>
         {employee.user_id && account?.lastSignInAt ? (
-          <p className="text-base">{t("employees.accountLinked")}</p>
+          <div className="space-y-3">
+            <p className="text-base">{t("employees.accountLinked")}</p>
+            <p className="text-sm text-neutral-700">{t("employees.signInLinkHelp")}</p>
+            <SignUpLink action={makeSignUpLink.bind(null, employee.id)} name={employee.first_name} />
+          </div>
         ) : employee.user_id ? (
           <div className="space-y-3">
             <p className="text-base text-neutral-700">

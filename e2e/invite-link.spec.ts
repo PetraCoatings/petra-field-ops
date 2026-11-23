@@ -31,18 +31,38 @@ test("the office gets a sign-up link for someone who hasn't signed in", async ({
 
     await page.goto(`/manage/employees/${id}`);
     await expect(page.getByText("Not invited yet")).toBeVisible();
-    await page.getByRole("button", { name: "Get a sign-up link to text" }).click();
+    await page.getByRole("button", { name: "Get a sign-in link to text" }).click();
     const box = page.getByLabel("Send this link to E2E by text:");
-    // (Supabase only keeps the return address for approved sites, so a test run on another address sees the site's home page.)
-    await expect(box).toHaveValue(/\/auth\/v1\/verify\?token=\w+&type=invite&redirect_to=/);
+    await expect(box).toHaveValue(/\/auth\/start\?token_hash=\w+&type=invite&next=%2Fset-password$/);
+    const first = await box.inputValue();
     await page.getByRole("button", { name: "Copy link" }).click();
     await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
 
-    // Now linked to an account that has never signed in: both ways to reach them are offered.
+    // A messaging app opens the link to build a preview: that must not use it up.
+    const preview = await context.request.get(first);
+    expect(preview.ok()).toBe(true);
+
+    // The new person taps it, taps Continue, and is asked to choose a password.
+    const phone = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+    try {
+      const p = await phone.newPage();
+      await p.goto(first);
+      await expect(p.getByRole("heading", { name: "Welcome to Petra Field Ops" })).toBeVisible();
+      await p.getByRole("button", { name: "Continue" }).click();
+      await expect(p).toHaveURL(/\/set-password$/);
+      // The same link can't be used twice.
+      await p.context().clearCookies();
+      await p.goto(first);
+      await p.getByRole("button", { name: "Continue" }).click();
+      await expect(p.getByText("That link has expired or was already used.")).toBeVisible();
+    } finally {
+      await phone.close();
+    }
+
+    // Signed in once: the office can still text a sign-in link (forgot password, email didn't arrive).
     await page.reload();
-    await expect(page.getByText(/hasn't signed in yet/)).toBeVisible();
-    await expect(page.getByRole("button", { name: "Send the invitation email again" })).toBeVisible();
-    await page.getByRole("button", { name: "Get a sign-up link to text" }).click();
+    await expect(page.getByText("Account set up")).toBeVisible();
+    await page.getByRole("button", { name: "Get a sign-in link to text" }).click();
     await expect(page.getByLabel("Send this link to E2E by text:")).toHaveValue(/type=magiclink/);
   } finally {
     await context.close();
