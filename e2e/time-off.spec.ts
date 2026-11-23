@@ -1,6 +1,7 @@
 import { devices, expect, test, type Browser } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Time off: an installer asks; their crew lead approves (notified); the office
@@ -15,10 +16,7 @@ const chicagoDate = (offsetDays: number) =>
 async function signIn(browser: Browser, u: RoleUser) {
   const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   const page = await c.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return { c, page };
 }

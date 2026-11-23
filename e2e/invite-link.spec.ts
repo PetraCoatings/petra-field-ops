@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
+import { signInAs } from "./support/sign-in";
 
 /**
  * When the invitation email doesn't arrive, the office makes a one-time
@@ -23,10 +24,7 @@ test("the office gets a sign-up link for someone who hasn't signed in", async ({
   const context = await browser.newContext({ ...devices["Desktop Chrome"], baseURL: test.info().project.use.baseURL, permissions: ["clipboard-read", "clipboard-write"] });
   try {
     const page = await context.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(admin.email);
-    await page.getByLabel("Password", { exact: true }).fill(admin.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, admin);
     await expect(page).toHaveURL(/\/$/);
 
     await page.goto(`/manage/employees/${id}`);

@@ -19,7 +19,7 @@ async function scenario(fn: (as: (u: string) => Promise<void>, q: (s: string, p?
     await c.query("begin");
     const as = async (user: string) => {
       await c.query("reset role");
-      await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: user, role: "authenticated" })]);
+      await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: user, role: "authenticated", aal: "aal2" })]);
       await c.query("set local role authenticated");
     };
     const q = async (sql: string, p: unknown[] = []) => {

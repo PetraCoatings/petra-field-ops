@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { createTestProject, deleteTestProject, savedCalculationsTableExists } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * "Save to job": an installer saves a dew point reading to their job, sees it
@@ -16,10 +17,7 @@ test("an installer saves a calculator result to their job", async ({ page, conte
   const u = readRoleUsers().find((x) => x.role === "installer")!;
   const job = await createTestProject([u]);
   try {
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(u.email);
-    await page.getByLabel("Password", { exact: true }).fill(u.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, u);
     await expect(page).toHaveURL(/\/$/);
 
     await page.goto("/calculators/dew-point");

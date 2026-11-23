@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Calculators, driven like a crew member on a phone. Needs a signed-in user
@@ -11,10 +12,7 @@ test("an installer uses the calculators", async ({ page }) => {
   // One sign-in per run on two screen sizes keeps us under Supabase's sign-in rate limit.
   test.skip(test.info().project.name === "android", "phone and desktop cover the calculators");
   const u = readRoleUsers().find((x) => x.role === "installer")!;
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
 
   await page.getByRole("link", { name: "Calculators" }).click();

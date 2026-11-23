@@ -1,4 +1,5 @@
 /** A temporary project (dev Supabase only) for tests that need a job to work on. */
+import { passwordToken, twoStepToken } from "./totp";
 import { randomBytes } from "node:crypto";
 import { api, type RoleUser } from "./role-users";
 
@@ -133,12 +134,8 @@ export async function archiveTestLibrary(prefix: string): Promise<void> {
 export async function sessionFetch(u: RoleUser): Promise<(path: string, init?: RequestInit) => Promise<Response>> {
   const url = process.env.E2E_SUPABASE_URL!;
   const key = process.env.E2E_SUPABASE_KEY!;
-  const tokenRes = await fetch(`${url}/auth/v1/token?grant_type=password`, {
-    method: "POST",
-    headers: { apikey: key, "Content-Type": "application/json" },
-    body: JSON.stringify({ email: u.email, password: u.password }),
-  });
-  const { access_token } = (await tokenRes.json()) as { access_token: string };
+  // Office admins act with a two-step sign-in, as in the app.
+  const access_token = u.totpSecret ? await twoStepToken(u.email, u.password, u.totpSecret) : await passwordToken(u.email, u.password);
   return (path, init = {}) =>
     fetch(`${url}${path}`, { ...init, headers: { apikey: key, Authorization: `Bearer ${access_token}`, "Content-Type": "application/json", ...init.headers } });
 }

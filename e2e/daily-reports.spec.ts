@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { devices, expect, test, type Browser } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import { addLibraryItem, createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Daily field reports: the crew lead fills one in (readings with the product's
@@ -14,10 +15,7 @@ test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_*
 async function signIn(browser: Browser, u: RoleUser) {
   const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   const page = await c.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return { c, page };
 }

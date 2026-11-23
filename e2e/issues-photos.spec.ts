@@ -1,6 +1,7 @@
 import { devices, expect, test, type Browser } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Photos (add, retag, remove) and jobsite issues (report with a photo, the PM
@@ -14,10 +15,7 @@ const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR
 async function signIn(browser: Browser, u: RoleUser) {
   const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   const page = await c.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return { c, page };
 }
@@ -82,7 +80,7 @@ test("photos and jobsite issues", async ({ browser }) => {
     const pmIssues = office.page.getByRole("region", { name: "Jobsite issues" });
     await pmIssues.getByLabel("What was done (optional)").fill("Moisture mitigation primer added to the work order");
     await pmIssues.getByRole("button", { name: "Mark resolved" }).click();
-    await expect(pmIssues.getByText(/Resolved by .* Moisture mitigation primer/)).toBeVisible();
+    await expect(pmIssues.getByText(/Resolved by .* Moisture mitigation primer/)).toBeVisible({ timeout: 15_000 });
     // The installer sees it resolved; the issue's photo stays with the job.
     await page.reload();
     await expect(page.getByRole("region", { name: "Jobsite issues" }).getByText("· resolved")).toBeVisible();

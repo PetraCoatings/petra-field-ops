@@ -28,12 +28,15 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   // A valid password is not enough: the person must be an ACTIVE employee.
   const { data: profile } = await supabase
     .rpc("get_my_profile")
-    .maybeSingle<{ preferred_locale: "en" | "es" }>();
+    .maybeSingle<{ preferred_locale: "en" | "es"; role: string }>();
   if (!profile) {
     await supabase.auth.signOut();
     return { status: "error", message: "auth.noAccess" };
   }
   (await cookies()).set(LOCALE_COOKIE, profile.preferred_locale, COOKIE_OPTS);
+  // Office admins always, and anyone else who set it up: the authenticator code comes next.
+  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (profile.role === "office_admin" || (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2")) redirect("/two-step");
   redirect("/");
 }
 

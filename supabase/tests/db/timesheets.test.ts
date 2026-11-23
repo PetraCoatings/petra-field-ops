@@ -130,7 +130,7 @@ describe("submit, approve, reopen", () => {
       await c.query("begin");
       const as = async (user: string) => {
         await c.query("reset role");
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: user, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: user, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
       };
       const tryQ = async (sql: string, params: unknown[] = []) => {
@@ -189,7 +189,7 @@ describe("submit, approve, reopen", () => {
       await c.query("begin");
       try {
         await c.query(`insert into public.time_segments (employee_id, kind, category, start_at) values ($1, 'work', 'job', '${d(3, 12)}')`, [E.installer]);
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.lead, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.lead, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
         await expect(c.query(`select public.submit_timesheet($1, $2)`, [E.installer, WEEK_OF])).rejects.toThrow(/missing clock-out/);
       } finally {

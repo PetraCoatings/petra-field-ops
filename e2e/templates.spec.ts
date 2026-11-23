@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { createTestProject, deleteTestProject, deleteTestTemplates, templatesTableExists } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Work order templates: create one, insert it into a work order, change the
@@ -20,10 +21,7 @@ test("templates are copied into work orders and never change them afterwards", a
   const pm = readRoleUsers().find((x) => x.role === "project_manager")!;
   const job = await createTestProject([]);
   try {
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(pm.email);
-    await page.getByLabel("Password", { exact: true }).fill(pm.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, pm);
     await expect(page).toHaveURL(/\/$/);
 
     // ---- Create a template

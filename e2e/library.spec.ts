@@ -2,6 +2,7 @@ import { randomBytes } from "node:crypto";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import { archiveTestLibrary, productLibraryExists } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Product and SDS library (office side): create a product, enter specs, upload
@@ -13,10 +14,7 @@ test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_*
 async function signIn(browser: Browser, u: RoleUser): Promise<Page> {
   const context = await browser.newContext({ baseURL: test.info().project.use.baseURL });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return page;
 }

@@ -1,5 +1,6 @@
 import { expect, test } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Airplane mode: after one online visit, every calculator opens and works with
@@ -11,10 +12,7 @@ test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_*
 test("calculators work in airplane mode and sign-out clears them", async ({ page, context }) => {
   test.skip(test.info().project.name !== "phone", "one phone run covers offline (and limits sign-ins)");
   const u = readRoleUsers().find((x) => x.role === "crew_lead")!;
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
 
   // One online visit to the app saves all five calculators, even unopened ones.

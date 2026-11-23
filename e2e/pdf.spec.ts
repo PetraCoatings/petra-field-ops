@@ -10,6 +10,7 @@ import {
   updateTestProject,
   workOrdersTableExists,
 } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Work order PDFs: the crew on the job downloads the current revision and an
@@ -22,10 +23,7 @@ test.skip(!signedInTestsEnabled(), "needs a dev Supabase project (E2E_SUPABASE_*
 async function signIn(browser: Browser, u: RoleUser): Promise<Page> {
   const context = await browser.newContext({ baseURL: test.info().project.use.baseURL });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return page;
 }
@@ -107,10 +105,7 @@ test("work order PDFs follow the same rules as the app", async ({ browser }) => 
       });
     });
     const phone = await phoneCtx.newPage();
-    await phone.goto("/login");
-    await phone.getByLabel("Email").fill(installer.email);
-    await phone.getByLabel("Password", { exact: true }).fill(installer.password);
-    await phone.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(phone, installer);
     await expect(phone).toHaveURL(/\/$/);
     await phone.goto(`/jobs/${job.id}`);
     await phone.getByRole("button", { name: "Print or share PDF" }).first().click(); // one at the top, one at the bottom

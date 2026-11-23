@@ -19,6 +19,8 @@ export type Profile = {
   role: AppRole;
   flsaStatus: "nonexempt" | "exempt";
   locale: "en" | "es";
+  /** Passed two-step sign-in (password + authenticator code) in this session. */
+  twoStepDone: boolean;
 };
 
 export const getProfile = cache(async (): Promise<Profile | null> => {
@@ -45,14 +47,25 @@ export const getProfile = cache(async (): Promise<Profile | null> => {
     role: data.role,
     flsaStatus: data.flsa_status,
     locale: data.preferred_locale,
+    twoStepDone: claims.claims.aal === "aal2",
   };
 });
 
-/** Require a signed-in, active employee; otherwise go to the sign-in page. */
+/**
+ * Require a signed-in, active employee; otherwise go to the sign-in page.
+ * Office admins must also have passed two-step sign-in (the database gives
+ * them no admin powers until they have), so they're sent to enter their code.
+ */
 export async function requireProfile(): Promise<Profile> {
   const profile = await getProfile();
   if (!profile) redirect("/login?reason=no-access");
+  if (needsTwoStep(profile)) redirect("/two-step");
   return profile;
+}
+
+/** An office admin who hasn't entered their authenticator code in this session. */
+export function needsTwoStep(profile: Pick<Profile, "role" | "twoStepDone">): boolean {
+  return profile.role === "office_admin" && !profile.twoStepDone;
 }
 
 /** Require one of the given roles; otherwise go home. */

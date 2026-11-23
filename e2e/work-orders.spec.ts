@@ -1,6 +1,7 @@
 import { expect, test, devices, type Browser, type Page } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled, type RoleUser } from "./support/role-users";
 import { addTestContact, createTestProject, deleteTestProject, finishTestProject, libraryFunctionsExist, workOrdersTableExists } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Field work orders end to end: the office writes and publishes a work order
@@ -17,10 +18,7 @@ const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR
 async function signIn(browser: Browser, u: RoleUser, phone: boolean): Promise<Page> {
   const context = await browser.newContext({ ...(phone ? devices["iPhone 13"] : devices["Desktop Chrome"]), baseURL: test.info().project.use.baseURL });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   return page;
 }
