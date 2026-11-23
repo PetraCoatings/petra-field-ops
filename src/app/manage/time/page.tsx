@@ -44,6 +44,9 @@ export default async function ManageTimePage({ searchParams }: PageProps<"/manag
   return (
     <>
       <PageHeader title={t("manage.nav.time")} />
+      <Link href="/time-off" className="mb-4 inline-flex min-h-11 items-center font-semibold text-brand-700 underline">
+        {t("timeOff.officeLink")}
+      </Link>
       <section aria-labelledby="on-clock" className="mb-6 space-y-2">
         <h2 id="on-clock" className="text-lg font-bold">
           {t("timeClock.office.onClock", { count: onClock.length })}

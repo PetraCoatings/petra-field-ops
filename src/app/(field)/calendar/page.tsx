@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getFormatter, getLocale, getTranslations } from "next-intl/server";
-import { ChevronLeft, ChevronRight, MapPin, PartyPopper } from "lucide-react";
+import { ChevronLeft, ChevronRight, MapPin, PartyPopper, Plane } from "lucide-react";
 import { PageHeader } from "@/components/ui/page-header";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { CalendarLink } from "@/components/calendar/calendar-link";
@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 type View = "month" | "week" | "day";
-type Event = { kind: "job" | "holiday"; day: string; title: string | null; start_text: string | null; project_id: string | null; project_name: string | null; address: string | null };
+type Event = { kind: "job" | "holiday" | "time_off"; day: string; title: string | null; start_text: string | null; project_id: string | null; project_name: string | null; address: string | null };
 
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 const monday = (d: string) => addDays(d, -(isoDow(d) - 1));
@@ -76,19 +76,23 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
   const href = (v: View, at: string) => `/calendar?view=${v}&date=${at}`;
   const admin = profile.role === "office_admin";
   const label = (e: Event) =>
-    e.kind === "holiday" ? t("calendar.holiday", { name: e.title ?? "" }) : [e.project_name, e.title, e.start_text ? t("calendar.start", { time: e.start_text }) : null].filter(Boolean).join(" · ");
+    e.kind === "holiday"
+      ? t("calendar.holiday", { name: e.title ?? "" })
+      : e.kind === "time_off"
+        ? t("calendar.timeOff", { who: e.title ?? "" }) + (e.start_text ? ` (${e.start_text})` : "")
+        : [e.project_name, e.title, e.start_text ? t("calendar.start", { time: e.start_text }) : null].filter(Boolean).join(" · ");
 
   const eventList = (list: Event[]) => (
     <ul className="space-y-2">
       {list.map((e, i) => (
-        <li key={i} className={`rounded-xl border-l-4 px-3 py-2 ${e.kind === "holiday" ? "border-accent-600 bg-amber-50" : "border-brand-600 bg-brand-50"}`}>
+        <li key={i} className={`rounded-xl border-l-4 px-3 py-2 ${e.kind === "holiday" ? "border-accent-600 bg-amber-50" : e.kind === "time_off" ? "border-green-700 bg-green-50" : "border-brand-600 bg-brand-50"}`}>
           {e.kind === "job" && e.project_id ? (
             <Link href={`/jobs/${e.project_id}`} className="font-semibold text-brand-800 underline">
               {label(e)}
             </Link>
           ) : (
             <span className="flex items-center gap-2 font-semibold">
-              <PartyPopper aria-hidden className="size-5" />
+              {e.kind === "holiday" ? <PartyPopper aria-hidden className="size-5" /> : <Plane aria-hidden className="size-5" />}
               {label(e)}
             </span>
           )}
@@ -115,6 +119,10 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
     <>
       <PageHeader title={t("home.modules.calendar")} backHref="/" backLabel={t("common.home")} />
       <div className="space-y-4">
+        <Link href="/time-off" className={`${buttonClasses("secondary", "lg")} w-full`}>
+          <Plane aria-hidden className="size-6" />
+          {t("calendar.timeOffLink")}
+        </Link>
         <div role="group" aria-label={t("calendar.viewLabel")} className="flex rounded-xl border-2 border-neutral-300 bg-neutral-100 p-1">
           {(["month", "week", "day"] as const).map((v) => (
             <Link
@@ -167,8 +175,8 @@ export default async function CalendarPage({ searchParams }: PageProps<"/calenda
                     <span className={`inline-flex size-6 items-center justify-center rounded-full text-sm font-semibold ${day === today ? "bg-brand-700 text-white" : ""}`}>{Number(day.slice(8))}</span>
                     <span className="mt-0.5 block space-y-0.5">
                       {list.slice(0, 2).map((e, i) => (
-                        <span key={i} className={`block truncate rounded px-1 text-[11px] leading-4 ${e.kind === "holiday" ? "bg-amber-100 text-amber-950" : "bg-brand-100 text-brand-900"}`}>
-                          {e.kind === "holiday" ? e.title : e.project_name}
+                        <span key={i} className={`block truncate rounded px-1 text-[11px] leading-4 ${e.kind === "holiday" ? "bg-amber-100 text-amber-950" : e.kind === "time_off" ? "bg-green-100 text-green-950" : "bg-brand-100 text-brand-900"}`}>
+                          {e.kind === "job" ? e.project_name : e.title}
                         </span>
                       ))}
                       {list.length > 2 && <span className="block text-[11px] text-neutral-600">+{list.length - 2}</span>}

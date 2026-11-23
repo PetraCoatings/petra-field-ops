@@ -19,7 +19,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/calendar-fee
   if (error) return new NextResponse("Unavailable", { status: 503 });
   const rows = (data ?? []) as {
     employee_name: string;
-    kind: "job" | "holiday";
+    kind: "job" | "holiday" | "time_off";
     day: string;
     title: string | null;
     start_text: string | null;
@@ -47,6 +47,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<"/calendar-fee
     labels: {
       calendarName: "Petra Field Ops",
       holiday: (n) => `Holiday: ${n}`,
+      timeOff: (w) => `Time off: ${w}`,
       start: (t) => `start ${t}`,
       openInApp: "Open in Petra Field Ops",
     },

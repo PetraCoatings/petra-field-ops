@@ -14,8 +14,20 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Row = {
   id: string;
-  type: "fwo_published" | "checklist_missing";
-  data: { fwoNumber?: number; title?: string; revision?: number; projectName?: string; item?: string; note?: string | null };
+  type: "fwo_published" | "checklist_missing" | "time_off_requested" | "time_off_decided";
+  data: {
+    fwoNumber?: number;
+    title?: string;
+    revision?: number;
+    projectName?: string;
+    item?: string;
+    note?: string | null;
+    name?: string;
+    start?: string;
+    end?: string;
+    leaveType?: string;
+    status?: string;
+  };
   read_at: string | null;
   created_at: string;
 };
@@ -65,7 +77,20 @@ export default async function NotificationsPage() {
                 >
                   <ClipboardList aria-hidden className="mt-0.5 size-6 shrink-0 text-brand-700" />
                   <span className="min-w-0 flex-1">
-                    {n.type === "checklist_missing" ? (
+                    {n.type === "time_off_requested" || n.type === "time_off_decided" ? (
+                      <>
+                        <span className={`block text-base font-bold ${n.data.status === "rejected" ? "text-red-900" : ""}`}>
+                          {n.type === "time_off_requested"
+                            ? t("timeOffRequested", { name: n.data.name ?? "" })
+                            : t(`timeOffDecided.${(n.data.status ?? "approved") as "approved"}`, { name: n.data.name ?? "" })}
+                        </span>
+                        <span className="block text-base text-neutral-800">
+                          {[n.data.leaveType, n.data.start === n.data.end ? n.data.start : `${n.data.start} – ${n.data.end}`, n.data.status === "rejected" ? n.data.note : null]
+                            .filter(Boolean)
+                            .join(" · ")}
+                        </span>
+                      </>
+                    ) : n.type === "checklist_missing" ? (
                       <>
                         <span className="block text-base font-bold text-red-900">{t("checklistMissing", { item: n.data.item ?? "" })}</span>
                         <span className="block text-base text-neutral-800">

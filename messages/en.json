@@ -724,7 +724,14 @@
     "fwoUpdated": "Work order {n} updated to revision {revision}",
     "unread": "New",
     "bellUnread": "{count, plural, one {# new notification} other {# new notifications}}",
-    "checklistMissing": "Missing from the trailer: {item}"
+    "checklistMissing": "Missing from the trailer: {item}",
+    "timeOffRequested": "Time-off request from {name}",
+    "timeOffDecided": {
+      "approved": "Time off approved",
+      "rejected": "Time off not approved",
+      "cancelled": "{name} cancelled approved time off",
+      "pending_office": "Time-off request from {name}"
+    }
   },
   "templates": {
     "title": "Work order templates",
@@ -1332,6 +1339,59 @@
       "remove": "Remove holiday",
       "invalid": "Choose a date and a name.",
       "duplicate": "There's already a holiday on that date."
+    },
+    "timeOff": "Time off: {who}",
+    "timeOffLink": "Time off: ask or approve"
+  },
+  "timeOff": {
+    "title": "Time off",
+    "newTitle": "Ask for time off",
+    "how": "Your crew lead (or project manager) approves first, then the office. You'll get a notification at each step.",
+    "type": "Kind",
+    "types": {
+      "Vacation": "Vacation",
+      "Sick": "Sick",
+      "Personal": "Personal",
+      "Unpaid": "Unpaid"
+    },
+    "first": "First day",
+    "last": "Last day",
+    "partial": "Only part of the day? Hours (optional)",
+    "partialExample": "4",
+    "partialHelp": "Leave empty for the whole day.",
+    "notes": "Note (optional)",
+    "notesExample": "Example: Family trip",
+    "send": "Send request",
+    "sent": "Request sent.",
+    "mine": "My requests",
+    "none": "No requests yet.",
+    "cancel": "Cancel request",
+    "waiting": "Waiting for your decision ({count})",
+    "noteLabel": "Note (required to say no)",
+    "approve": "Approve (send to the office)",
+    "approveFinal": "Approve",
+    "reject": "Say no",
+    "crewUpcoming": "Your crew's upcoming time off",
+    "everyoneUpcoming": "Everyone's upcoming time off",
+    "officeLink": "Time-off requests",
+    "status": {
+      "pending_lead": "Waiting for the crew lead.",
+      "pending_office": "Waiting for the office.",
+      "pending_office_after": "Approved by {name}; waiting for the office.",
+      "approved": "Approved by {name}.",
+      "rejected": "Not approved by {name}: {reason}",
+      "cancelled": "Cancelled."
+    },
+    "errors": {
+      "form": "Choose the kind of time off and the days.",
+      "partial": "Hours are only for a single day.",
+      "overlap": "You already asked for time off on some of these days.",
+      "dates": "The last day is before the first day.",
+      "reason": "Write a reason for saying no.",
+      "decided": "This request was already decided. Reload the page.",
+      "cancel": "This request can't be cancelled.",
+      "forbidden": "You can't decide this request.",
+      "tooLong": "Ask for at most 60 days at a time."
     }
   }
 }

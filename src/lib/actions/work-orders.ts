@@ -157,6 +157,7 @@ export async function openNotification(formData: FormData): Promise<void> {
     .select("type, project_id, entity_id")
     .maybeSingle();
   revalidatePath("/", "layout");
+  if (data?.type === "time_off_requested" || data?.type === "time_off_decided") redirect("/time-off");
   if (data?.type === "checklist_missing" && data.project_id && data.entity_id) {
     redirect(`/jobs/${data.project_id}/checklist/${data.entity_id}`);
   }
