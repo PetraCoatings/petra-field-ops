@@ -55,13 +55,35 @@ export async function enrollTotp(email: string, password: string): Promise<strin
 }
 
 async function verify(token: string, factorId: string, secret: string): Promise<string> {
-  const c = (await call(`factors/${factorId}/challenge`, token, {})) as { id: string };
-  const v = (await call(`factors/${factorId}/verify`, token, { challenge_id: c.id, code: totp(secret) })) as { access_token: string };
-  return v.access_token;
+  // A code works once; if this window's code was just used, wait for the next one.
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const c = (await call(`factors/${factorId}/challenge`, token, {})) as { id: string };
+      const v = (await call(`factors/${factorId}/verify`, token, { challenge_id: c.id, code: totp(secret) })) as { access_token: string };
+      return v.access_token;
+    } catch (e) {
+      if (attempt >= 2) throw e;
+      await new Promise((r) => setTimeout(r, 30_000 - (Date.now() % 30_000) + 1_000));
+    }
+  }
 }
 
+// Two-step tokens, reused within a test worker (valid for an hour; Supabase
+// limits how many codes can be checked in a few minutes).
+const tokens = new Map<string, Promise<string>>();
+
 /** A two-step (aal2) sign-in token for an account with an authenticator. */
-export async function twoStepToken(email: string, password: string, secret: string): Promise<string> {
+export function twoStepToken(email: string, password: string, secret: string): Promise<string> {
+  let t = tokens.get(email);
+  if (!t) {
+    t = newTwoStepToken(email, password, secret);
+    tokens.set(email, t);
+    t.catch(() => tokens.delete(email));
+  }
+  return t;
+}
+
+async function newTwoStepToken(email: string, password: string, secret: string): Promise<string> {
   const token = await passwordToken(email, password);
   const user = (await (await fetch(`${url()}/auth/v1/user`, { headers: { apikey: key(), Authorization: `Bearer ${token}` } })).json()) as {
     factors?: { id: string; status: string }[];

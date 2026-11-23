@@ -70,13 +70,11 @@ test("an installer clocks in, switches, takes lunch and clocks out", async ({ br
 
     // What the database recorded
     const emp = await employeeId(installer);
-    const events = (await (await api(`/rest/v1/time_events?select=event_type,gps_status,gps_source,actor_employee_id&employee_id=eq.${emp}&order=effective_at`)).json()) as {
-      event_type: string;
-      gps_status: string;
-      gps_source: string | null;
-      actor_employee_id: string;
-    }[];
-    expect(events.map((e) => e.event_type)).toEqual(["clock_in", "switch", "break_start", "break_end", "clock_out"]);
+    type Ev = { event_type: string; gps_status: string; gps_source: string | null; actor_employee_id: string };
+    const load = async () => (await (await api(`/rest/v1/time_events?select=event_type,gps_status,gps_source,actor_employee_id&employee_id=eq.${emp}&order=effective_at`)).json()) as Ev[];
+    // The screen updates as soon as the press is accepted; give the last save a moment.
+    await expect.poll(async () => (await load()).map((e) => e.event_type)).toEqual(["clock_in", "switch", "break_start", "break_end", "clock_out"]);
+    const events = await load();
     expect(events[0]).toMatchObject({ gps_status: "captured", gps_source: "own_device", actor_employee_id: emp });
     // GPS on a switch follows the company setting ("record GPS when switching").
     const [{ gps_on_category_switch: gpsOnSwitch }] = (await (await api("/rest/v1/app_settings?select=gps_on_category_switch")).json()) as { gps_on_category_switch: boolean }[];

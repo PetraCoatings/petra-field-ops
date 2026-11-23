@@ -74,7 +74,7 @@ test("a new office admin sets up the authenticator on first sign-in; another adm
     const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
     contexts.push(c);
     const page = await c.newPage();
-    await signInAs(page, extra);
+    await signInAs(page, extra, { fresh: true });
     await expect(page).toHaveURL(/\/two-step$/);
     await expect(page.getByRole("heading", { name: "Set up two-step sign-in" })).toBeVisible();
     await page.getByRole("button", { name: "Start setup" }).click();
