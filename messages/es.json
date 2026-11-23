@@ -974,5 +974,71 @@
     "anyCategory": "Cualquier categoría",
     "noMatches": "Ningún producto coincide.",
     "empty": "Aún no hay productos. La oficina los agrega y aprueba en Productos y SDS."
+  },
+  "timeClock": {
+    "status": "Ahora",
+    "notClockedIn": "Sin registrar entrada",
+    "onTheClock": "Trabajando: {category}",
+    "onLunch": "En el almuerzo",
+    "since": "Desde {time} · {duration}",
+    "categories": {
+      "job": "Trabajo",
+      "drive": "Manejo",
+      "ride": "Pasajero"
+    },
+    "whatDoing": "¿Qué está haciendo?",
+    "switchTo": "Cambiar a",
+    "job": "Trabajo (obra)",
+    "noJob": "Sin obra (taller u otro)",
+    "unknownJob": "Obra",
+    "clockIn": "Registrar entrada",
+    "clockOut": "Registrar salida",
+    "startLunch": "Empezar almuerzo",
+    "endLunch": "Terminar almuerzo (volver a {category})",
+    "switchButton": "Cambiar a {category}",
+    "working": "Guardando…",
+    "confirmClockOut": "¿Registrar salida por hoy?",
+    "yesClockOut": "Sí, registrar salida",
+    "cancel": "Cancelar",
+    "done": {
+      "clock_in": "Entrada registrada a las {time} ({category}).",
+      "switch": "Cambió a {category} a las {time}.",
+      "break_start": "Almuerzo empezado a las {time}.",
+      "break_end": "Almuerzo terminado a las {time}.",
+      "clock_out": "Salida registrada a las {time}."
+    },
+    "gpsNote": {
+      "denied": "No se registró la ubicación (el permiso está desactivado).",
+      "unavailable": "La ubicación no estaba disponible.",
+      "timeout": "La ubicación tardó demasiado y no se registró."
+    },
+    "errors": {
+      "offline": "Sin conexión, así que todavía no se registró. Inténtelo de nuevo cuando tenga señal; se guardará la hora en que lo presionó.",
+      "not_clocked_in": "No ha registrado entrada.",
+      "already_clocked_in": "Ya registró entrada.",
+      "on_lunch": "Primero termine el almuerzo.",
+      "not_on_lunch": "No está en el almuerzo.",
+      "no_change": "Elija otra categoría u otra obra para cambiar.",
+      "category_required": "Elija Trabajo, Manejo o Pasajero.",
+      "before_last_entry": "Esa hora es anterior a su último registro. Pida a la oficina que lo corrija.",
+      "inactive": "Este empleado no está activo.",
+      "invalid": "Algo en este registro no estaba bien. Inténtelo de nuevo.",
+      "forbidden": "No puede hacer eso.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    },
+    "gpsExplain": "Su ubicación se registra solo al registrar entrada y salida.",
+    "gpsExplainSwitch": "Su ubicación se registra solo al registrar entrada, cambiar, empezar o terminar el almuerzo y registrar salida.",
+    "travelReminder": "No registre entrada por su manejo normal de la casa a la obra o al taller. El tiempo en el hotel no es tiempo de trabajo.",
+    "forgotClockOut": "Tiene entrada registrada desde el {day} a las {time}. Si olvidó registrar salida, hágalo ahora y avise a la oficina la hora correcta.",
+    "today": "Hoy",
+    "nothingToday": "No hay tiempo registrado hoy.",
+    "now": "ahora",
+    "lunch": "Almuerzo",
+    "paidLunch": "pagado (menos de 30 min)",
+    "unpaidLunch": "sin pago",
+    "thisWeek": "Esta semana",
+    "weekNote": "La semana laboral empezó el {day} a las 12:00 AM. El almuerzo de 30 minutos o más no se cuenta.",
+    "hoursMinutes": "{h} h {m} min",
+    "minutes": "{m} min"
   }
 }
