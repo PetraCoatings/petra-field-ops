@@ -1092,7 +1092,8 @@
         "break_end": "Lunch ended at {time}:",
         "clock_out": "Clock out at {time}:"
       },
-      "gpsExplain": "Your phone's location is recorded for everyone you clock in or out, and marked as yours."
+      "gpsExplain": "Your phone's location is recorded for everyone you clock in or out, and marked as yours.",
+      "savedOnPhone": "No signal: saved on this phone at {time}. It will send automatically when you have signal."
     },
     "sheet": {
       "title": "My timesheet",
@@ -1189,7 +1190,17 @@
       "nobodyOn": "Nobody is clocked in right now.",
       "forgot": "Probably forgot to clock out",
       "timesheets": "Timesheets"
-    }
+    },
+    "savedOnPhone": "No signal: saved on this phone at {time}. It will send automatically when you have signal.",
+    "waitingTitle": "Saved on this phone, waiting for signal ({count})",
+    "actions": {
+      "clock_in": "Clock in",
+      "switch": "Switch",
+      "break_start": "Start lunch",
+      "break_end": "End lunch",
+      "clock_out": "Clock out"
+    },
+    "seeSync": "See what's waiting"
   },
   "payRates": {
     "title": "Pay rates",
@@ -1632,5 +1643,28 @@
       "forbidden": "You can't do that on this job.",
       "value": "Enter the reading as a number."
     }
+  },
+  "sync": {
+    "title": "Sync",
+    "intro": "Time Clock presses made with no signal are kept on this phone and sent automatically when signal returns. Each one keeps the time you pressed it.",
+    "sendNow": "Send now",
+    "sending": "Sending…",
+    "allSent": "Everything from this phone has been sent.",
+    "listLabel": "Time clock presses on this phone",
+    "people": "{count} people",
+    "pressedAt": "Pressed {when}",
+    "states": {
+      "pending": "Saved on this phone",
+      "sending": "Sending…",
+      "synced": "Sent ✓",
+      "failed": "Not accepted"
+    },
+    "refused": "The server didn't accept it: {reason}",
+    "tryAgain": "Try again",
+    "dismiss": "Remove from this list",
+    "otherAccount": "{count} press(es) on this phone belong to someone else's account. They'll send when that person signs in here.",
+    "howItWorks": "Sending twice never records a press twice. If the office already fixed a time, a refused press can be removed from this list.",
+    "badgeWaiting": "{count} time clock press(es) waiting to send",
+    "badgeFailed": "{count} time clock press(es) not accepted"
   }
 }

@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Coffee, LogIn, LogOut, MapPin, Repeat, UserPlus } from "lucide-react";
 import { Segmented } from "@/components/calculators/segmented";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { hoursMinutes, TIME_CATEGORIES, type TimeCategory } from "@/domain/time/totals";
-import { clockPress, type ClockError, type ClockPress } from "@/lib/actions/time-clock";
+import { submitPress, type ClockPayload } from "@/lib/offline/outbox";
 import type { ClockJob, ClockSettings, CrewPerson, CrewStatus } from "@/lib/time/my-time";
 import { readGps } from "./gps";
 
-type Action = ClockPress["action"];
-type Outcome = { name: string; ok: boolean; error?: ClockError };
+type Action = ClockPayload["action"];
+type Outcome = { name: string; ok: boolean; error?: string };
 
 /**
  * Crew clock-in. The lead picks the job and who is here, then clocks them all
@@ -62,7 +63,7 @@ export function CrewClock({
   const [confirmOut, setConfirmOut] = useState(false);
   const [outcome, setOutcome] = useState<{ action: Action; time: string; rows: Outcome[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const pendingPress = useRef<{ key: string; id: string; deviceTs: string } | null>(null);
+  const router = useRouter();
 
   const time = (ms: number) => new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "numeric", minute: "2-digit" }).format(ms);
   const duration = (ms: number) => {
@@ -96,41 +97,31 @@ export function CrewClock({
   const press = (action: Action) => {
     setConfirmOut(false);
     if (chosen.length === 0) return;
-    const key = `${action}|${category}|${projectId}|${chosen.join(",")}`;
-    const pending = pendingPress.current?.key === key ? pendingPress.current : { key, id: crypto.randomUUID(), deviceTs: new Date().toISOString() };
-    pendingPress.current = pending;
+    const deviceTs = new Date().toISOString();
+    const id = crypto.randomUUID();
     const sendsCategory = action === "clock_in" || action === "switch";
     const needsGps = action === "clock_in" || action === "clock_out" || settings.gpsOnSwitch;
     startTransition(async () => {
       setError(null);
       setOutcome(null);
-      const gps: ClockPress["gps"] = needsGps ? await readGps() : { status: "not_requested" };
-      let r;
-      try {
-        r = await clockPress({
-          id: pending.id,
-          action,
-          category: sendsCategory ? category : null,
-          projectId: sendsCategory && projectId ? projectId : null,
-          deviceTs: pending.deviceTs,
-          deviceNow: new Date().toISOString(),
-          gps,
-          employeeIds: chosen,
-        });
-      } catch {
-        setError(t("errors.offline"));
-        return;
-      }
-      pendingPress.current = null;
-      if (!r.ok) {
-        setError(t(`errors.${r.error}`));
-        return;
-      }
+      const gps: ClockPayload["gps"] = needsGps ? await readGps() : { status: "not_requested" };
+      const item = await submitPress(me, {
+        id,
+        action,
+        category: sendsCategory ? category : null,
+        projectId: sendsCategory && projectId ? projectId : null,
+        deviceTs,
+        gps,
+        employeeIds: chosen,
+      });
+      if (item.state === "pending" || item.state === "sending") return setError(t("savedOnPhone", { time: time(Date.parse(deviceTs)) }));
+      if (item.state === "failed" && !item.results) return setError(t(`errors.${(item.error ?? "generic") as "generic"}`));
       setOutcome({
         action,
-        time: time(Date.parse(pending.deviceTs)),
-        rows: r.results.map((x) => ({ name: nameOf.get(x.employeeId) ?? "?", ok: x.ok, error: x.error })),
+        time: time(Date.parse(deviceTs)),
+        rows: (item.results ?? []).map((x) => ({ name: nameOf.get(x.employeeId) ?? "?", ok: x.ok, error: x.error })),
       });
+      router.refresh();
     });
   };
 
@@ -264,7 +255,7 @@ export function CrewClock({
             <ul className="space-y-1">
               {outcome.rows.map((r) => (
                 <li key={r.name} className={r.ok ? "text-green-900" : "text-red-900"}>
-                  {r.ok ? `✓ ${r.name}` : `✗ ${r.name}: ${t(`errors.${r.error ?? "generic"}`)}`}
+                  {r.ok ? `✓ ${r.name}` : `✗ ${r.name}: ${t(`errors.${(r.error ?? "generic") as "generic"}`)}`}
                 </li>
               ))}
             </ul>

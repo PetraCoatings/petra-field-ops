@@ -1,17 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useSyncExternalStore, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Car, Clock, Coffee, HardHat, LogIn, LogOut, MapPin, Repeat, TriangleAlert, Users } from "lucide-react";
 import { Segmented } from "@/components/calculators/segmented";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { dailyTotals, hoursMinutes, isPaidLunch, segmentFlags, weekTotals, TIME_CATEGORIES, type TimeCategory } from "@/domain/time/totals";
 import { localDate, startOfLocalDate, addDays } from "@/domain/time/zoned";
-import { clockPress, type ClockError, type ClockPress } from "@/lib/actions/time-clock";
+import { outboxItems, predictOpen, submitPress, subscribeOutbox, type ClockPayload, type OutboxItem } from "@/lib/offline/outbox";
 import type { ClockJob, ClockSegment, ClockSettings } from "@/lib/time/my-time";
 import { readGps } from "./gps";
 
-type Action = ClockPress["action"];
+type Action = ClockPayload["action"];
 const ICONS: Record<TimeCategory, typeof HardHat> = { job: HardHat, drive: Car, ride: Users };
 
 export function TimeClock({
@@ -19,11 +21,13 @@ export function TimeClock({
   jobs,
   settings,
   serverNow,
+  me,
 }: {
   segments: ClockSegment[];
   jobs: ClockJob[];
   settings: ClockSettings;
   serverNow: number;
+  me: string;
 }) {
   const t = useTranslations("timeClock");
   const locale = useLocale();
@@ -36,15 +40,20 @@ export function TimeClock({
     return () => clearInterval(id);
   }, []);
 
-  const open = segments.find((s) => s.end === null) ?? null;
+  const router = useRouter();
+  // Presses saved on this phone that the server hasn't confirmed yet.
+  const outbox = useSyncExternalStore(subscribeOutbox, outboxSnapshot, emptySnapshot);
+  const waiting = parseSnapshot(outbox).filter((i) => i.owner === me && (i.state === "pending" || i.state === "sending"));
+  const serverOpen = segments.find((s) => s.end === null) ?? null;
+  const predicted = predictOpen(serverOpen ? { kind: serverOpen.kind, category: serverOpen.category, projectId: serverOpen.projectId, start: serverOpen.start } : null, waiting.map((i) => i.payload));
+  const open = waiting.length ? (predicted ? { ...predicted, id: "pending", end: null } : null) : serverOpen;
   const [category, setCategory] = useState<TimeCategory>(open?.category ?? "job");
   const [projectId, setProjectId] = useState<string>(open?.projectId ?? (jobs.length === 1 ? jobs[0].id : ""));
   const [busy, startTransition] = useTransition();
-  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ kind: "ok" | "error" | "saved"; text: string } | null>(null);
   const [confirmOut, setConfirmOut] = useState(false);
   // A press that didn't reach the server keeps its id and time, so trying
   // again can never record it twice.
-  const pendingPress = useRef<{ key: string; id: string; deviceTs: string } | null>(null);
 
   const time = (ms: number) => new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "numeric", minute: "2-digit" }).format(ms);
   const dayName = (date: string) =>
@@ -59,38 +68,33 @@ export function TimeClock({
 
   const press = (action: Action) => {
     setConfirmOut(false);
-    const key = `${action}|${category}|${projectId}`;
-    const pending = pendingPress.current?.key === key ? pendingPress.current : { key, id: crypto.randomUUID(), deviceTs: new Date().toISOString() };
-    pendingPress.current = pending;
+    const deviceTs = new Date().toISOString();
+    const id = crypto.randomUUID();
     const sendsCategory = action === "clock_in" || action === "switch";
     const needsGps = action === "clock_in" || action === "clock_out" || settings.gpsOnSwitch;
     startTransition(async () => {
       setMessage(null);
-      const gps: ClockPress["gps"] = needsGps ? await readGps() : { status: "not_requested" };
-      let r;
-      try {
-        r = await clockPress({
-          id: pending.id,
-          action,
-          category: sendsCategory ? category : null,
-          projectId: sendsCategory && projectId ? projectId : null,
-          deviceTs: pending.deviceTs,
-          deviceNow: new Date().toISOString(),
-          gps,
-        });
-      } catch {
-        setMessage({ kind: "error", text: t("errors.offline") });
+      const gps: ClockPayload["gps"] = needsGps ? await readGps() : { status: "not_requested" };
+      const item = await submitPress(me, {
+        id,
+        action,
+        category: sendsCategory ? category : null,
+        projectId: sendsCategory && projectId ? projectId : null,
+        deviceTs,
+        gps,
+      });
+      const at = time(Date.parse(deviceTs));
+      if (item.state === "pending" || item.state === "sending") {
+        setMessage({ kind: "saved", text: t("savedOnPhone", { time: at }) });
         return;
       }
-      pendingPress.current = null;
-      const error: ClockError | undefined = !r.ok ? r.error : r.results[0]?.ok ? undefined : (r.results[0]?.error ?? "generic");
-      if (error) {
-        setMessage({ kind: "error", text: t(`errors.${error}`) });
+      if (item.state === "failed") {
+        setMessage({ kind: "error", text: t(`errors.${(item.error ?? "generic") as "generic"}`) });
         return;
       }
-      const at = time(Date.parse(pending.deviceTs));
       const gpsNote = gps.status !== "captured" && gps.status !== "not_requested" ? ` ${t(`gpsNote.${gps.status}`)}` : "";
       setMessage({ kind: "ok", text: t(`done.${action}`, { time: at, category: catLabel(category) }) + gpsNote });
+      router.refresh();
     });
   };
 
@@ -122,6 +126,23 @@ export function TimeClock({
           </>
         )}
       </section>
+
+      {waiting.length > 0 && (
+        <div role="status" className="space-y-1 rounded-xl border-2 border-dashed border-neutral-400 bg-neutral-50 px-4 py-3">
+          <p className="font-semibold">{t("waitingTitle", { count: waiting.length })}</p>
+          <ul className="text-sm">
+            {waiting.map((i) => (
+              <li key={i.id}>
+                {time(Date.parse(i.payload.deviceTs))} · {t(`actions.${i.payload.action}`)}
+                {i.payload.category ? ` (${catLabel(i.payload.category)})` : ""}
+              </li>
+            ))}
+          </ul>
+          <Link href="/sync" className="text-sm font-semibold text-brand-700 underline">
+            {t("seeSync")}
+          </Link>
+        </div>
+      )}
 
       {forgot && (
         <p role="alert" className="flex gap-2 rounded-xl border-l-4 border-red-700 bg-red-50 px-4 py-3 text-base font-medium text-red-950">
@@ -211,7 +232,7 @@ export function TimeClock({
           </div>
         )}
         {message && (
-          <p role={message.kind === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-base font-medium ${message.kind === "error" ? "bg-red-50 text-red-900" : "bg-green-50 text-green-900"}`}>
+          <p role={message.kind === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 text-base font-medium ${message.kind === "error" ? "bg-red-50 text-red-900" : message.kind === "saved" ? "bg-neutral-100 text-neutral-900" : "bg-green-50 text-green-900"}`}>
             {message.text}
           </p>
         )}
@@ -284,4 +305,19 @@ export function TimeClock({
       </section>
     </div>
   );
+}
+
+// useSyncExternalStore needs a stable value: the queue as a JSON string.
+function outboxSnapshot(): string {
+  return JSON.stringify(outboxItems());
+}
+function emptySnapshot(): string {
+  return "[]";
+}
+function parseSnapshot(s: string): OutboxItem[] {
+  try {
+    return JSON.parse(s) as OutboxItem[];
+  } catch {
+    return [];
+  }
 }
