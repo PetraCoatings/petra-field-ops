@@ -16,7 +16,8 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 | 5. Time Clock | Done: clock in/out, Job/Drive/Ride, lunch, GPS with status, segments that can't overlap, crew clock-in, timesheets (fixes with reasons keep the original, requests, lead submit, office approve/lock/reopen) |
 | 6. Payroll | Done: pay rates (private), weighted-average overtime engine, Payroll page with Gusto entry sheet (PDF/CSV), mark as entered (permanent snapshot) |
 | 7. Calendar & leave | Done: calendar (job days, holidays, approved time off), private calendar links for Apple/Outlook/Google, time-off requests with crew lead then office approval and notifications |
-| 8–9 | Not started |
+| 8. Field reporting | In progress: daily field reports (readings with dew point, material and spread rate, submit, send back, accept, versions); issues, photos and QC next |
+| 9 | Not started |
 
 ## Stack
 

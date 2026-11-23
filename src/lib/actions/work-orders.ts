@@ -154,10 +154,13 @@ export async function openNotification(formData: FormData): Promise<void> {
     .from("notifications")
     .update({ read_at: new Date().toISOString() })
     .eq("id", id)
-    .select("type, project_id, entity_id")
+    .select("type, project_id, entity_id, data")
     .maybeSingle();
   revalidatePath("/", "layout");
   if (data?.type === "time_off_requested" || data?.type === "time_off_decided") redirect("/time-off");
+  if ((data?.type === "dfr_submitted" || data?.type === "dfr_correction") && data.project_id && typeof (data.data as { date?: unknown })?.date === "string") {
+    redirect(`/jobs/${data.project_id}/reports/${(data.data as { date: string }).date}`);
+  }
   if (data?.type === "checklist_missing" && data.project_id && data.entity_id) {
     redirect(`/jobs/${data.project_id}/checklist/${data.entity_id}`);
   }

@@ -14,7 +14,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 type Row = {
   id: string;
-  type: "fwo_published" | "checklist_missing" | "time_off_requested" | "time_off_decided";
+  type: "fwo_published" | "checklist_missing" | "time_off_requested" | "time_off_decided" | "dfr_submitted" | "dfr_correction";
   data: {
     fwoNumber?: number;
     title?: string;
@@ -27,6 +27,8 @@ type Row = {
     end?: string;
     leaveType?: string;
     status?: string;
+    date?: string;
+    version?: number;
   };
   read_at: string | null;
   created_at: string;
@@ -77,7 +79,14 @@ export default async function NotificationsPage() {
                 >
                   <ClipboardList aria-hidden className="mt-0.5 size-6 shrink-0 text-brand-700" />
                   <span className="min-w-0 flex-1">
-                    {n.type === "time_off_requested" || n.type === "time_off_decided" ? (
+                    {n.type === "dfr_submitted" || n.type === "dfr_correction" ? (
+                      <>
+                        <span className={`block text-base font-bold ${n.type === "dfr_correction" ? "text-red-900" : ""}`}>
+                          {n.type === "dfr_submitted" ? t("dfrSubmitted", { date: n.data.date ?? "" }) : t("dfrCorrection", { date: n.data.date ?? "" })}
+                        </span>
+                        <span className="block text-base text-neutral-800">{[n.data.projectName, n.type === "dfr_correction" ? n.data.note : null].filter(Boolean).join(" · ")}</span>
+                      </>
+                    ) : n.type === "time_off_requested" || n.type === "time_off_decided" ? (
                       <>
                         <span className={`block text-base font-bold ${n.data.status === "rejected" ? "text-red-900" : ""}`}>
                           {n.type === "time_off_requested"
