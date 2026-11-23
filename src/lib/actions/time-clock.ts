@@ -61,6 +61,7 @@ export async function clockPress(payload: ClockPress): Promise<ClockResult> {
   });
   if (error) return { ok: false, error: error.code === "42501" ? "forbidden" : error.code === "22023" ? "invalid" : "generic" };
   revalidatePath("/time-clock");
+  revalidatePath("/time-clock/crew");
   const results = (data as { employee_id: string; ok: boolean; error?: ClockError }[]).map((r) => ({
     employeeId: r.employee_id,
     ok: r.ok,

@@ -254,3 +254,19 @@ describe("access", () => {
     });
   });
 });
+
+describe("crew status", () => {
+  it("crew leads see who is on the clock right now; installers can't", async () => {
+    await asUser(U.lead, async (q) => {
+      await act(q, "clock_in", await yesterday(q, "06:00"), { category: "job", project: P.assigned, employees: [E.installer] });
+      const rows = (await q("select * from public.crew_clock_status($1)", [[E.installer, E.otherInstaller]])).rows;
+      expect(rows).toHaveLength(1);
+      expect(rows[0]).toMatchObject({ employee_id: E.installer, kind: "work", category: "job", project_id: P.assigned });
+      // Still no access to anyone's history.
+      expect((await q("select count(*)::int as n from public.time_segments where employee_id = $1", [E.installer])).rows[0].n).toBe(0);
+    });
+    await asUser(U.installer, async (q) => {
+      await expect(q("select * from public.crew_clock_status($1)", [[E.otherInstaller]])).rejects.toThrow(/crew leads/);
+    });
+  });
+});

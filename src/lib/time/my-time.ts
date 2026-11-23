@@ -63,3 +63,38 @@ export async function clockJobs(isOffice: boolean): Promise<ClockJob[]> {
 
 /** The server's clock, for the first render (the phone takes over after). */
 export const serverNow = () => Date.now();
+
+export type CrewPerson = { id: string; name: string; role: string };
+export type CrewStatus = { employeeId: string; kind: "work" | "lunch"; category: TimeCategory | null; projectId: string | null; start: number };
+
+/** Everyone active (names only), who's on which job, and who is on the clock now. For crew leads and the office. */
+export async function crewData(): Promise<{ people: CrewPerson[]; crews: Record<string, string[]>; status: CrewStatus[] }> {
+  const supabase = await createClient();
+  const [{ data: people }, { data: assignments }, { data: leads }] = await Promise.all([
+    supabase.from("employee_directory").select("id, display_name, role").eq("is_active", true).order("first_name"),
+    supabase.from("project_assignments").select("project_id, employee_id"),
+    supabase.from("projects").select("id, crew_lead_id").not("crew_lead_id", "is", null),
+  ]);
+  const crews: Record<string, string[]> = {};
+  const addTo = (project: string, emp: string) => {
+    const list = (crews[project] ??= []);
+    if (!list.includes(emp)) list.push(emp);
+  };
+  for (const l of leads ?? []) addTo(l.id as string, l.crew_lead_id as string);
+  for (const a of assignments ?? []) addTo(a.project_id as string, a.employee_id as string);
+  const list = (people ?? []).map((p) => ({ id: p.id as string, name: p.display_name as string, role: p.role as string }));
+  const { data: status } = list.length
+    ? await supabase.rpc("crew_clock_status", { p_employee_ids: list.slice(0, 100).map((p) => p.id) })
+    : { data: [] };
+  return {
+    people: list,
+    crews,
+    status: ((status ?? []) as { employee_id: string; kind: "work" | "lunch"; category: TimeCategory | null; project_id: string | null; start_at: string }[]).map((s) => ({
+      employeeId: s.employee_id,
+      kind: s.kind,
+      category: s.category,
+      projectId: s.project_id,
+      start: Date.parse(s.start_at),
+    })),
+  };
+}
