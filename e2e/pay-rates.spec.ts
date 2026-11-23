@@ -30,13 +30,14 @@ test("office sets pay rates; the installer sees their own after entering their p
   const phone = await signIn(installer, true);
   try {
     await office.page.goto(`/manage/employees/${emp}`);
+    // (Other tests may add rates for the same person, so look for these rows by kind and date.)
     const rows = office.page.getByRole("table").getByRole("row");
-    for (const [i, [cat, rate]] of ([["job", "25"], ["drive", "18"], ["ride", "15.50"]] as const).entries()) {
+    for (const [cat, label, rate] of [["job", "Job", "25"], ["drive", "Drive", "18"], ["ride", "Ride", "15.50"]] as const) {
       await office.page.getByLabel("Kind of time").selectOption(cat);
       await office.page.getByLabel("Hourly rate ($)").fill(rate);
       await office.page.getByLabel("Starts on").fill("2026-01-05");
       await office.page.getByRole("button", { name: "Add rate" }).click();
-      await expect(rows).toHaveCount(i + 2); // header + one row per rate
+      await expect(rows.filter({ hasText: label }).filter({ hasText: "Jan 5, 2026" })).toHaveCount(1);
     }
     await office.page.getByLabel("Hourly rate ($)").fill("abc");
     await office.page.getByRole("button", { name: "Add rate" }).click();

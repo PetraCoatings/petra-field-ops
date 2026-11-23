@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
-import { employeeId } from "./support/test-project";
+import { employeeId, sessionFetch } from "./support/test-project";
 import { flat, pdfText } from "./support/pdf-text";
 
 /**
@@ -91,4 +91,46 @@ test("payroll shows Gusto hours per rate, blocks until weeks are approved, and d
   await expect(p2).toHaveURL(/\/$/);
   expect((await other.request.get("/manage/payroll/export?period=2025-01-08&format=csv")).status()).toBe(403);
   await other.close();
+});
+
+test("crew leads and project managers can't see anyone's pay rates or payroll", async ({ browser }) => {
+  test.skip(test.info().project.name !== "desktop", "one desktop run");
+  test.skip((await api("/rest/v1/payroll_runs?select=id&limit=1")).status === 404, "payroll migration not applied");
+  test.setTimeout(90_000);
+  const users = readRoleUsers();
+  const installer = users.find((x) => x.role === "installer")!;
+  const emp = await employeeId(installer);
+  // Make sure the installer has a rate to look for.
+  await post("/rest/v1/pay_rates", { employee_id: emp, category: "job", hourly_rate: 31.25, effective_from: "2024-06-03" });
+  expect(((await (await api(`/rest/v1/pay_rates?select=id&employee_id=eq.${emp}`)).json()) as unknown[]).length).toBeGreaterThan(0);
+
+  for (const role of ["crew_lead", "project_manager"] as const) {
+    const u = users.find((x) => x.role === role)!;
+    // 1. Straight to the database with their own sign-in: nothing comes back.
+    const as = await sessionFetch(u);
+    expect(await (await as(`/rest/v1/pay_rates?select=*&employee_id=eq.${emp}`)).json()).toEqual([]);
+    expect(await (await as(`/rest/v1/pay_rates?select=*&employee_id=neq.${await employeeId(u)}`)).json()).toEqual([]);
+    expect(await (await as("/rest/v1/payroll_runs?select=*")).json()).toEqual([]);
+    expect(await (await as("/rest/v1/payroll_lines?select=*")).json()).toEqual([]);
+
+    // 2. Through the app's pages and downloads.
+    const c = await browser.newContext({ baseURL: test.info().project.use.baseURL });
+    const page = await c.newPage();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(u.email);
+    await page.getByLabel("Password", { exact: true }).fill(u.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    for (const path of [`/manage/employees/${emp}`, "/manage/payroll", "/manage/employees"]) {
+      await page.goto(path);
+      await expect(page).not.toHaveURL(new RegExp(path.replace(/\//g, "\\/") + "$"));
+      await expect(page.getByText("$31.25")).toHaveCount(0);
+    }
+    expect((await c.request.get("/manage/payroll/export?period=2025-01-08&format=csv")).status()).toBe(403);
+    expect((await c.request.get("/manage/payroll/export?period=2025-01-08&format=pdf")).status()).toBe(403);
+    // Their crew's timesheets show hours, never money.
+    await page.goto(`/time-clock/timesheet?employee=${emp}`);
+    await expect(page.getByText("$")).toHaveCount(0);
+    await c.close();
+  }
 });
