@@ -1039,6 +1039,28 @@
     "thisWeek": "Esta semana",
     "weekNote": "La semana laboral empezó el {day} a las 12:00 AM. El almuerzo de 30 minutos o más no se cuenta.",
     "hoursMinutes": "{h} h {m} min",
-    "minutes": "{m} min"
+    "minutes": "{m} min",
+    "crew": {
+      "title": "Entrada de la cuadrilla",
+      "link": "Registrar a mi cuadrilla",
+      "intro": "Elija la obra y quién está aquí, y registre la entrada de todos a la vez. El tiempo de cada persona muestra que usted lo hizo.",
+      "who": "¿Quién está aquí? ({count} seleccionados)",
+      "you": "usted",
+      "addSomeone": "Agregar a otra persona",
+      "choosePerson": "Elija una persona",
+      "add": "Agregar",
+      "clockIn": "Registrar entrada ({count})",
+      "clockOut": "Registrar salida ({count})",
+      "endLunch": "Terminar almuerzo",
+      "confirmClockOut": "¿Registrar la salida de {names}?",
+      "done": {
+        "clock_in": "Entrada a las {time}:",
+        "switch": "Cambio a las {time}:",
+        "break_start": "Almuerzo empezado a las {time}:",
+        "break_end": "Almuerzo terminado a las {time}:",
+        "clock_out": "Salida a las {time}:"
+      },
+      "gpsExplain": "La ubicación de su teléfono se registra para todas las personas a las que registra entrada o salida, y queda marcada como suya."
+    }
   }
 }
