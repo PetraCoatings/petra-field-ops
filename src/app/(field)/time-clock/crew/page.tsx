@@ -13,7 +13,7 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /** Crew clock-in: a crew lead (or the office) clocks several people at once. */
 export default async function CrewClockPage() {
-  const profile = await requireRole("crew_lead", "office_admin");
+  const profile = await requireRole("crew_lead", "project_manager", "office_admin");
   const t = await getTranslations();
   const [settings, jobs, crew] = await Promise.all([clockSettings(), clockJobs(canAccessManagement(profile.role)), crewData()]);
   return (

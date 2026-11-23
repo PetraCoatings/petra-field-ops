@@ -22,16 +22,18 @@ export default async function TimeClockPage() {
   return (
     <>
       <PageHeader title={t("home.modules.timeClock")} backHref="/" backLabel={t("common.home")} />
-      {(profile.role === "crew_lead" || profile.role === "office_admin") && (
+      {profile.role !== "installer" && (
         <div className="mb-4 grid gap-2 sm:grid-cols-2">
           <Link href="/time-clock/crew" className={`${buttonClasses("secondary", "lg")} w-full`}>
             <Users aria-hidden className="size-6" />
             {t("timeClock.crew.link")}
           </Link>
-          <Link href="/time-clock/crew/timesheets" className={`${buttonClasses("secondary", "lg")} w-full`}>
-            <ClipboardList aria-hidden className="size-6" />
-            {t("timeClock.sheet.crewList")}
-          </Link>
+          {(profile.role === "crew_lead" || profile.role === "office_admin") && (
+            <Link href="/time-clock/crew/timesheets" className={`${buttonClasses("secondary", "lg")} w-full`}>
+              <ClipboardList aria-hidden className="size-6" />
+              {t("timeClock.sheet.crewList")}
+            </Link>
+          )}
         </div>
       )}
       <TimeClock segments={segments} jobs={jobs} settings={settings} serverNow={serverNow()} />
