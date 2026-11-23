@@ -150,3 +150,54 @@ export async function sendInvite(employeeId: string, _prev: FormState): Promise<
   revalidatePath(`/manage/employees/${employeeId}`);
   return r;
 }
+
+/**
+ * Re-send the invitation email to someone who was invited but never signed in
+ * (the first email can be lost to spam, or its link can expire).
+ */
+export async function resendInvite(employeeId: string, _prev: FormState): Promise<FormState> {
+  await requireRole("office_admin");
+  const supabase = await createClient();
+  const { data: emp } = await supabase.from("employees").select("id, email, user_id").eq("id", employeeId).maybeSingle();
+  if (!emp) return { status: "error", message: "common.genericError" };
+  if (!emp.user_id) return invite(employeeId);
+  const admin = createAdminClient();
+  const { data: account } = await admin.auth.admin.getUserById(emp.user_id);
+  if (account.user?.last_sign_in_at) return { status: "success", message: "employees.accountLinked" };
+  const { error } = await admin.auth.admin.inviteUserByEmail(emp.email, {
+    redirectTo: `${await siteOrigin()}/auth/accept?next=/set-password`,
+  });
+  if (error) return { status: "error", message: "employees.inviteFailed", messageValues: { reason: error.message } };
+  revalidatePath(`/manage/employees/${employeeId}`);
+  return { status: "success", message: "employees.inviteSent", messageValues: { email: emp.email } };
+}
+
+export type SignUpLinkResult = { ok: true; link: string } | { ok: false; reason: string };
+
+/**
+ * A one-time sign-up link the office can text to the person instead of relying
+ * on email. Opening it signs them in and asks them to choose a password.
+ * Only for people who haven't signed in yet; the link is shown only to the
+ * office admin who asked for it and is never stored.
+ */
+export async function makeSignUpLink(employeeId: string): Promise<SignUpLinkResult> {
+  await requireRole("office_admin");
+  if (!process.env.SUPABASE_SECRET_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) return { ok: false, reason: "not configured" };
+  const supabase = await createClient();
+  const { data: emp } = await supabase.from("employees").select("id, email, user_id, is_active").eq("id", employeeId).maybeSingle();
+  if (!emp || !emp.is_active) return { ok: false, reason: "not found" };
+  const admin = createAdminClient();
+  const redirectTo = `${await siteOrigin()}/auth/accept?next=/set-password`;
+  if (emp.user_id) {
+    const { data: account } = await admin.auth.admin.getUserById(emp.user_id);
+    if (account.user?.last_sign_in_at) return { ok: false, reason: "already signed in" };
+    const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: emp.email, options: { redirectTo } });
+    return error || !data.properties?.action_link ? { ok: false, reason: error?.message ?? "unknown" } : { ok: true, link: data.properties.action_link };
+  }
+  const { data, error } = await admin.auth.admin.generateLink({ type: "invite", email: emp.email, options: { redirectTo } });
+  if (error || !data.properties?.action_link || !data.user) return { ok: false, reason: error?.message ?? "unknown" };
+  const { error: linkError } = await supabase.from("employees").update({ user_id: data.user.id }).eq("id", emp.id);
+  if (linkError) return { ok: false, reason: "could not link the account" };
+  revalidatePath(`/manage/employees/${employeeId}`);
+  return { ok: true, link: data.properties.action_link };
+}

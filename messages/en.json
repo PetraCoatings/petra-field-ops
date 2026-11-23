@@ -155,7 +155,20 @@
     "created": "Employee added.",
     "empty": "No employees yet.",
     "emailLockedHelp": "This is the sign-in email for an active account, so it can't be changed here.",
-    "inviteRetry": "The employee was saved, but the invitation email could not be sent. Use \"Send invitation\" below to try again."
+    "inviteRetry": "The employee was saved, but the invitation email could not be sent. Use \"Send invitation\" below to try again.",
+    "invitedNotSignedIn": "Invited {when}, but hasn't signed in yet. If the email didn't arrive (check spam), send it again or text a sign-up link.",
+    "notSignedIn": "Hasn't signed in yet.",
+    "resendEmail": "Send the invitation email again",
+    "signUpLink": {
+      "make": "Get a sign-up link to text",
+      "making": "Making the link…",
+      "label": "Send this link to {name} by text:",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "share": "Share…",
+      "note": "Anyone with this link can sign in as this person, so send it only to them. It works once and expires; if it says the link is invalid, make a new one.",
+      "failed": "Couldn't make a link ({reason})."
+    }
   },
   "projects": {
     "title": "Jobs",
