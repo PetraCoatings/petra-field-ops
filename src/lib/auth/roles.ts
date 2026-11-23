@@ -27,6 +27,7 @@ export type ManageNavKey =
   | "projects"
   | "templates"
   | "library"
+  | "time"
   | "employees"
   | "settings"
   | "auditLog";
@@ -42,6 +43,7 @@ const MANAGE_NAV: {
   { key: "projects", href: "/manage/projects", roles: ["project_manager", "office_admin"] },
   { key: "templates", href: "/manage/templates", roles: ["project_manager", "office_admin"] },
   { key: "library", href: "/manage/library", roles: ["project_manager", "office_admin"] },
+  { key: "time", href: "/manage/time", roles: ["office_admin"] },
   { key: "employees", href: "/manage/employees", roles: ["office_admin"] },
   { key: "settings", href: "/manage/settings", roles: ["office_admin"] },
   { key: "auditLog", href: "/manage/audit", roles: ["office_admin"] },

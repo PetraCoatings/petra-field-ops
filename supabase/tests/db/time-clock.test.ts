@@ -262,8 +262,8 @@ describe("crew status", () => {
       const rows = (await q("select * from public.crew_clock_status($1)", [[E.installer, E.otherInstaller]])).rows;
       expect(rows).toHaveLength(1);
       expect(rows[0]).toMatchObject({ employee_id: E.installer, kind: "work", category: "job", project_id: P.assigned });
-      // Still no access to anyone's history.
-      expect((await q("select count(*)::int as n from public.time_segments where employee_id = $1", [E.installer])).rows[0].n).toBe(0);
+      // Their crew's time is visible to them (part 3: timesheets); anyone else's isn't.
+      expect((await q("select count(*)::int as n from public.time_segments where employee_id = $1", [E.installer])).rows[0].n).toBe(1);
     });
     await asUser(U.installer, async (q) => {
       await expect(q("select * from public.crew_clock_status($1)", [[E.otherInstaller]])).rejects.toThrow(/crew leads/);
