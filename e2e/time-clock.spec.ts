@@ -295,3 +295,84 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await deleteTestProject(job.id);
   }
 });
+
+test("no signal: presses are saved on the phone and sent with their original times", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run covers offline clocking");
+  test.setTimeout(150_000);
+  const installer = readRoleUsers().find((x) => x.role === "installer")!;
+  const emp = await employeeId(installer);
+  const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await context.newPage();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(installer.email);
+    await page.getByLabel("Password", { exact: true }).fill(installer.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    // One online visit saves the app's offline pages (including the Time Clock).
+    await page.goto("/calculators");
+    await expect(page.getByText("Saved on this phone: the calculators work without signal.")).toBeVisible({ timeout: 45_000 });
+    const before = Date.now();
+
+    // ---- No signal
+    await context.setOffline(true);
+    await page.goto("/time-clock");
+    const status = page.getByRole("region", { name: "Right now" });
+    await expect(status).toContainText("Not clocked in");
+    await page.getByRole("group", { name: "What are you doing?" }).getByRole("button", { name: "Drive" }).click();
+    await page.getByRole("button", { name: "Clock in" }).click();
+    await expect(page.getByText(/No signal: saved on this phone at/)).toBeVisible({ timeout: 20_000 });
+    await expect(status).toContainText("On the clock: Drive");
+    await page.getByRole("group", { name: "Switch to" }).getByRole("button", { name: "Job" }).click();
+    await page.getByRole("button", { name: "Switch to Job" }).click();
+    await expect(page.getByText("Saved on this phone, waiting for signal (2)")).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("link", { name: "2 time clock press(es) waiting to send" })).toBeVisible();
+    // Nothing reached the server yet.
+    expect(((await (await api(`/rest/v1/time_events?select=id&employee_id=eq.${emp}&effective_at=gte.${new Date(before).toISOString()}`)).json()) as unknown[]).length).toBe(0);
+    await page.waitForTimeout(3000); // signal comes back a little later
+
+    // ---- Signal returns: both presses are sent, in order, with the times they were pressed
+    await context.setOffline(false);
+    await expect(page.getByText(/waiting for signal/)).toHaveCount(0, { timeout: 30_000 });
+    const events = (await (await api(`/rest/v1/time_events?select=event_type,category,effective_at,server_received_at,flags&employee_id=eq.${emp}&effective_at=gte.${new Date(before).toISOString()}&order=effective_at`)).json()) as {
+      event_type: string;
+      category: string;
+      effective_at: string;
+      server_received_at: string;
+      flags: string[];
+    }[];
+    expect(events.map((e) => [e.event_type, e.category])).toEqual([
+      ["clock_in", "drive"],
+      ["switch", "job"],
+    ]);
+    for (const e of events) {
+      expect(Date.parse(e.server_received_at) - Date.parse(e.effective_at)).toBeGreaterThan(2500); // recorded at the press time, not the send time
+      expect(e.flags).toEqual([]);
+    }
+    await page.reload();
+    await expect(status).toContainText("On the clock: Job");
+
+    // ---- A press the server refuses stays visible on the Sync page until dismissed
+    await page.evaluate((owner) => {
+      const list = JSON.parse(localStorage.getItem("petra.outbox.v1") ?? "[]");
+      const id = crypto.randomUUID();
+      list.push({ id, kind: "clock", owner, state: "pending", createdAt: new Date().toISOString(), payload: { id, action: "clock_in", category: "ride", deviceTs: new Date().toISOString(), gps: { status: "not_requested" } } });
+      localStorage.setItem("petra.outbox.v1", JSON.stringify(list));
+    }, emp);
+    await page.goto("/sync");
+    await page.getByRole("button", { name: "Send now" }).click();
+    const refused = page.getByRole("list", { name: "Time clock presses on this phone" }).getByRole("listitem").filter({ hasText: "Not accepted" });
+    await expect(refused).toContainText("The server didn't accept it: You're already clocked in.");
+    await expect(page.getByRole("link", { name: "1 time clock press(es) not accepted" })).toBeVisible();
+    await refused.getByRole("button", { name: "Remove from this list" }).click();
+    await expect(page.getByText("Not accepted")).toHaveCount(0);
+
+    // Clean up: clock out (online).
+    await page.goto("/time-clock");
+    await page.getByRole("button", { name: "Clock out" }).click();
+    await page.getByRole("button", { name: "Yes, clock out" }).click();
+    await expect(status).toContainText("Not clocked in");
+  } finally {
+    await context.close();
+  }
+});

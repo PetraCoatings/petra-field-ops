@@ -1092,7 +1092,8 @@
         "break_end": "Almuerzo terminado a las {time}:",
         "clock_out": "Salida a las {time}:"
       },
-      "gpsExplain": "La ubicación de su teléfono se registra para todas las personas a las que registra entrada o salida, y queda marcada como suya."
+      "gpsExplain": "La ubicación de su teléfono se registra para todas las personas a las que registra entrada o salida, y queda marcada como suya.",
+      "savedOnPhone": "Sin señal: guardado en este teléfono a las {time}. Se enviará solo cuando tenga señal."
     },
     "sheet": {
       "title": "Mi hoja de horas",
@@ -1189,7 +1190,17 @@
       "nobodyOn": "Nadie tiene entrada registrada ahora.",
       "forgot": "Probablemente olvidó registrar la salida",
       "timesheets": "Hojas de horas"
-    }
+    },
+    "savedOnPhone": "Sin señal: guardado en este teléfono a las {time}. Se enviará solo cuando tenga señal.",
+    "waitingTitle": "Guardado en este teléfono, esperando señal ({count})",
+    "actions": {
+      "clock_in": "Registrar entrada",
+      "switch": "Cambiar",
+      "break_start": "Empezar almuerzo",
+      "break_end": "Terminar almuerzo",
+      "clock_out": "Registrar salida"
+    },
+    "seeSync": "Ver lo que está esperando"
   },
   "payRates": {
     "title": "Tarifas de pago",
@@ -1632,5 +1643,28 @@
       "forbidden": "No puede hacer eso en esta obra.",
       "value": "Escriba la lectura como un número."
     }
+  },
+  "sync": {
+    "title": "Sincronizar",
+    "intro": "Los registros del reloj hechos sin señal se guardan en este teléfono y se envían solos cuando vuelve la señal. Cada uno conserva la hora en que lo presionó.",
+    "sendNow": "Enviar ahora",
+    "sending": "Enviando…",
+    "allSent": "Todo lo de este teléfono ya se envió.",
+    "listLabel": "Registros del reloj en este teléfono",
+    "people": "{count} personas",
+    "pressedAt": "Presionado {when}",
+    "states": {
+      "pending": "Guardado en este teléfono",
+      "sending": "Enviando…",
+      "synced": "Enviado ✓",
+      "failed": "No aceptado"
+    },
+    "refused": "El servidor no lo aceptó: {reason}",
+    "tryAgain": "Intentar otra vez",
+    "dismiss": "Quitar de esta lista",
+    "otherAccount": "{count} registro(s) en este teléfono son de la cuenta de otra persona. Se enviarán cuando esa persona inicie sesión aquí.",
+    "howItWorks": "Enviar dos veces nunca registra dos veces. Si la oficina ya corrigió una hora, puede quitar de la lista un registro no aceptado.",
+    "badgeWaiting": "{count} registro(s) del reloj esperando enviarse",
+    "badgeFailed": "{count} registro(s) del reloj no aceptados"
   }
 }

@@ -34,7 +34,7 @@ export default async function TimeClockPage() {
           </Link>
         </div>
       )}
-      <TimeClock segments={segments} jobs={jobs} settings={settings} serverNow={serverNow()} />
+      <TimeClock segments={segments} jobs={jobs} settings={settings} serverNow={serverNow()} me={profile.employeeId} />
       <Link href="/time-clock/timesheet" className={`${buttonClasses("secondary", "lg")} mt-4 w-full`}>
         <ClipboardList aria-hidden className="size-6" />
         {t("timeClock.sheet.mine")}

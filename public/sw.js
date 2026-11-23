@@ -5,13 +5,18 @@
  *   - The calculator pages (HTML), refreshed every time they load online.
  *   - The app's versioned code and styles (/_next/static/…) those pages need.
  *   - A small "No connection" page for everything else.
+ *   - The Time Clock and Sync pages, so a crew member can clock in with no
+ *     signal (presses are kept by the page in the phone's send queue, see
+ *     src/lib/offline/outbox.ts, and sent when signal returns).
  *   - The safety data sheet list and the in-app PDF viewer, plus the PDF.js
  *     code the viewer needs. SDS files a crew member saves "on this phone" are
  *     kept by the page in the petra-sds-v1 cache.
- * Nothing else is cached: job, time and pay data always come from the server.
+ * Nothing else is cached: job and pay data always come from the server. The
+ * saved Time Clock page shows the status as of its last online load; the page
+ * applies presses still waiting to be sent on top of it.
  *
  * Rules:
- *   - Calculator pages: network first (4 s timeout on weak signal), saved copy
+ *   - Saved pages (calculators, Time Clock, Sync, SDS): network first (4 s timeout on weak signal), saved copy
  *     if offline. A redirect (signed out) or an error is never saved.
  *   - /_next/static/: saved copy first. These URLs change with every release.
  *   - Any other page while offline: the "No connection" page.
@@ -29,6 +34,8 @@ const SHELL_CACHE = "petra-shell-v1";
 const OWN_CACHES = [CACHE, SHELL_CACHE];
 const OFFLINE_PAGE = "/offline.html";
 const OFFLINE_ROUTES = [
+  "/time-clock",
+  "/sync",
   "/sds",
   "/library/view",
   "/calculators",
@@ -45,7 +52,8 @@ const META_WARMED = "/__petra-offline/warmed";
 
 const normalize = (pathname) => (pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname);
 const isOfflineRoute = (url) => OFFLINE_ROUTES.includes(normalize(url.pathname));
-const isStaticAsset = (url) => url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/pdfjs/");
+const BRAND_ASSETS = ["/icons/logo.png", "/icons/favicon-32.png"];
+const isStaticAsset = (url) => url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/pdfjs/") || BRAND_ASSETS.includes(url.pathname);
 const isCacheablePage = (res) =>
   res && res.ok && !res.redirected && (res.headers.get("content-type") || "").includes("text/html");
 
@@ -109,7 +117,8 @@ async function otherPage(request) {
 }
 
 async function staticAsset(request) {
-  const cache = await caches.open(CACHE);
+  // The logo holds no company data: it lives with the "No connection" page and survives sign-out.
+  const cache = await caches.open(BRAND_ASSETS.includes(new URL(request.url).pathname) ? SHELL_CACHE : CACHE);
   const hit = await cache.match(request, { ignoreSearch: true });
   if (hit) return hit;
   const res = await fetch(request);
@@ -159,6 +168,16 @@ async function warm(force) {
     for (const a of assetUrls(html)) keep.add(a);
   }
   keep.add(PDFJS_WORKER);
+  const shell = await caches.open(SHELL_CACHE);
+  for (const a of BRAND_ASSETS) {
+    if (await shell.match(a)) continue;
+    try {
+      const res = await fetch(a);
+      if (res.ok) await shell.put(a, res);
+    } catch {
+      return status();
+    }
+  }
   for (const a of keep) {
     if (await cache.match(a)) continue;
     try {

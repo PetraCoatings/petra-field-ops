@@ -4,6 +4,7 @@ import { LayoutDashboard } from "lucide-react";
 import { getTranslations } from "next-intl/server";
 import { NotificationsBell } from "@/components/notifications-bell";
 import { ServiceWorkerRegistration } from "@/components/offline/service-worker-registration";
+import { OutboxSync } from "@/components/offline/outbox-sync";
 import { Alert } from "@/components/ui/alert";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { requireProfile } from "@/lib/auth/dal";
@@ -31,6 +32,7 @@ export default async function FieldLayout({ children }: LayoutProps<"/">) {
             {t("shortName")}
           </Link>
           <div className="flex items-center gap-2">
+          <OutboxSync owner={profile.employeeId} />
           <NotificationsBell />
           {canAccessManagement(profile.role) && (
             <Link href="/manage" className={buttonClasses("secondary", "md", "border-white/40 bg-white/10 text-white hover:bg-white/20")}>
