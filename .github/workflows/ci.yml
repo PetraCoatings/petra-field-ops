@@ -8,6 +8,11 @@ on:
 jobs:
   checks:
     runs-on: ubuntu-latest
+    # The browser tests share one TEST Supabase project; one run at a time,
+    # so a run's cleanup never removes another run's data.
+    concurrency:
+      group: test-database
+      cancel-in-progress: false
     services:
       postgres:
         image: postgres:16
@@ -36,6 +41,18 @@ jobs:
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ci-placeholder
       - name: No server secrets in browser bundle
         run: npm run check:bundle
+      - name: Update the test database (separate TEST project, never live)
+        env:
+          DEV_DB_URL: ${{ secrets.DEV_SUPABASE_DB_URL }}
+        run: |
+          if [ -z "$DEV_DB_URL" ]; then echo "No test database configured; signed-in browser tests will be skipped."; exit 0; fi
+          scripts/apply-migrations.sh
       - run: npx playwright install --with-deps chromium
       - name: Browser tests (phone, Android, desktop)
         run: npm run test:e2e
+        env:
+          # The separate TEST Supabase project (never the live one). Without
+          # these secrets the signed-in tests are skipped.
+          E2E_SUPABASE_URL: ${{ secrets.DEV_SUPABASE_URL }}
+          E2E_SUPABASE_KEY: ${{ secrets.DEV_SUPABASE_PUBLISHABLE_KEY }}
+          E2E_SUPABASE_SECRET_KEY: ${{ secrets.DEV_SUPABASE_SECRET_KEY }}
