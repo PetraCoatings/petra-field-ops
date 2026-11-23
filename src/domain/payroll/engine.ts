@@ -102,6 +102,7 @@ export function payWeek(input: Omit<PayInput, "periodStart" | "weeks">, weekStar
       const secs = Math.round(piece.end / 1000) - Math.round(piece.start / 1000);
       if (secs <= 0) continue;
       seconds[category] += secs;
+      if (input.exempt) continue; // salaried: hours tracked, no hourly pay
       const rate = rateOn(input.rates, category, piece.date);
       if (!rate) {
         if (!missing.has(`${category}|${piece.date}`)) exceptions.push({ kind: "missing_rate", category, date: piece.date });
@@ -171,3 +172,54 @@ export function payPeriod(input: PayInput): { weeks: WeekPay[]; grossCents: numb
 
 /** Local date of the first day of a week, for labels. */
 export const weekLabelDate = (w: WeekPay, tz: string) => localDate(w.weekStart, tz);
+
+// -----------------------------------------------------------------------------
+// What the office manager types into Gusto (owner decision Q6a)
+// -----------------------------------------------------------------------------
+// Gusto has three rates per person (Job, Drive, Ride) and takes hours per rate
+// per week, to two decimals; Gusto itself calculates weighted-average overtime.
+// So the entry sheet lists hours per rate (rounded half up to 0.01 h) and the
+// check figure is computed from exactly those rounded hours, the way Gusto
+// will, so the two can be compared.
+
+export type GustoEntry = { category: TimeCategory; cents: number; hundredths: number /* 0.01 h */ };
+export type GustoWeek = {
+  entries: GustoEntry[];
+  totalHundredths: number;
+  regularHundredths: number;
+  overtimeHundredths: number;
+  /** Expected gross from the entered hours (null for salaried). */
+  checkGrossCents: number | null;
+};
+
+export function gustoWeek(w: WeekPay, exempt = false): GustoWeek {
+  const entries = w.lines
+    .map((l) => ({ category: l.category, cents: l.cents, hundredths: Number(roundHalfUp(BigInt(l.seconds) * BigInt(100), BigInt(3600))) }))
+    .filter((e) => e.hundredths > 0);
+  // Salaried people have no rates: their hours still count, by category.
+  if (exempt) {
+    const byCat = TIME_CATEGORIES.map((c) => ({ category: c, cents: 0, hundredths: Number(roundHalfUp(BigInt(w.seconds[c]) * BigInt(100), BigInt(3600))) })).filter(
+      (e) => e.hundredths > 0,
+    );
+    const total = byCat.reduce((n, e) => n + e.hundredths, 0);
+    return { entries: byCat, totalHundredths: total, regularHundredths: total, overtimeHundredths: 0, checkGrossCents: null };
+  }
+  const T = entries.reduce((n, e) => n + e.hundredths, 0);
+  const O = Math.max(0, T - 4000);
+  let check = 0;
+  if (T > 0) {
+    const S = entries.reduce((n, e) => n + BigInt(e.hundredths) * BigInt(e.cents), BigInt(0)); // cent-hundredths
+    check = Number(roundHalfUp(S * (BigInt(2) * BigInt(T) + BigInt(O)), BigInt(2) * BigInt(T) * BigInt(100)));
+  }
+  return { entries, totalHundredths: T, regularHundredths: T - O, overtimeHundredths: O, checkGrossCents: check };
+}
+
+/** The pay period containing a local date: `weeks` weeks from the anchor Monday (YYYY-MM-DD). */
+export function payPeriodContaining(date: string, anchor: string, weeks: number): { start: string; end: string /* last day */; next: string; prev: string } {
+  const day = (s: string) => Date.UTC(Number(s.slice(0, 4)), Number(s.slice(5, 7)) - 1, Number(s.slice(8, 10))) / 86_400_000;
+  const iso = (d: number) => new Date(d * 86_400_000).toISOString().slice(0, 10);
+  const len = weeks * 7;
+  const offset = day(date) - day(anchor);
+  const start = day(anchor) + Math.floor(offset / len) * len;
+  return { start: iso(start), end: iso(start + len - 1), next: iso(start + len), prev: iso(start - len) };
+}
