@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
         overtime: t("overtime"),
         check: t("check"),
         salaried: t("salaried"),
-        note: t("legend"),
+        note: t("pdfNote"),
         blocked: p.blockers.length ? t("pdfBlocked", { count: p.blockers.length }) : null,
         generated: t("generated", { when: format.dateTime(new Date(), { dateStyle: "medium", timeStyle: "short", timeZone: p.tz }) }),
       },

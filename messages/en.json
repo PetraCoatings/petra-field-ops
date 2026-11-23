@@ -1275,6 +1275,7 @@
         "reason": "Write why it's being entered again.",
         "generic": "Something went wrong. Try again."
       }
-    }
+    },
+    "pdfNote": "Hours are rounded to 0.01 h per rate. Expected gross is the app's own calculation from these hours, including overtime at the weighted rate; compare it with Gusto's preview."
   }
 }

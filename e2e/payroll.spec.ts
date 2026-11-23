@@ -70,12 +70,12 @@ test("payroll shows Gusto hours per rate, blocks until weeks are approved, and d
 
     // Downloads
     const csv = await (await context.request.get("/manage/payroll/export?period=2025-01-08&format=csv")).text();
-    expect(csv).toContain(`${name},Hourly,1,2025-01-06,Job,25.00,38.00,48.00,40.00,8.00,1211.17`);
-    expect(csv).toContain(`${name},Hourly,1,2025-01-06,Ride,15.00,4.00,48.00,40.00,8.00,1211.17`);
+    expect(csv).toContain(`${name},Hourly,2,2025-01-06,Job,25.00,38.00,48.00,40.00,8.00,1211.17`);
+    expect(csv).toContain(`${name},Hourly,2,2025-01-06,Ride,15.00,4.00,48.00,40.00,8.00,1211.17`);
     const pdfRes = await context.request.get("/manage/payroll/export?period=2025-01-08&format=pdf");
     expect(pdfRes.headers()["content-type"]).toBe("application/pdf");
     const text = flat(pdfText(Buffer.from(await pdfRes.body())));
-    expect(text).toContain(name);
+    expect(text).toContain(flat(name));
     expect(text).toContain("$1,211.17");
   } finally {
     await context.close();

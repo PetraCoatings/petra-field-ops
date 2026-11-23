@@ -137,7 +137,7 @@ export default async function PayrollPage({ searchParams }: PageProps<"/manage/p
                           cells={(["job", "drive", "ride"] as const).map((c) =>
                             cat(c).length === 0 ? "" : cat(c).map((e) => (r.exempt || cat(c).length === 1 ? hours(e.hundredths) : `${hours(e.hundredths)} @ ${money(e.cents)}`)).join("\n"),
                           )}
-                          total={hours(w.gusto.totalHundredths)}
+                          total={w.gusto.totalHundredths > 0 ? hours(w.gusto.totalHundredths) : ""}
                           overtime={w.gusto.overtimeHundredths > 0 ? hours(w.gusto.overtimeHundredths) : ""}
                           approved={w.status === "approved" || w.gusto.totalHundredths === 0}
                         />

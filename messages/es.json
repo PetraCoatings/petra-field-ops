@@ -1275,6 +1275,7 @@
         "reason": "Escriba por qué se ingresa otra vez.",
         "generic": "Algo salió mal. Inténtelo de nuevo."
       }
-    }
+    },
+    "pdfNote": "Las horas se redondean a 0.01 h por tarifa. El bruto esperado es el cálculo de la aplicación con estas horas, incluidas las horas extra a la tarifa ponderada; compárelo con la vista previa de Gusto."
   }
 }
