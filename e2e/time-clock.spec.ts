@@ -154,7 +154,7 @@ test("a crew lead clocks the crew in and out together", async ({ browser }) => {
 
     const emp = await employeeId(installer);
     const leadId = await employeeId(lead);
-    const events = (await (await api(`/rest/v1/time_events?select=event_type,actor_employee_id,is_group_action,gps_status,gps_source&employee_id=eq.${emp}&order=effective_at`)).json()) as {
+    const events = (await (await api(`/rest/v1/time_events?select=event_type,actor_employee_id,is_group_action,gps_status,gps_source&employee_id=eq.${emp}&is_group_action=is.true&order=effective_at`)).json()) as {
       event_type: string;
       actor_employee_id: string;
       is_group_action: boolean;
