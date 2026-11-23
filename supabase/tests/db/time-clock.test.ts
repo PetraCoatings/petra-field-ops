@@ -219,7 +219,7 @@ describe("access", () => {
     await superuser(async (c) => {
       await c.query("begin");
       try {
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.installer, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.installer, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
         await c.query(`select public.clock_action(gen_random_uuid(), 'clock_in', now(), 'denied', 'job')`);
         await c.query("reset role");

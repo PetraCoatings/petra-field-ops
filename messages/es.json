@@ -175,7 +175,15 @@
       "note": "Cualquiera con este enlace puede iniciar sesión como esta persona, así que mándelo solo a ella. Funciona una vez, cuando toca Continuar, y vence después de un tiempo; si dice que el enlace no es válido, cree uno nuevo.",
       "failed": "No se pudo crear el enlace ({reason})."
     },
-    "signInLinkHelp": "¿Olvidó su contraseña o no le llegó el correo? Mándele por mensaje un enlace para iniciar sesión; elegirá una contraseña nueva."
+    "signInLinkHelp": "¿Olvidó su contraseña o no le llegó el correo? Mándele por mensaje un enlace para iniciar sesión; elegirá una contraseña nueva.",
+    "twoStepOn": "Verificación en dos pasos: activada (aplicación de códigos).",
+    "twoStepOff": "Verificación en dos pasos: no configurada (opcional para este rol).",
+    "twoStepAdminPending": "Verificación en dos pasos: aún no configurada. Se le pedirá la próxima vez que inicie sesión.",
+    "twoStepResetHelp": "¿Perdió o cambió de teléfono? Restablézcala y la configurará de nuevo al iniciar sesión.",
+    "twoStepResetButton": "Restablecer verificación en dos pasos",
+    "twoStepReset": "Se restableció la verificación en dos pasos. La configurará de nuevo al iniciar sesión.",
+    "twoStepNotSelf": "Otro administrador de oficina tiene que restablecer la suya.",
+    "twoStepNone": "Esta persona aún no tiene cuenta."
   },
   "projects": {
     "title": "Trabajos",
@@ -1685,5 +1693,31 @@
     "reportConflict": "El reporte se cambió en otro teléfono. Ábralo y elija qué copia conservar.",
     "reportSubmitted": "El reporte ya se había enviado.",
     "reportRefused": "El servidor no lo aceptó. Abra el reporte para revisarlo."
+  },
+  "twoStep": {
+    "title": "Escriba su código",
+    "setupTitle": "Configure la verificación en dos pasos",
+    "requiredIntro": "Los administradores de oficina ven pagos y registros de la empresa, así que la contraseña sola no basta. Después de su contraseña, también escribirá un código de 6 dígitos de una aplicación en su teléfono. Toma unos dos minutos, una sola vez.",
+    "optionalIntro": "Después de su contraseña, también escribirá un código de 6 dígitos de una aplicación en su teléfono.",
+    "step1": "En iPhone, la aplicación Contraseñas genera estos códigos. También sirven Google Authenticator o Microsoft Authenticator.",
+    "step2": "Toque \"Empezar\" abajo y escanee el código cuadrado con esa aplicación (o toque \"Abrir en mi aplicación de códigos\" si está en su teléfono).",
+    "step3": "Escriba el código de 6 dígitos que muestra la aplicación.",
+    "start": "Empezar",
+    "working": "Trabajando…",
+    "scan": "Escanee esto con su aplicación de códigos. En la aplicación Contraseñas del iPhone: abra Códigos, toque + y luego Escanear código QR.",
+    "qrAlt": "Código QR para agregar Petra Field Ops a su aplicación de códigos",
+    "openOnPhone": "¿Está en este teléfono? Abrir en mi aplicación de códigos",
+    "typeKey": "¿No puede escanear? Escriba esta clave",
+    "keyLabel": "Clave de configuración",
+    "thenCode": "Luego escriba el código de 6 dígitos que muestra.",
+    "verifyIntro": "Abra su aplicación de códigos (en iPhone: Contraseñas → Códigos) y escriba el código de 6 dígitos de Petra Field Ops.",
+    "codeLabel": "Código de 6 dígitos",
+    "codeHelp": "El código cambia cada 30 segundos.",
+    "confirm": "Confirmar",
+    "checking": "Revisando…",
+    "sixDigits": "Escriba los 6 dígitos.",
+    "wrongCode": "Ese código no funcionó. Los códigos cambian cada 30 segundos; escriba el que aparece ahora.",
+    "setupFailed": "No se pudo empezar. Revise su señal e inténtelo de nuevo.",
+    "signOut": "Cerrar sesión"
   }
 }

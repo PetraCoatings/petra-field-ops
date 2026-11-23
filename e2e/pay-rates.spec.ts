@@ -1,6 +1,7 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { employeeId } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Pay rates: the office adds a person's Job/Drive/Ride rates; the person sees
@@ -19,10 +20,7 @@ test("office sets pay rates; the installer sees their own after entering their p
   const signIn = async (u: typeof admin, phone: boolean) => {
     const c = await browser.newContext({ ...(phone ? devices["iPhone 13"] : devices["Desktop Chrome"]), baseURL: test.info().project.use.baseURL });
     const page = await c.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(u.email);
-    await page.getByLabel("Password", { exact: true }).fill(u.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, u);
     await expect(page).toHaveURL(/\/$/);
     return { c, page };
   };

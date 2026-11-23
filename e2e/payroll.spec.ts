@@ -2,6 +2,7 @@ import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { employeeId, sessionFetch } from "./support/test-project";
 import { flat, pdfText } from "./support/pdf-text";
+import { signInAs } from "./support/sign-in";
 
 /**
  * The Payroll page: the plan's example week (Job 38 h × $25, Drive 6 h × $18,
@@ -39,10 +40,7 @@ test("payroll shows Gusto hours per rate, blocks until weeks are approved, and d
   const context = await browser.newContext({ ...devices["Desktop Chrome"], baseURL: test.info().project.use.baseURL });
   try {
     const page = await context.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(admin.email);
-    await page.getByLabel("Password", { exact: true }).fill(admin.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, admin);
     await expect(page).toHaveURL(/\/$/);
 
     await page.goto("/manage");
@@ -84,10 +82,7 @@ test("payroll shows Gusto hours per rate, blocks until weeks are approved, and d
   // Not for anyone else.
   const other = await browser.newContext({ baseURL: test.info().project.use.baseURL });
   const p2 = await other.newPage();
-  await p2.goto("/login");
-  await p2.getByLabel("Email").fill(installer.email);
-  await p2.getByLabel("Password", { exact: true }).fill(installer.password);
-  await p2.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(p2, installer);
   await expect(p2).toHaveURL(/\/$/);
   expect((await other.request.get("/manage/payroll/export?period=2025-01-08&format=csv")).status()).toBe(403);
   await other.close();
@@ -116,10 +111,7 @@ test("crew leads and project managers can't see anyone's pay rates or payroll", 
     // 2. Through the app's pages and downloads.
     const c = await browser.newContext({ baseURL: test.info().project.use.baseURL });
     const page = await c.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(u.email);
-    await page.getByLabel("Password", { exact: true }).fill(u.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, u);
     await expect(page).toHaveURL(/\/$/);
     for (const path of [`/manage/employees/${emp}`, "/manage/payroll", "/manage/employees"]) {
       await page.goto(path);

@@ -3,6 +3,7 @@ import { devices, expect, test } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { onePagePdf } from "./support/one-page-pdf";
 import { addLibraryItem, productLibraryExists } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Crews' Product Data Sheets and Safety Data Sheets on a phone: approved
@@ -32,10 +33,7 @@ test("crews browse products and keep SDS on the phone for no-signal use", async 
 
   const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   const page = await context.newPage();
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(installer.email);
-  await page.getByLabel("Password", { exact: true }).fill(installer.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, installer);
   await expect(page).toHaveURL(/\/$/);
 
   // ---- Product Data Sheets: approved products only, with key specs

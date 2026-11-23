@@ -9,11 +9,20 @@
 import { randomBytes } from "node:crypto";
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+import { enrollTotp } from "./totp";
 
 export const ROLE_USERS_FILE = path.join(process.cwd(), "test-results", ".role-users.json");
 export const TEST_ROLES = ["installer", "crew_lead", "project_manager", "office_admin"] as const;
 export type TestRole = (typeof TEST_ROLES)[number];
-export type RoleUser = { role: TestRole; email: string; password: string; userId: string; firstName: string };
+export type RoleUser = {
+  role: TestRole;
+  email: string;
+  password: string;
+  userId: string;
+  firstName: string;
+  /** Office admins: the authenticator secret for two-step sign-in. */
+  totpSecret?: string;
+};
 
 export function signedInTestsEnabled(): boolean {
   return Boolean(
@@ -59,6 +68,8 @@ export async function createRoleUsers(): Promise<RoleUser[]> {
         }),
         `create ${role} employee`,
       );
+      // Office admins must use two-step sign-in (migration 20261130000100).
+      if (role === "office_admin") users[users.length - 1].totpSecret = await enrollTotp(email, password);
     }
   } catch (e) {
     await deleteRoleUsers(users);

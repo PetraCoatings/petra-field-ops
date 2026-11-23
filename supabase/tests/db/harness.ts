@@ -69,12 +69,14 @@ async function asRole<T>(
   role: "authenticated" | "anon",
   userId: string | null,
   fn: (q: Q) => Promise<T>,
+  aal: "aal1" | "aal2" = "aal2",
 ): Promise<T> {
   return superuser(async (c) => {
     await c.query("begin");
     try {
       await c.query(`set local role ${role}`);
-      const claims = userId ? { sub: userId, role } : { role };
+      // Signed-in users pass two-step sign-in (aal2) unless a test says otherwise.
+      const claims = userId ? { sub: userId, role, aal } : { role };
       await c.query("select set_config('request.jwt.claims', $1, true)", [
         JSON.stringify(claims),
       ]);
@@ -100,6 +102,10 @@ async function asRole<T>(
 /** Run queries as a signed-in Supabase user (role `authenticated`). */
 export const asUser = <T>(userId: string, fn: (q: Q) => Promise<T>) =>
   asRole("authenticated", userId, fn);
+
+/** Signed in with a password only, before the two-step code (aal1). */
+export const asUserPasswordOnly = <T>(userId: string, fn: (q: Q) => Promise<T>) =>
+  asRole("authenticated", userId, fn, "aal1");
 
 /** Run queries as an anonymous (signed-out) API caller. */
 export const asAnon = <T>(fn: (q: Q) => Promise<T>) => asRole("anon", null, fn);

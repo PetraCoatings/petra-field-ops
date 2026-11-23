@@ -43,7 +43,7 @@ describe("payroll runs", () => {
       await c.query("begin");
       const as = async () => {
         await c.query("reset role");
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.admin, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.admin, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
       };
       const tryQ = async (sql: string, params: unknown[] = []) => {

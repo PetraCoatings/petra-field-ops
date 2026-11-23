@@ -150,7 +150,7 @@ describe("saved calculations: other roles", () => {
     await superuser(async (c) => {
       await c.query("begin");
       await c.query("set local role authenticated");
-      await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.lead, role: "authenticated" })]);
+      await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.lead, role: "authenticated", aal: "aal2" })]);
       const { rows } = await c.query(INSERT, [P.assigned]);
       await c.query("commit");
       const log = await c.query(

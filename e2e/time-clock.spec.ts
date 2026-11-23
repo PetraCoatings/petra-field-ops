@@ -1,6 +1,7 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Time Clock on a phone: clock in for Drive, switch to Job on a job, lunch,
@@ -28,10 +29,7 @@ test("an installer clocks in, switches, takes lunch and clocks out", async ({ br
   });
   try {
     const page = await context.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(installer.email);
-    await page.getByLabel("Password", { exact: true }).fill(installer.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, installer);
     await expect(page).toHaveURL(/\/$/);
 
     await page.getByRole("link", { name: "Time Clock" }).click();
@@ -108,10 +106,7 @@ test("a crew lead clocks the crew in and out together", async ({ browser }) => {
       geolocation: { latitude: 29.6805, longitude: -97.6489, accuracy: 12 },
     }).then(async (c) => {
       const page = await c.newPage();
-      await page.goto("/login");
-      await page.getByLabel("Email").fill(u.email);
-      await page.getByLabel("Password", { exact: true }).fill(u.password);
-      await page.getByRole("button", { name: "Sign in" }).click();
+      await signInAs(page, u);
       await expect(page).toHaveURL(/\/$/);
       return { c, page };
     });
@@ -210,10 +205,7 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
   const signIn = async (u: typeof installer) => {
     const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
     const page = await c.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(u.email);
-    await page.getByLabel("Password", { exact: true }).fill(u.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, u);
     await expect(page).toHaveURL(/\/$/);
     return { c, page };
   };
@@ -304,10 +296,7 @@ test("no signal: presses are saved on the phone and sent with their original tim
   const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   try {
     const page = await context.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(installer.email);
-    await page.getByLabel("Password", { exact: true }).fill(installer.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, installer);
     await expect(page).toHaveURL(/\/$/);
     // One online visit saves the app's offline pages (including the Time Clock).
     await page.goto("/calculators");
@@ -393,10 +382,7 @@ test("plan acceptance: offline clock-in, daily report draft and photo all arrive
   const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   try {
     const page = await context.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(lead.email);
-    await page.getByLabel("Password", { exact: true }).fill(lead.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, lead);
     await expect(page).toHaveURL(/\/$/);
     // In the morning, with signal: the app saves its offline pages; the lead opens the job and today's report.
     await page.goto("/calculators");

@@ -1,6 +1,7 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
 import { createTestProject, deleteTestProject } from "./support/test-project";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Security fixes seen from a phone (migration 20261129000100): a clock press
@@ -18,10 +19,7 @@ test("late clock presses: flagged on the timesheet, refused after 3 days; cross-
   const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
   try {
     const page = await c.newPage();
-    await page.goto("/login");
-    await page.getByLabel("Email").fill(pm.email);
-    await page.getByLabel("Password", { exact: true }).fill(pm.password);
-    await page.getByRole("button", { name: "Sign in" }).click();
+    await signInAs(page, pm);
     await expect(page).toHaveURL(/\/$/);
 
     const send = (body: object, headers: Record<string, string> = { "Content-Type": "application/json" }) =>

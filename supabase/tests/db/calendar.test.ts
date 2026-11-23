@@ -14,7 +14,7 @@ const hash = (t: string) => createHash("sha256").update(t).digest("hex");
 async function committedAs<T>(c: Client, userId: string, fn: () => Promise<T>): Promise<T> {
   await c.query("begin");
   await c.query("set local role authenticated");
-  await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: userId, role: "authenticated" })]);
+  await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: userId, role: "authenticated", aal: "aal2" })]);
   try {
     const r = await fn();
     await c.query("commit");
@@ -89,7 +89,7 @@ describe("calendar links", () => {
     await superuser(async (c) => {
       await c.query("begin");
       try {
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.installer, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.installer, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
         const first = (await c.query(`select public.new_calendar_feed() as t`)).rows[0].t as string;
         expect(first).toMatch(/^[0-9a-f]{64}$/);
@@ -122,13 +122,13 @@ describe("calendar links", () => {
 
         // Another installer can't turn it off; an office admin can.
         await c.query("reset role");
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.otherInstaller, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.otherInstaller, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
         await c.query("savepoint b");
         await expect(c.query(`select public.revoke_calendar_feed($1)`, [E.installer])).rejects.toThrow(/Not allowed/);
         await c.query("rollback to savepoint b");
         await c.query("reset role");
-        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.admin, role: "authenticated" })]);
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.admin, role: "authenticated", aal: "aal2" })]);
         await c.query("set local role authenticated");
         await c.query(`select public.revoke_calendar_feed($1)`, [E.installer]);
         await c.query("reset role");

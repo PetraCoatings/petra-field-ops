@@ -202,3 +202,25 @@ export async function makeSignUpLink(employeeId: string): Promise<SignUpLinkResu
   const q = new URLSearchParams({ token_hash: data.properties.hashed_token, type, next: "/set-password" });
   return { ok: true, link: `${await siteOrigin()}/auth/start?${q.toString()}` };
 }
+
+/**
+ * Remove someone's two-step sign-in (lost or replaced phone). The next time
+ * they sign in they set it up again; office admins are asked to right away.
+ * Not for yourself: another admin resets yours.
+ */
+export async function resetTwoStep(employeeId: string, _prev: FormState): Promise<FormState> {
+  const me = await requireRole("office_admin");
+  if (employeeId === me.employeeId) return { status: "error", message: "employees.twoStepNotSelf" };
+  const supabase = await createClient();
+  const { data: emp } = await supabase.from("employees").select("user_id").eq("id", employeeId).maybeSingle();
+  if (!emp?.user_id) return { status: "error", message: "employees.twoStepNone" };
+  const admin = createAdminClient();
+  const { data, error } = await admin.auth.admin.mfa.listFactors({ userId: emp.user_id as string });
+  if (error) return { status: "error", message: "common.genericError" };
+  for (const f of data?.factors ?? []) {
+    const { error: e } = await admin.auth.admin.mfa.deleteFactor({ id: f.id, userId: emp.user_id as string });
+    if (e) return { status: "error", message: "common.genericError" };
+  }
+  revalidatePath(`/manage/employees/${employeeId}`);
+  return { status: "success", message: "employees.twoStepReset" };
+}

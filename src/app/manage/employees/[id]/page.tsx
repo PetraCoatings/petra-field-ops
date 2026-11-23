@@ -7,7 +7,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { requireRole } from "@/lib/auth/dal";
 import type { EmployeeRow } from "@/lib/db/types";
 import { createClient } from "@/lib/supabase/server";
-import { makeSignUpLink, resendInvite, sendInvite, updateEmployee } from "../actions";
+import { makeSignUpLink, resendInvite, resetTwoStep, sendInvite, updateEmployee } from "../actions";
 import { SignUpLink } from "../sign-up-link";
 import { PayRateForm } from "../pay-rate-form";
 import { addPayRate, deletePayRate } from "@/lib/actions/pay-rates";
@@ -25,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function EditEmployeePage({ params, searchParams }: PageProps<"/manage/employees/[id]">) {
-  await requireRole("office_admin");
+  const me = await requireRole("office_admin");
   const { id } = await params;
   const { created, invite } = await searchParams;
   if (!UUID_RE.test(id)) notFound();
@@ -109,6 +109,17 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
             <p className="text-base">{t("employees.accountLinked")}</p>
             <p className="text-sm text-neutral-700">{t("employees.signInLinkHelp")}</p>
             <SignUpLink action={makeSignUpLink.bind(null, employee.id)} name={employee.first_name} />
+            <div className="space-y-2 border-t border-neutral-200 pt-3">
+              <p className="text-base">
+                {account.hasTwoStep ? t("employees.twoStepOn") : employee.role === "office_admin" ? t("employees.twoStepAdminPending") : t("employees.twoStepOff")}
+              </p>
+              {account.hasTwoStep && employee.id !== me.employeeId && (
+                <>
+                  <p className="text-sm text-neutral-700">{t("employees.twoStepResetHelp")}</p>
+                  <InviteButton action={resetTwoStep.bind(null, employee.id)} label={t("employees.twoStepResetButton")} />
+                </>
+              )}
+            </div>
           </div>
         ) : employee.user_id ? (
           <div className="space-y-3">
@@ -133,8 +144,14 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
 }
 
 /** Has this person ever signed in? (Read with the server-only secret key; office admins only reach this page.) */
-async function accountStatus(userId: string): Promise<{ invitedAt: string | null; lastSignInAt: string | null } | null> {
+async function accountStatus(userId: string): Promise<{ invitedAt: string | null; lastSignInAt: string | null; hasTwoStep: boolean } | null> {
   if (!process.env.SUPABASE_SECRET_KEY && !process.env.SUPABASE_SERVICE_ROLE_KEY) return null;
   const { data } = await createAdminClient().auth.admin.getUserById(userId);
-  return data.user ? { invitedAt: data.user.invited_at ?? null, lastSignInAt: data.user.last_sign_in_at ?? null } : null;
+  return data.user
+    ? {
+        invitedAt: data.user.invited_at ?? null,
+        lastSignInAt: data.user.last_sign_in_at ?? null,
+        hasTwoStep: (data.user.factors ?? []).some((f) => f.status === "verified"),
+      }
+    : null;
 }

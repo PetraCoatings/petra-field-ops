@@ -15,7 +15,7 @@ const SDS_ACETONE = "62000000-0000-4000-8000-000000000001";
 async function committedAs<T>(c: Client, userId: string, fn: () => Promise<T>): Promise<T> {
   await c.query("begin");
   await c.query("set local role authenticated");
-  await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: userId, role: "authenticated" })]);
+  await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: userId, role: "authenticated", aal: "aal2" })]);
   try {
     const r = await fn();
     await c.query("commit");

@@ -1,5 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
 import { readRoleUsers, signedInTestsEnabled, type RoleUser, type TestRole } from "./support/role-users";
+import { signInAs } from "./support/sign-in";
 
 /**
  * Signed-in tests: every role signs in for real against a DEV Supabase project
@@ -34,10 +35,7 @@ function user(role: TestRole): RoleUser {
 }
 
 async function signIn(page: Page, u: RoleUser) {
-  await page.goto("/login");
-  await page.getByLabel("Email").fill(u.email);
-  await page.getByLabel("Password", { exact: true }).fill(u.password);
-  await page.getByRole("button", { name: "Sign in" }).click();
+  await signInAs(page, u);
   await expect(page).toHaveURL(/\/$/);
   await expect(page.getByRole("heading", { name: `Hi, ${u.firstName}` })).toBeVisible();
   await expect(page.getByText(ROLE_LABEL[u.role], { exact: true })).toBeVisible();
