@@ -41,9 +41,11 @@ create policy pay_rates_delete on public.pay_rates for delete to authenticated
   using (app.is_office_admin());
 
 -- Company payroll settings: the minimum wage floor (rates below it are
--- flagged, not blocked; federal $7.25 applies in Texas) and the pay period
--- (every two weeks from an anchor Monday; set by the office in part 2).
+-- flagged, not blocked; federal $7.25 applies in Texas) and the pay period:
+-- every two weeks, Monday to Sunday, from an anchor Monday. Owner decision
+-- (2026-11-23): the current period runs Nov 16 – Nov 29, 2026.
 alter table public.app_settings
   add column minimum_wage numeric(6, 2) not null default 7.25 check (minimum_wage >= 0),
   add column pay_period_weeks smallint not null default 2 check (pay_period_weeks in (1, 2)),
   add column pay_period_anchor date;
+update public.app_settings set pay_period_anchor = '2026-11-16';
