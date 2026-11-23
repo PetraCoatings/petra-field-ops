@@ -51,7 +51,12 @@
     "passwordTooWeak": "Use al menos 10 caracteres, con letras y números.",
     "savePassword": "Guardar contraseña",
     "linkInvalid": "Ese enlace venció o ya se usó. Pida uno nuevo.",
-    "finishingSignIn": "Iniciando sesión…"
+    "finishingSignIn": "Iniciando sesión…",
+    "start": {
+      "title": "Bienvenido a Petra Field Ops",
+      "body": "Toque Continuar para iniciar sesión. Después elegirá su contraseña.",
+      "continue": "Continuar"
+    }
   },
   "home": {
     "greeting": "Hola, {name}",
@@ -160,15 +165,16 @@
     "notSignedIn": "Todavía no ha iniciado sesión.",
     "resendEmail": "Enviar el correo de invitación otra vez",
     "signUpLink": {
-      "make": "Obtener un enlace para mandar por mensaje",
+      "make": "Obtener un enlace para iniciar sesión",
       "making": "Creando el enlace…",
       "label": "Mande este enlace a {name} por mensaje:",
       "copy": "Copiar enlace",
       "copied": "Copiado",
       "share": "Compartir…",
-      "note": "Cualquiera con este enlace puede iniciar sesión como esta persona, así que mándelo solo a ella. Funciona una vez y vence; si dice que el enlace no es válido, cree uno nuevo.",
+      "note": "Cualquiera con este enlace puede iniciar sesión como esta persona, así que mándelo solo a ella. Funciona una vez, cuando toca Continuar, y vence después de un tiempo; si dice que el enlace no es válido, cree uno nuevo.",
       "failed": "No se pudo crear el enlace ({reason})."
-    }
+    },
+    "signInLinkHelp": "¿Olvidó su contraseña o no le llegó el correo? Mándele por mensaje un enlace para iniciar sesión; elegirá una contraseña nueva."
   },
   "projects": {
     "title": "Trabajos",

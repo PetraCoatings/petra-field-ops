@@ -175,10 +175,13 @@ export async function resendInvite(employeeId: string, _prev: FormState): Promis
 export type SignUpLinkResult = { ok: true; link: string } | { ok: false; reason: string };
 
 /**
- * A one-time sign-up link the office can text to the person instead of relying
- * on email. Opening it signs them in and asks them to choose a password.
- * Only for people who haven't signed in yet; the link is shown only to the
- * office admin who asked for it and is never stored.
+ * A one-time sign-in link the office can text to someone, instead of relying
+ * on email: for a new person who never got their invitation, or anyone who
+ * forgot their password. It opens our own "Tap to continue" page, and the
+ * token is only used when they tap, so a messaging app's link preview can't
+ * use it up. After signing in they're asked to choose a (new) password.
+ * Office admins only; the link is shown only to the admin who asked and is
+ * never stored.
  */
 export async function makeSignUpLink(employeeId: string): Promise<SignUpLinkResult> {
   await requireRole("office_admin");
@@ -187,17 +190,15 @@ export async function makeSignUpLink(employeeId: string): Promise<SignUpLinkResu
   const { data: emp } = await supabase.from("employees").select("id, email, user_id, is_active").eq("id", employeeId).maybeSingle();
   if (!emp || !emp.is_active) return { ok: false, reason: "not found" };
   const admin = createAdminClient();
-  const redirectTo = `${await siteOrigin()}/auth/accept?next=/set-password`;
-  if (emp.user_id) {
-    const { data: account } = await admin.auth.admin.getUserById(emp.user_id);
-    if (account.user?.last_sign_in_at) return { ok: false, reason: "already signed in" };
-    const { data, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: emp.email, options: { redirectTo } });
-    return error || !data.properties?.action_link ? { ok: false, reason: error?.message ?? "unknown" } : { ok: true, link: data.properties.action_link };
+  const type = emp.user_id ? "magiclink" : "invite";
+  const { data, error } = await admin.auth.admin.generateLink({ type, email: emp.email });
+  if (error || !data.properties?.hashed_token) return { ok: false, reason: error?.message ?? "unknown" };
+  if (!emp.user_id) {
+    if (!data.user) return { ok: false, reason: "unknown" };
+    const { error: linkError } = await supabase.from("employees").update({ user_id: data.user.id }).eq("id", emp.id);
+    if (linkError) return { ok: false, reason: "could not link the account" };
+    revalidatePath(`/manage/employees/${employeeId}`);
   }
-  const { data, error } = await admin.auth.admin.generateLink({ type: "invite", email: emp.email, options: { redirectTo } });
-  if (error || !data.properties?.action_link || !data.user) return { ok: false, reason: error?.message ?? "unknown" };
-  const { error: linkError } = await supabase.from("employees").update({ user_id: data.user.id }).eq("id", emp.id);
-  if (linkError) return { ok: false, reason: "could not link the account" };
-  revalidatePath(`/manage/employees/${employeeId}`);
-  return { ok: true, link: data.properties.action_link };
+  const q = new URLSearchParams({ token_hash: data.properties.hashed_token, type, next: "/set-password" });
+  return { ok: true, link: `${await siteOrigin()}/auth/start?${q.toString()}` };
 }
