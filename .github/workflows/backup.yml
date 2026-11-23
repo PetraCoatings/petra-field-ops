@@ -1,0 +1,92 @@
+name: Backup
+
+# Nightly encrypted backup of the database (and, on Sundays, every stored
+# file), followed straight away by a practice restore into an empty database
+# that checks every table and file. See docs/BACKUPS.md.
+#
+# Needs three repository secrets: SUPABASE_DB_URL, SUPABASE_SECRET_KEY and
+# BACKUP_PASSPHRASE. GitHub emails the repository owner if a run fails.
+
+on:
+  schedule:
+    - cron: "17 8 * * *" # 2:17 AM Chicago (CST); 3:17 AM in summer
+  workflow_dispatch:
+    inputs:
+      with_files:
+        description: Include every stored file (drawings, data sheets, photos)
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+env:
+  PG_BIN: /usr/lib/postgresql/17/bin
+  SUPABASE_URL: https://oledxskbtjiqyyyaoqdd.supabase.co
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    outputs:
+      name: ${{ steps.run.outputs.name }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Install PostgreSQL 17 tools
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+      - name: Back up
+        id: run
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          WITH_FILES: ${{ inputs.with_files && '1' || '0' }} # manual runs: as chosen
+        run: |
+          # Nightly runs include the stored files on Sundays.
+          if [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u +%u)" = "7" ]; then export WITH_FILES=1; fi
+          scripts/backup/backup.sh out
+          echo "name=$(basename out/*.gpg .tar.gz.gpg)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ steps.run.outputs.name }}
+          path: out/*.gpg
+          retention-days: 30
+          compression-level: 0
+          if-no-files-found: error
+
+  practice-restore:
+    needs: backup
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install PostgreSQL 17 tools
+        run: |
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -q postgresql-client-17
+      - uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.backup.outputs.name }}
+          path: in
+      - name: Restore into an empty database and check it
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          TARGET_DB_URL: postgres://postgres@localhost:5432/postgres
+        run: scripts/backup/restore-drill.sh in/*.gpg
