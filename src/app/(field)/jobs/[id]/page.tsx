@@ -3,6 +3,10 @@ import { notFound } from "next/navigation";
 import { ClipboardList, ExternalLink, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
+import { DailyReportsCard } from "@/components/reports/daily-reports-card";
+import { canWriteReport, recentReports } from "@/lib/reports/list";
+import { localDate } from "@/domain/time/zoned";
+import { clockSettings, serverNow } from "@/lib/time/my-time";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { ProjectStatusBadge } from "@/components/ui/status-badge";
@@ -159,6 +163,13 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
           ) : null;
         })
       )}
+
+      <DailyReportsCard
+        projectId={job.id}
+        reports={await recentReports(job.id)}
+        canWrite={canWriteReport(profile, job)}
+        today={localDate(serverNow(), (await clockSettings()).timezone)}
+      />
 
       {job.scope_summary && (
         <Card title={t("jobs.scope")}>

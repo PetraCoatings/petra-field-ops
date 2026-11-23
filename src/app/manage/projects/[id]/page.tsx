@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { DailyReportsCard } from "@/components/reports/daily-reports-card";
+import { recentReports } from "@/lib/reports/list";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { ProjectWorkOrders } from "@/components/work-orders/project-work-orders";
 import { Alert } from "@/components/ui/alert";
@@ -83,6 +85,7 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
           removeAction={removeContact.bind(null, project.id)}
         />
       </Card>
+      <DailyReportsCard projectId={project.id} reports={await recentReports(project.id, 30)} canWrite={false} today="" />
       <SavedCalculations projectId={project.id} profile={profile} />
     </div>
   );
