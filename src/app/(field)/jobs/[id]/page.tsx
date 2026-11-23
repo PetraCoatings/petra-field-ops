@@ -4,6 +4,7 @@ import { ClipboardList, ExternalLink, Phone } from "lucide-react";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
+import { SaveForOffline } from "@/components/offline/save-for-offline";
 import { IssuesCard } from "@/components/issues/issues-card";
 import { JobPhotosCard } from "@/components/photos/job-photos-card";
 import { QcCard } from "@/components/qc/qc-card";
@@ -101,6 +102,7 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
   return (
     <div className="space-y-4">
       <PageHeader title={job.name} backHref="/jobs" backLabel={t("home.modules.jobCenter")} />
+      <SaveForOffline />
 
       {/* Job header: the details crews need on the way and at the door */}
       <section aria-label={t("jobs.details")} className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
@@ -168,9 +170,9 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
         })
       )}
 
-      <IssuesCard projectId={job.id} canResolve={profile.role === "project_manager" || profile.role === "office_admin" || job.crew_lead_id === profile.employeeId} />
+      <IssuesCard projectId={job.id} owner={profile.employeeId} canResolve={profile.role === "project_manager" || profile.role === "office_admin" || job.crew_lead_id === profile.employeeId} />
 
-      <JobPhotosCard projectId={job.id} />
+      <JobPhotosCard projectId={job.id} owner={profile.employeeId} />
 
       <QcCard
         projectId={job.id}

@@ -18,7 +18,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export default async function JobPhotosPage({ params, searchParams }: PageProps<"/jobs/[id]/photos">) {
-  await requireProfile();
+  const profile = await requireProfile();
   const { id } = await params;
   if (!UUID.test(id)) notFound();
   const sp = await searchParams;
@@ -32,7 +32,7 @@ export default async function JobPhotosPage({ params, searchParams }: PageProps<
     <>
       <PageHeader title={t("title")} backHref={`/jobs/${id}`} backLabel={job.name as string} />
       <div className="space-y-4">
-        <PhotoUploader projectId={id} />
+        <PhotoUploader projectId={id} owner={profile.employeeId} />
         <nav aria-label={t("filter")} className="flex flex-wrap gap-2">
           {[undefined, ...PHOTO_STAGES].map((s) => (
             <Link

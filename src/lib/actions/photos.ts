@@ -5,48 +5,16 @@ import { requireProfile } from "@/lib/auth/dal";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PHOTO_STAGES } from "@/domain/reports/field";
+import { recordPhotoCore, type PhotoRecordInput } from "@/lib/photos/record-core";
 
 const uuid = z.string().regex(/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
 
-const recordSchema = z.object({
-  clientId: uuid,
-  projectId: uuid,
-  stage: z.enum(PHOTO_STAGES),
-  notes: z.string().trim().max(500).optional(),
-  width: z.number().int().min(1).max(4096),
-  height: z.number().int().min(1).max(4096),
-  sizeBytes: z.number().int().min(1).max(20_971_520),
-  takenAt: z.string().datetime({ offset: true }),
-  issueId: uuid.optional(),
-});
-
-/**
- * Saves a photo's record after the phone uploaded the files to
- * job-photos/{projectId}/{clientId}.jpg (and _thumb.jpg). A retry with the
- * same clientId is accepted once.
- */
-export async function recordPhoto(payload: z.input<typeof recordSchema>): Promise<{ ok: boolean }> {
+/** Saves a photo's record after the phone uploaded its files (see lib/photos/record-core.ts). */
+export async function recordPhoto(payload: PhotoRecordInput): Promise<{ ok: boolean }> {
   await requireProfile();
-  const parsed = recordSchema.safeParse(payload);
-  if (!parsed.success) return { ok: false };
-  const p = parsed.data;
-  const supabase = await createClient();
-  const { error } = await supabase.from("photos").insert({
-    client_id: p.clientId,
-    project_id: p.projectId,
-    stage: p.stage,
-    notes: p.notes || null,
-    storage_path: `${p.projectId}/${p.clientId}.jpg`,
-    thumb_path: `${p.projectId}/${p.clientId}_thumb.jpg`,
-    width: p.width,
-    height: p.height,
-    size_bytes: p.sizeBytes,
-    taken_at: p.takenAt,
-    issue_id: p.issueId ?? null,
-  });
-  if (error && error.code !== "23505") return { ok: false };
-  revalidatePath(`/jobs/${p.projectId}`, "layout");
-  return { ok: true };
+  const r = await recordPhotoCore(await createClient(), payload);
+  if (r.ok && r.projectId) revalidatePath(`/jobs/${r.projectId}`, "layout");
+  return { ok: r.ok };
 }
 
 export async function updatePhoto(fd: FormData): Promise<void> {

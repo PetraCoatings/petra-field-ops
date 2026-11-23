@@ -1,32 +1,23 @@
 "use client";
-import { createClient } from "@/lib/supabase/client";
 import { preparePhoto } from "@/lib/photos/prepare";
-import { recordPhoto } from "@/lib/actions/photos";
+import { enqueuePhoto, sendPhoto } from "@/lib/offline/photo-queue";
 import type { PhotoStage } from "@/domain/reports/field";
 
-/** Shrinks, uploads and records one photo. A retry reuses the same id, so nothing is saved twice. */
-export async function uploadPhoto(file: File, opts: { projectId: string; stage: PhotoStage; notes?: string; issueId?: string; clientId?: string }): Promise<boolean> {
-  const clientId = opts.clientId ?? crypto.randomUUID();
+/**
+ * Shrinks a photo, then uploads it; with no signal it's kept on the phone and
+ * uploaded later (lib/offline/photo-queue.ts). The phone-made id means a
+ * retry is never saved twice.
+ */
+export async function uploadPhoto(
+  file: File,
+  opts: { projectId: string; owner: string; stage: PhotoStage; notes?: string; issueId?: string },
+): Promise<"uploaded" | "queued" | "failed"> {
+  const clientId = crypto.randomUUID();
   const p = await preparePhoto(file);
-  const supabase = createClient();
-  const base = `${opts.projectId}/${clientId}`;
-  for (const [path, blob] of [
-    [`${base}.jpg`, p.full],
-    [`${base}_thumb.jpg`, p.thumb],
-  ] as const) {
-    const { error } = await supabase.storage.from("job-photos").upload(path, blob, { contentType: "image/jpeg", upsert: false });
-    if (error && !/exists|duplicate/i.test(error.message)) return false;
-  }
-  const r = await recordPhoto({
-    clientId,
-    projectId: opts.projectId,
-    stage: opts.stage,
-    notes: opts.notes,
-    width: p.width,
-    height: p.height,
-    sizeBytes: p.full.size,
-    takenAt: p.takenAt,
-    issueId: opts.issueId,
-  });
-  return r.ok;
+  const photo = { clientId, projectId: opts.projectId, stage: opts.stage, notes: opts.notes, issueId: opts.issueId, full: p.full, thumb: p.thumb, width: p.width, height: p.height, takenAt: p.takenAt };
+  const r = await sendPhoto(photo);
+  if (r === "ok") return "uploaded";
+  if (r === "refused") return "failed";
+  await enqueuePhoto({ ...photo, owner: opts.owner });
+  return "queued";
 }

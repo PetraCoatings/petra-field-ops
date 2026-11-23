@@ -43,7 +43,9 @@ export function TimeClock({
   const router = useRouter();
   // Presses saved on this phone that the server hasn't confirmed yet.
   const outbox = useSyncExternalStore(subscribeOutbox, outboxSnapshot, emptySnapshot);
-  const waiting = parseSnapshot(outbox).filter((i) => i.owner === me && (i.state === "pending" || i.state === "sending"));
+  const waiting = parseSnapshot(outbox).filter(
+    (i): i is Extract<OutboxItem, { kind: "clock" }> => i.kind === "clock" && i.owner === me && (i.state === "pending" || i.state === "sending"),
+  );
   const serverOpen = segments.find((s) => s.end === null) ?? null;
   const predicted = predictOpen(serverOpen ? { kind: serverOpen.kind, category: serverOpen.category, projectId: serverOpen.projectId, start: serverOpen.start } : null, waiting.map((i) => i.payload));
   const open = waiting.length ? (predicted ? { ...predicted, id: "pending", end: null } : null) : serverOpen;

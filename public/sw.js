@@ -5,6 +5,9 @@
  *   - The calculator pages (HTML), refreshed every time they load online.
  *   - The app's versioned code and styles (/_next/static/…) those pages need.
  *   - A small "No connection" page for everything else.
+ *   - Job screens and their daily report pages, each time they're opened
+ *     online (daily report saves and photos made offline are kept by the
+ *     page in the phone's send queues and sent when signal returns).
  *   - The Time Clock and Sync pages, so a crew member can clock in with no
  *     signal (presses are kept by the page in the phone's send queue, see
  *     src/lib/offline/outbox.ts, and sent when signal returns).
@@ -51,7 +54,10 @@ const WARM_EVERY_MS = 10 * 60 * 1000;
 const META_WARMED = "/__petra-offline/warmed";
 
 const normalize = (pathname) => (pathname.length > 1 ? pathname.replace(/\/+$/, "") : pathname);
-const isOfflineRoute = (url) => OFFLINE_ROUTES.includes(normalize(url.pathname));
+// Job screens and their daily reports: saved each time they're opened online,
+// so a crew lead who opened them that morning can keep working with no signal.
+const SAVED_ON_VISIT = /^\/jobs\/[0-9a-f-]{36}(\/reports\/\d{4}-\d{2}-\d{2})?$/;
+const isOfflineRoute = (url) => OFFLINE_ROUTES.includes(normalize(url.pathname)) || SAVED_ON_VISIT.test(normalize(url.pathname));
 const BRAND_ASSETS = ["/icons/logo.png", "/icons/favicon-32.png"];
 const isStaticAsset = (url) => url.pathname.startsWith("/_next/static/") || url.pathname.startsWith("/pdfjs/") || BRAND_ASSETS.includes(url.pathname);
 const isCacheablePage = (res) =>
@@ -203,9 +209,30 @@ async function status() {
   return { ready: hits.every(Boolean) };
 }
 
+/**
+ * A page opened by an in-app link (no full page load) asks to be saved:
+ * fetch it fresh and keep it, if it's one of the pages kept for offline use.
+ */
+async function saveForOffline(path) {
+  const url = new URL(path, self.location.origin);
+  if (url.origin !== self.location.origin || !isOfflineRoute(url)) return { saved: false };
+  try {
+    const res = await fetch(url.pathname, { credentials: "same-origin", cache: "no-store" });
+    if (!isCacheablePage(res)) return { saved: false };
+    await (await caches.open(CACHE)).put(normalize(url.pathname), res);
+    return { saved: true };
+  } catch {
+    return { saved: false };
+  }
+}
+
 self.addEventListener("message", (event) => {
   const data = event.data || {};
   const reply = (v) => event.ports[0] && event.ports[0].postMessage(v);
+  if (data.type === "save" && typeof data.path === "string") {
+    event.waitUntil(saveForOffline(data.path).then(reply, () => reply({ saved: false })));
+    return;
+  }
   if (data.type === "warm") event.waitUntil(warm(Boolean(data.force)).then(reply, () => reply({ ready: false })));
   else if (data.type === "status") event.waitUntil(status().then(reply));
 });

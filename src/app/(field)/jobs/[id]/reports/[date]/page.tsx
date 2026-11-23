@@ -5,6 +5,7 @@ import { getFormatter, getLocale, getTranslations } from "next-intl/server";
 import { PageHeader } from "@/components/ui/page-header";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { DfrEditor } from "@/components/reports/dfr-editor";
+import { SaveForOffline } from "@/components/offline/save-for-offline";
 import { DfrView } from "@/components/reports/dfr-view";
 import { ReviewBox } from "@/components/reports/review-box";
 import { requireProfile } from "@/lib/auth/dal";
@@ -76,8 +77,12 @@ export default async function DailyReportPage({ params, searchParams }: PageProp
     return (
       <>
         {header}
+        <SaveForOffline />
         <DfrEditor
+          key={dfr.version as number}
           id={dfr.id as string}
+          owner={profile.employeeId}
+          reportLabel={`${jobRow.name} · ${dayLabel}`}
           initial={dfr.draft as Partial<DfrContent>}
           version={dfr.version as number}
           jobCrew={crewIds.map((c) => ({ id: c, name: name(c) }))}

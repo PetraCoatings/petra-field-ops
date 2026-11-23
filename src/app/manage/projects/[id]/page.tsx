@@ -88,7 +88,7 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
           removeAction={removeContact.bind(null, project.id)}
         />
       </Card>
-      <IssuesCard projectId={project.id} canResolve />
+      <IssuesCard projectId={project.id} owner={profile.employeeId} canResolve />
       <QcCard projectId={project.id} canRecord={profile.role === "office_admin"} canSetRequirements me={profile.employeeId} workOrderTests={[]} now={serverNow()} />
       <p>
         <a href={`/jobs/${project.id}/photos`} className="font-semibold text-brand-700 underline">
