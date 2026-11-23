@@ -97,7 +97,8 @@ test("a new office admin sets up the authenticator on first sign-in; another adm
     await office.goto(`/manage/employees/${employeeId}`);
     await expect(office.getByText("Two-step sign-in: on (authenticator app).")).toBeVisible();
     await office.getByRole("button", { name: "Reset two-step sign-in" }).click();
-    await expect(office.getByText("Two-step sign-in was reset.")).toBeVisible();
+    // The page now says it is off (the reset message goes with the button).
+    await expect(office.getByText(/Two-step sign-in: not set up yet/)).toBeVisible();
     const user = (await (await api(`/auth/v1/admin/users/${userId}`)).json()) as { factors?: unknown[] };
     expect(user.factors ?? []).toHaveLength(0);
   } finally {
