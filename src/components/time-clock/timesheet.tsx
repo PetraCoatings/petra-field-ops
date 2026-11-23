@@ -45,7 +45,7 @@ export function Timesheet({
   const now = serverNow;
   const self = viewer.id === sheet.employeeId;
   const admin = viewer.role === "office_admin";
-  const lead = !self && viewer.role === "crew_lead";
+  const lead = !self && (viewer.role === "crew_lead" || viewer.role === "project_manager");
   const st = sheet.status.status;
   const [busy, startTransition] = useTransition();
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -89,7 +89,7 @@ export function Timesheet({
     return false;
   };
   const canAdd = admin ? st !== "approved" : lead ? st === "open" : self && st === "open";
-  const canSubmit = (viewer.role === "crew_lead" || admin) && st === "open";
+  const canSubmit = (viewer.role === "crew_lead" || viewer.role === "project_manager" || admin) && st === "open";
   const showError = (e: SheetError) => setError(ts(`errors.${e}`));
 
   const run = (fn: () => Promise<{ ok: true } | { ok: false; error: SheetError }>, ok: string, after?: () => void) =>
@@ -410,7 +410,7 @@ export function Timesheet({
         <section aria-label={ts("weekActions")} className="space-y-2 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
           {hasOpen && st !== "approved" && <p className="text-base text-red-900">{ts("errors.open_entries")}</p>}
           <div className="flex flex-wrap gap-2">
-            {canSubmit && viewer.role === "crew_lead" && (
+            {canSubmit && !admin && (
               <button type="button" disabled={busy || hasOpen} onClick={() => run(() => setWeekStatus({ employeeId: sheet.employeeId, weekOf: sheet.weekStart, to: "submitted" }), ts("submittedNow"))} className={buttonClasses("primary", "lg")}>
                 <Send aria-hidden className="size-6" />
                 {ts("submit")}

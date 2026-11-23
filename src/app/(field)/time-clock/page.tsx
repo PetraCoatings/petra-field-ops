@@ -28,12 +28,10 @@ export default async function TimeClockPage() {
             <Users aria-hidden className="size-6" />
             {t("timeClock.crew.link")}
           </Link>
-          {(profile.role === "crew_lead" || profile.role === "office_admin") && (
-            <Link href="/time-clock/crew/timesheets" className={`${buttonClasses("secondary", "lg")} w-full`}>
-              <ClipboardList aria-hidden className="size-6" />
-              {t("timeClock.sheet.crewList")}
-            </Link>
-          )}
+          <Link href="/time-clock/crew/timesheets" className={`${buttonClasses("secondary", "lg")} w-full`}>
+            <ClipboardList aria-hidden className="size-6" />
+            {t("timeClock.sheet.crewList")}
+          </Link>
         </div>
       )}
       <TimeClock segments={segments} jobs={jobs} settings={settings} serverNow={serverNow()} />

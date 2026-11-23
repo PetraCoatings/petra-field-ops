@@ -227,7 +227,7 @@ test("timesheets: fix your own time, ask for a fix, lead submits, office approve
     await old.getByRole("button", { name: "Ask for a fix" }).click();
     await me.page.getByLabel("What needs fixing?").fill("I worked until 3 PM that day");
     await me.page.getByRole("button", { name: "Send request" }).click();
-    await expect(me.page.getByText("Request sent to your crew lead and the office.")).toBeVisible();
+    await expect(me.page.getByText("Request sent to your crew lead, project manager and the office.")).toBeVisible();
 
     // ---- …but today's time can be fixed, with a reason; the original is kept
     await me.page.goto("/time-clock/timesheet");

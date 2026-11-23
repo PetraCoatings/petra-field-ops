@@ -20,13 +20,13 @@ export default async function TimesheetPage({ searchParams }: PageProps<"/time-c
   const profile = await requireProfile();
   const sp = await searchParams;
   const other = typeof sp.employee === "string" && UUID.test(sp.employee) && sp.employee !== profile.employeeId ? sp.employee : null;
-  if (other && profile.role !== "crew_lead" && profile.role !== "office_admin") redirect("/time-clock/timesheet");
+  if (other && profile.role === "installer") redirect("/time-clock/timesheet");
   const t = await getTranslations();
   const settings = await clockSettings();
   const weekOf = weekParam(sp.week, settings.timezone);
   const [sheet, jobs, windowHours] = await Promise.all([
     loadSheet(other ?? profile.employeeId, weekOf, settings),
-    clockJobs(profile.role === "office_admin"),
+    clockJobs(profile.role === "office_admin" || profile.role === "project_manager"),
     selfEditWindowHours(),
   ]);
   if (!sheet) notFound();

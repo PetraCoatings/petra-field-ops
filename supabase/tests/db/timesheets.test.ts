@@ -100,13 +100,19 @@ describe("crew leads, project managers and office admins", () => {
     });
   });
 
-  it("project managers clock crews in like a crew lead, but don't see or fix crew timesheets", async () => {
+  it("project managers work like a crew lead: clock their crew in, see and fix their time", async () => {
     await asUser(U.pm, async (q) => {
-      expect((await q(`select count(*)::int as n from public.time_segments where employee_id = $1`, [E.installer])).rows[0].n).toBe(0);
-      await expect(correct(q, OLD_SEG, "Fix", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/can't change/);
+      // The installer is on a job this PM manages; the other installer isn't.
+      expect((await q(`select count(*)::int as n from public.time_segments where employee_id = $1`, [E.installer])).rows[0].n).toBe(1);
+      const id = await correct(q, OLD_SEG, "Per the crew lead", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" });
+      expect((await active(q, E.installer)).map((s) => [s.id, s.corrected_by])).toEqual([[id, E.pm]]);
+      await expect(correct(q, OTHER_SEG, "Not my crew", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/can't change/);
+      expect((await q(`select count(*)::int as n from public.time_segments where employee_id = $1`, [E.otherInstaller])).rows[0].n).toBe(0);
       const r = await q(`select public.clock_action(gen_random_uuid(), 'clock_in', now(), 'denied', 'job', null, null, null, null, array[$1]::uuid[], now()) as r`, [E.installer]);
       expect(r.rows[0].r[0]).toMatchObject({ employee_id: E.installer, ok: true });
       expect((await q(`select employee_id from public.crew_clock_status(array[$1]::uuid[])`, [E.installer])).rows).toEqual([{ employee_id: E.installer }]);
+      await q(`select public.submit_timesheet($1, $2)`, [E.installer, WEEK_OF]);
+      await expect(q(`select public.approve_timesheet($1, $2)`, [E.installer, WEEK_OF])).rejects.toThrow(/office admin/);
     });
   });
 });

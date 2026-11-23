@@ -1113,7 +1113,7 @@
       "askLabel": "What needs fixing?",
       "askExample": "Example: I clocked out at 5:45, not 4:45, on Tuesday.",
       "askSend": "Send request",
-      "askSent": "Request sent to your crew lead and the office.",
+      "askSent": "Request sent to your crew lead, project manager and the office.",
       "selfRule": "You can fix your own time for {hours} hours. After that, or once the week is submitted, ask for a fix.",
       "requests": "Requests for a fix",
       "requestOpen": "Asked {when}. Waiting for the crew lead or office.",

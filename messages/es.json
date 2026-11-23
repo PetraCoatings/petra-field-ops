@@ -1113,7 +1113,7 @@
       "askLabel": "¿Qué hay que corregir?",
       "askExample": "Ejemplo: El martes registré la salida a las 5:45, no a las 4:45.",
       "askSend": "Enviar pedido",
-      "askSent": "Pedido enviado a su jefe de cuadrilla y a la oficina.",
+      "askSent": "Pedido enviado a su jefe de cuadrilla, al gerente de proyecto y a la oficina.",
       "selfRule": "Puede corregir su propio tiempo durante {hours} horas. Después de eso, o cuando la semana ya se envió, pida una corrección.",
       "requests": "Pedidos de corrección",
       "requestOpen": "Pedido el {when}. Esperando al jefe de cuadrilla o a la oficina.",

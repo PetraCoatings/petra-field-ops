@@ -8,16 +8,15 @@
 --               Who may correct (docs/ARCHITECTURE_PLAN.md §0 Q9 and §4):
 --                 * the person: their own time, within the self-edit window
 --                   (24 h by default) of the time being changed, open weeks only;
---                 * a crew lead: their crew, weeks not yet submitted;
+--                 * a crew lead or project manager: their crew, weeks not yet submitted;
 --                 * an office admin: any week not approved.
 -- Requests      after the window, or once a week is submitted, people ask for
 --               a fix (time_change_requests); the lead or office resolves it.
 -- Weeks         timesheets: open → submitted (crew lead) → approved (office
 --               admin, locks the week). An admin can reopen with a reason.
 --               Approved weeks reject any change to segments in them (trigger).
--- Access        crew leads see their crew's time; office admins everyone's.
---               Project managers clock crews in like crew leads (owner
---               decision, 2026-11-23) but don't see crew timesheets.
+-- Access        crew leads and project managers see their crew's time
+--               (owner decision, 2026-11-23); office admins everyone's.
 -- =============================================================================
 
 -- -----------------------------------------------------------------------------
@@ -28,18 +27,21 @@ language sql stable security definer set search_path = '' as $$
   select app.has_role('office_admin')
 $$;
 
--- Is the current user this person's crew lead? Their crew is everyone on a job
--- they lead (as the job's crew lead or assigned as lead), plus anyone they
--- clocked in as a group in the last 35 days (helpers added for the day).
+-- Is the current user this person's crew lead (or project manager)? Their crew
+-- is everyone on a job they lead (as the job's crew lead, assigned as lead, or
+-- the job's project manager), plus anyone they clocked in as a group in the
+-- last 35 days (helpers added for the day). Project managers have the same
+-- timesheet powers as crew leads for their crews (owner decision, 2026-11-23).
 create function app.leads_employee(p_employee_id uuid) returns boolean
 language sql stable security definer set search_path = '' as $$
-  select app.has_role('crew_lead') and (
+  select app.has_role('crew_lead', 'project_manager') and (
     p_employee_id = app.current_employee_id()
     or exists (
       select 1 from public.project_assignments pa
       join public.projects p on p.id = pa.project_id
       where pa.employee_id = p_employee_id and p.status <> 'closed'
         and (p.crew_lead_id = app.current_employee_id()
+             or p.project_manager_id = app.current_employee_id()
              or exists (select 1 from public.project_assignments me
                         where me.project_id = p.id and me.employee_id = app.current_employee_id() and me.role_on_job = 'lead'))
     )
@@ -343,7 +345,7 @@ declare
   v_week tstzrange := app.workweek_bounds(p_week_of);
 begin
   if not (app.leads_employee(p_employee_id) or app.is_office_admin()) then
-    raise exception 'Only the crew lead can submit this week' using errcode = '42501';
+    raise exception 'Only the crew lead or project manager can submit this week' using errcode = '42501';
   end if;
   if app.week_status(p_employee_id, v_week) <> 'open' then
     raise exception 'This week was already submitted' using errcode = 'P0001';
