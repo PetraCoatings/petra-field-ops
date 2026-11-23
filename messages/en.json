@@ -1277,5 +1277,61 @@
       }
     },
     "pdfNote": "Hours are rounded to 0.01 h per rate. Expected gross is the app's own calculation from these hours, including overtime at the weighted rate; compare it with Gusto's preview."
+  },
+  "calendar": {
+    "viewLabel": "Calendar view",
+    "views": {
+      "month": "Month",
+      "week": "Week",
+      "day": "Day"
+    },
+    "prev": "Previous",
+    "next": "Next",
+    "today": "Today",
+    "holiday": "Holiday: {name}",
+    "start": "start {time}",
+    "count": "{count} events",
+    "nothing": "Nothing scheduled.",
+    "nothingMonth": "Nothing scheduled this month.",
+    "where": "Job days come from each job's published work order schedule (days with a date). Holidays are set by the office.",
+    "link": {
+      "title": "Add to my calendar",
+      "intro": "See your job days and holidays in the calendar you already use: Apple Calendar, Outlook or Google Calendar. Changes in the app show up there automatically.",
+      "scope": "Which jobs?",
+      "scopes": {
+        "mine": "Only my jobs",
+        "all": "Every job (office)"
+      },
+      "make": "Get my calendar link",
+      "makeNew": "Make a new calendar link",
+      "making": "Making the link…",
+      "active": "Your calendar link is turned on (made {when}).",
+      "makeNewHelp": "Making a new link turns the old one off. Use this on a new phone, or if your link was shared by mistake.",
+      "failed": "Couldn't make the link. Try again.",
+      "ready": "Tap your calendar app:",
+      "apple": "Apple Calendar (iPhone, Mac)",
+      "google": "Google Calendar",
+      "outlookWork": "Outlook (work or school account)",
+      "outlookPersonal": "Outlook.com (personal)",
+      "orCopy": "Or copy the link and add it as a calendar subscription:",
+      "copy": "Copy link",
+      "copied": "Copied",
+      "private": "This link is private: it shows your schedule to anyone who has it. Don't share it.",
+      "refresh": "Your calendar app checks for changes on its own: Apple every few minutes to an hour (you can choose), Outlook every few hours, Google up to once a day.",
+      "turnOff": "Turn off my calendar link"
+    },
+    "holidays": {
+      "title": "Company holidays",
+      "help": "Holidays show on everyone's calendar.",
+      "date": "Date",
+      "name": "Name",
+      "nameExample": "Example: Thanksgiving",
+      "paid": "Paid holiday",
+      "add": "Add holiday",
+      "added": "Holiday added.",
+      "remove": "Remove holiday",
+      "invalid": "Choose a date and a name.",
+      "duplicate": "There's already a holiday on that date."
+    }
   }
 }

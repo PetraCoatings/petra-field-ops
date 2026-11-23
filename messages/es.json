@@ -1277,5 +1277,61 @@
       }
     },
     "pdfNote": "Las horas se redondean a 0.01 h por tarifa. El bruto esperado es el cálculo de la aplicación con estas horas, incluidas las horas extra a la tarifa ponderada; compárelo con la vista previa de Gusto."
+  },
+  "calendar": {
+    "viewLabel": "Vista del calendario",
+    "views": {
+      "month": "Mes",
+      "week": "Semana",
+      "day": "Día"
+    },
+    "prev": "Anterior",
+    "next": "Siguiente",
+    "today": "Hoy",
+    "holiday": "Feriado: {name}",
+    "start": "empieza {time}",
+    "count": "{count} eventos",
+    "nothing": "Nada programado.",
+    "nothingMonth": "Nada programado este mes.",
+    "where": "Los días de obra salen del programa de la orden de trabajo publicada de cada obra (días con fecha). Los feriados los pone la oficina.",
+    "link": {
+      "title": "Agregar a mi calendario",
+      "intro": "Vea sus días de obra y los feriados en el calendario que ya usa: Calendario de Apple, Outlook o Google Calendar. Los cambios en la aplicación aparecen ahí solos.",
+      "scope": "¿Qué obras?",
+      "scopes": {
+        "mine": "Solo mis obras",
+        "all": "Todas las obras (oficina)"
+      },
+      "make": "Obtener mi enlace de calendario",
+      "makeNew": "Crear un nuevo enlace de calendario",
+      "making": "Creando el enlace…",
+      "active": "Su enlace de calendario está activo (creado el {when}).",
+      "makeNewHelp": "Crear un enlace nuevo desactiva el anterior. Úselo en un teléfono nuevo o si compartió su enlace por error.",
+      "failed": "No se pudo crear el enlace. Inténtelo de nuevo.",
+      "ready": "Toque su aplicación de calendario:",
+      "apple": "Calendario de Apple (iPhone, Mac)",
+      "google": "Google Calendar",
+      "outlookWork": "Outlook (cuenta de trabajo o escuela)",
+      "outlookPersonal": "Outlook.com (personal)",
+      "orCopy": "O copie el enlace y agréguelo como suscripción de calendario:",
+      "copy": "Copiar enlace",
+      "copied": "Copiado",
+      "private": "Este enlace es privado: muestra su horario a cualquiera que lo tenga. No lo comparta.",
+      "refresh": "Su aplicación de calendario revisa los cambios sola: Apple cada pocos minutos o cada hora (usted elige), Outlook cada pocas horas, Google hasta una vez al día.",
+      "turnOff": "Desactivar mi enlace de calendario"
+    },
+    "holidays": {
+      "title": "Feriados de la empresa",
+      "help": "Los feriados aparecen en el calendario de todos.",
+      "date": "Fecha",
+      "name": "Nombre",
+      "nameExample": "Ejemplo: Día de Acción de Gracias",
+      "paid": "Feriado pagado",
+      "add": "Agregar feriado",
+      "added": "Feriado agregado.",
+      "remove": "Quitar feriado",
+      "invalid": "Elija una fecha y un nombre.",
+      "duplicate": "Ya hay un feriado en esa fecha."
+    }
   }
 }
