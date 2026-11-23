@@ -1178,5 +1178,37 @@
       "forgot": "Probablemente olvidó registrar la salida",
       "timesheets": "Hojas de horas"
     }
+  },
+  "payRates": {
+    "title": "Tarifas de pago",
+    "myTitle": "Mis tarifas de pago",
+    "adminHelp": "Tarifa por hora para cada tipo de tiempo. Para un aumento, agregue una tarifa nueva con la fecha en que empieza; la anterior se mantiene para las horas de antes. Solo los administradores de oficina y la propia persona pueden verlas.",
+    "none": "Todavía no hay tarifas. No se puede calcular la nómina de esta persona hasta agregar las tarifas de Trabajo, Manejo y Pasajero.",
+    "category": "Tipo de tiempo",
+    "rate": "Tarifa por hora ($)",
+    "effectiveFrom": "Empieza el",
+    "note": "Nota (opcional)",
+    "noteExample": "Ejemplo: Aumento después de 90 días",
+    "add": "Agregar tarifa",
+    "added": "Tarifa agregada.",
+    "inEffect": "vigente",
+    "upcomingLabel": "próxima",
+    "removeLabel": "Quitar la tarifa de {category} que empieza el {date}",
+    "errors": {
+      "rate": "Escriba una tarifa por hora como 25 o 25.50.",
+      "date": "Elija la fecha en que empieza la tarifa.",
+      "duplicate": "Ya hay una tarifa para ese tipo de tiempo que empieza ese día. Quítela primero para cambiarla.",
+      "password": "Esa contraseña no es correcta.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    },
+    "privacy": "Sus tarifas de pago son privadas. Escriba su contraseña para verlas. Se ocultan otra vez después de 30 segundos o cuando sale de la aplicación.",
+    "password": "Su contraseña",
+    "show": "Mostrar mis tarifas",
+    "checking": "Revisando…",
+    "hide": "Ocultar ahora",
+    "hidingIn": "Se oculta en {seconds} s",
+    "current": "Tarifas actuales",
+    "perHour": "por hora",
+    "upcoming": "Desde el {date}: {category} {rate} por hora"
   }
 }
