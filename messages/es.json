@@ -724,7 +724,14 @@
     "fwoUpdated": "Orden de trabajo {n} actualizada a la revisión {revision}",
     "unread": "Nueva",
     "bellUnread": "{count, plural, one {# notificación nueva} other {# notificaciones nuevas}}",
-    "checklistMissing": "Falta en el tráiler: {item}"
+    "checklistMissing": "Falta en el tráiler: {item}",
+    "timeOffRequested": "Pedido de tiempo libre de {name}",
+    "timeOffDecided": {
+      "approved": "Tiempo libre aprobado",
+      "rejected": "Tiempo libre no aprobado",
+      "cancelled": "{name} canceló tiempo libre aprobado",
+      "pending_office": "Pedido de tiempo libre de {name}"
+    }
   },
   "templates": {
     "title": "Plantillas de órdenes de trabajo",
@@ -1332,6 +1339,59 @@
       "remove": "Quitar feriado",
       "invalid": "Elija una fecha y un nombre.",
       "duplicate": "Ya hay un feriado en esa fecha."
+    },
+    "timeOff": "Tiempo libre: {who}",
+    "timeOffLink": "Tiempo libre: pedir o aprobar"
+  },
+  "timeOff": {
+    "title": "Tiempo libre",
+    "newTitle": "Pedir tiempo libre",
+    "how": "Su jefe de cuadrilla (o gerente de proyecto) aprueba primero y después la oficina. Recibirá una notificación en cada paso.",
+    "type": "Tipo",
+    "types": {
+      "Vacation": "Vacaciones",
+      "Sick": "Enfermedad",
+      "Personal": "Personal",
+      "Unpaid": "Sin goce de sueldo"
+    },
+    "first": "Primer día",
+    "last": "Último día",
+    "partial": "¿Solo parte del día? Horas (opcional)",
+    "partialExample": "4",
+    "partialHelp": "Déjelo vacío para el día completo.",
+    "notes": "Nota (opcional)",
+    "notesExample": "Ejemplo: Viaje familiar",
+    "send": "Enviar pedido",
+    "sent": "Pedido enviado.",
+    "mine": "Mis pedidos",
+    "none": "Todavía no hay pedidos.",
+    "cancel": "Cancelar pedido",
+    "waiting": "Esperando su decisión ({count})",
+    "noteLabel": "Nota (obligatoria para decir que no)",
+    "approve": "Aprobar (enviar a la oficina)",
+    "approveFinal": "Aprobar",
+    "reject": "Decir que no",
+    "crewUpcoming": "Próximo tiempo libre de su cuadrilla",
+    "everyoneUpcoming": "Próximo tiempo libre de todos",
+    "officeLink": "Pedidos de tiempo libre",
+    "status": {
+      "pending_lead": "Esperando al jefe de cuadrilla.",
+      "pending_office": "Esperando a la oficina.",
+      "pending_office_after": "Aprobado por {name}; esperando a la oficina.",
+      "approved": "Aprobado por {name}.",
+      "rejected": "No aprobado por {name}: {reason}",
+      "cancelled": "Cancelado."
+    },
+    "errors": {
+      "form": "Elija el tipo de tiempo libre y los días.",
+      "partial": "Las horas son solo para un día.",
+      "overlap": "Ya pidió tiempo libre en algunos de estos días.",
+      "dates": "El último día es anterior al primero.",
+      "reason": "Escriba un motivo para decir que no.",
+      "decided": "Este pedido ya se decidió. Vuelva a cargar la página.",
+      "cancel": "Este pedido no se puede cancelar.",
+      "forbidden": "No puede decidir este pedido.",
+      "tooLong": "Pida como máximo 60 días a la vez."
     }
   }
 }

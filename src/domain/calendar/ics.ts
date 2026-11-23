@@ -6,7 +6,7 @@
  */
 
 export type FeedEvent = {
-  kind: "job" | "holiday";
+  kind: "job" | "holiday" | "time_off";
   day: string; // YYYY-MM-DD
   title: string | null;
   startText: string | null;
@@ -19,6 +19,7 @@ export type FeedEvent = {
 export type FeedLabels = {
   calendarName: string;
   holiday: (name: string) => string;
+  timeOff: (who: string) => string;
   start: (time: string) => string;
   openInApp: string;
 };
@@ -71,13 +72,15 @@ export function buildIcs(events: readonly FeedEvent[], opts: { labels: FeedLabel
   ];
   const seen = new Map<string, number>();
   for (const e of events) {
-    const base = e.kind === "holiday" ? `holiday-${e.day}` : `job-${e.projectId}-${e.day}`;
+    const base = e.kind === "holiday" ? `holiday-${e.day}` : e.kind === "time_off" ? `off-${e.day}-${(e.title ?? "").replace(/[^A-Za-z0-9]+/g, "-")}` : `job-${e.projectId}-${e.day}`;
     const n = (seen.get(base) ?? 0) + 1;
     seen.set(base, n);
     const summary =
       e.kind === "holiday"
         ? opts.labels.holiday(e.title ?? "")
-        : [e.projectName, e.title, e.startText ? opts.labels.start(e.startText) : null].filter(Boolean).join(" · ");
+        : e.kind === "time_off"
+          ? opts.labels.timeOff(e.title ?? "") + (e.startText ? ` (${e.startText})` : "")
+          : [e.projectName, e.title, e.startText ? opts.labels.start(e.startText) : null].filter(Boolean).join(" · ");
     const url = e.kind === "job" && e.projectId ? `${opts.origin}/jobs/${e.projectId}` : null;
     const description = [e.jobNumber ? `#${e.jobNumber}` : null, e.address, url ? `${opts.labels.openInApp}: ${url}` : null].filter(Boolean).join("\n");
     lines.push(

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { buildIcs, escapeText, foldLine, type FeedEvent } from "./ics";
 
-const labels = { calendarName: "Petra jobs", holiday: (n: string) => `Holiday: ${n}`, start: (t: string) => `start ${t}`, openInApp: "Open in the app" };
+const labels = { calendarName: "Petra jobs", holiday: (n: string) => `Holiday: ${n}`, timeOff: (w: string) => `Time off: ${w}`, start: (t: string) => `start ${t}`, openInApp: "Open in the app" };
 const job: FeedEvent = {
   kind: "job",
   day: "2026-11-30",
@@ -42,6 +42,12 @@ describe("calendar feed", () => {
     const folded = foldLine(long);
     expect(folded.split("\r\n ").join("")).toBe(long);
     for (const part of folded.split("\r\n")) expect(new TextEncoder().encode(part).length).toBeLessThanOrEqual(75);
+  });
+
+  it("writes approved time off", () => {
+    const ics = buildIcs([{ kind: "time_off", day: "2026-12-21", title: "Ivan Test: Vacation", startText: "4 h", projectId: null, projectName: null, address: null, jobNumber: null }], { labels, origin: "https://x", now: new Date(), feedId: "f" });
+    expect(ics).toContain("SUMMARY:Time off: Ivan Test: Vacation (4 h)");
+    expect(ics).toContain("UID:off-2026-12-21-Ivan-Test-Vacation@petra-field-ops.f");
   });
 
   it("gives two events on the same job and day different ids", () => {
