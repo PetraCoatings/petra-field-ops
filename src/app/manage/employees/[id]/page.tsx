@@ -58,8 +58,9 @@ export default async function EditEmployeePage({ params, searchParams }: PagePro
       <Card title={t("payRates.title")}>
         <div className="space-y-4">
           <p className="text-sm text-neutral-700">{t("payRates.adminHelp")}</p>
+          {employee.flsa_status === "exempt" && <p className="text-base font-semibold text-neutral-800">{t("payRates.salaried")}</p>}
           {rates.length === 0 ? (
-            <p className="text-base text-neutral-700">{t("payRates.none")}</p>
+            employee.flsa_status === "exempt" ? null : <p className="text-base text-neutral-700">{t("payRates.none")}</p>
           ) : (
             <table className="w-full text-left text-sm">
               <thead>

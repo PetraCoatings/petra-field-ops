@@ -118,7 +118,8 @@
       "employees": "Employees",
       "settings": "Company Settings",
       "auditLog": "Audit Log",
-      "time": "Time"
+      "time": "Time",
+      "payroll": "Payroll"
     },
     "dashboard": {
       "title": "Dashboard",
@@ -1209,6 +1210,71 @@
     "hidingIn": "Hiding in {seconds} s",
     "current": "Current rates",
     "perHour": "per hour",
-    "upcoming": "From {date}: {category} {rate} per hour"
+    "upcoming": "From {date}: {category} {rate} per hour",
+    "salaried": "Salaried: no hourly rates needed; hours are tracked only."
+  },
+  "payroll": {
+    "title": "Payroll",
+    "pdfTitle": "Payroll entry sheet (Gusto)",
+    "period": "Pay period {from} – {to}",
+    "prev": "Previous pay period",
+    "next": "Next pay period",
+    "downloadPdf": "Download PDF",
+    "downloadCsv": "Download spreadsheet (CSV)",
+    "intro": "Hours to type into Gusto for each person and week: Job, Drive and Ride hours go under their three rates. Gusto calculates any overtime itself. Total and Overtime are shown so you can check them against Gusto.",
+    "entered": "Entered in Gusto by {name} on {when}.",
+    "changedSince": "Hours or rates changed after this was entered. Check the changes and fix them in Gusto too.",
+    "blockersTitle": "Fix these before marking payroll as entered ({count})",
+    "blocker": {
+      "not_approved": "{name}: week of {week} isn't approved yet ({status})",
+      "open_entry": "{name}: still clocked in during the week of {week} (missing clock-out)",
+      "missing_rate": "{name}: no {category} pay rate"
+    },
+    "belowMinimum": "{name}'s {category} rate ({rate}) is below the minimum wage. Check it.",
+    "noHours": "No time recorded in this pay period.",
+    "employee": "Employee",
+    "weekN": "Week {n}: {from} – {to}",
+    "total": "Total",
+    "overtime": "Overtime",
+    "check": "Expected gross (check)",
+    "salaried": "Salaried: hours tracked only",
+    "legend": "Hours are rounded to 0.01 h per rate. Expected gross is the app's own calculation from these hours, including overtime at the weighted rate; compare it with Gusto's preview. Red cells: week not approved yet.",
+    "history": "Earlier entries for this pay period",
+    "replaced": "Entered {entered}; replaced by {by}: {reason}",
+    "pdfBlocked": "Not final: {count} items still need fixing.",
+    "generated": "Made {when}",
+    "csv": {
+      "payType": "Pay type",
+      "hourly": "Hourly",
+      "week": "Week",
+      "weekStarts": "Week starts",
+      "kind": "Kind of time",
+      "rate": "Rate",
+      "hours": "Hours",
+      "weekTotal": "Week total hours",
+      "regular": "Regular hours",
+      "weekCheck": "Week expected gross"
+    },
+    "mark": {
+      "title": "Mark as entered in Gusto",
+      "help": "After typing these hours into Gusto, mark the pay period as entered. The numbers are saved permanently, so you can always see what was entered.",
+      "againHelp": "This pay period was already marked entered. Only enter it again if you corrected it in Gusto; the earlier record is kept.",
+      "blocked": "Fix the items above first.",
+      "button": "Mark as entered in Gusto",
+      "again": "Mark as entered again (corrected)",
+      "confirm": "Did you finish typing these hours into Gusto?",
+      "confirmAgain": "Why is it being entered again?",
+      "reason": "Reason (required)",
+      "yes": "Yes, mark as entered",
+      "cancel": "Cancel",
+      "done": "Marked as entered in Gusto.",
+      "errors": {
+        "blocked": "Something still needs fixing (see above). Reload the page.",
+        "already": "This pay period was already marked entered. Reload the page.",
+        "changed": "Hours changed since this page was opened. Reload the page and check them again.",
+        "reason": "Write why it's being entered again.",
+        "generic": "Something went wrong. Try again."
+      }
+    }
   }
 }

@@ -118,7 +118,8 @@
       "employees": "Empleados",
       "settings": "Configuración",
       "auditLog": "Registro de cambios",
-      "time": "Tiempo"
+      "time": "Tiempo",
+      "payroll": "Nómina"
     },
     "dashboard": {
       "title": "Panel",
@@ -1209,6 +1210,71 @@
     "hidingIn": "Se oculta en {seconds} s",
     "current": "Tarifas actuales",
     "perHour": "por hora",
-    "upcoming": "Desde el {date}: {category} {rate} por hora"
+    "upcoming": "Desde el {date}: {category} {rate} por hora",
+    "salaried": "Asalariado: no necesita tarifas por hora; solo se registran las horas."
+  },
+  "payroll": {
+    "title": "Nómina",
+    "pdfTitle": "Hoja de horas para la nómina (Gusto)",
+    "period": "Período de pago {from} – {to}",
+    "prev": "Período anterior",
+    "next": "Período siguiente",
+    "downloadPdf": "Descargar PDF",
+    "downloadCsv": "Descargar hoja de cálculo (CSV)",
+    "intro": "Horas para escribir en Gusto por persona y semana: las horas de Trabajo, Manejo y Pasajero van en sus tres tarifas. Gusto calcula las horas extra. Total y Horas extra se muestran para compararlas con Gusto.",
+    "entered": "Ingresado en Gusto por {name} el {when}.",
+    "changedSince": "Las horas o tarifas cambiaron después de ingresarlo. Revise los cambios y corríjalos también en Gusto.",
+    "blockersTitle": "Corrija esto antes de marcar la nómina como ingresada ({count})",
+    "blocker": {
+      "not_approved": "{name}: la semana del {week} todavía no está aprobada ({status})",
+      "open_entry": "{name}: sigue con entrada registrada en la semana del {week} (falta la salida)",
+      "missing_rate": "{name}: no tiene tarifa de {category}"
+    },
+    "belowMinimum": "La tarifa de {category} de {name} ({rate}) está por debajo del salario mínimo. Revísela.",
+    "noHours": "No hay tiempo registrado en este período.",
+    "employee": "Empleado",
+    "weekN": "Semana {n}: {from} – {to}",
+    "total": "Total",
+    "overtime": "Horas extra",
+    "check": "Bruto esperado (control)",
+    "salaried": "Asalariado: solo se registran las horas",
+    "legend": "Las horas se redondean a 0.01 h por tarifa. El bruto esperado es el cálculo de la aplicación con estas horas, incluidas las horas extra a la tarifa ponderada; compárelo con la vista previa de Gusto. Celdas rojas: semana todavía no aprobada.",
+    "history": "Registros anteriores de este período",
+    "replaced": "Ingresado el {entered}; reemplazado por {by}: {reason}",
+    "pdfBlocked": "No es final: faltan {count} cosas por corregir.",
+    "generated": "Creado el {when}",
+    "csv": {
+      "payType": "Tipo de pago",
+      "hourly": "Por hora",
+      "week": "Semana",
+      "weekStarts": "Empieza la semana",
+      "kind": "Tipo de tiempo",
+      "rate": "Tarifa",
+      "hours": "Horas",
+      "weekTotal": "Total de horas de la semana",
+      "regular": "Horas regulares",
+      "weekCheck": "Bruto esperado de la semana"
+    },
+    "mark": {
+      "title": "Marcar como ingresado en Gusto",
+      "help": "Después de escribir estas horas en Gusto, marque el período como ingresado. Los números se guardan para siempre, así siempre puede ver lo que se ingresó.",
+      "againHelp": "Este período ya se marcó como ingresado. Solo ingréselo otra vez si lo corrigió en Gusto; el registro anterior se guarda.",
+      "blocked": "Primero corrija lo de arriba.",
+      "button": "Marcar como ingresado en Gusto",
+      "again": "Marcar como ingresado otra vez (corregido)",
+      "confirm": "¿Terminó de escribir estas horas en Gusto?",
+      "confirmAgain": "¿Por qué se ingresa otra vez?",
+      "reason": "Motivo (obligatorio)",
+      "yes": "Sí, marcar como ingresado",
+      "cancel": "Cancelar",
+      "done": "Marcado como ingresado en Gusto.",
+      "errors": {
+        "blocked": "Todavía hay algo por corregir (vea arriba). Vuelva a cargar la página.",
+        "already": "Este período ya se marcó como ingresado. Vuelva a cargar la página.",
+        "changed": "Las horas cambiaron desde que abrió esta página. Vuelva a cargarla y revíselas otra vez.",
+        "reason": "Escriba por qué se ingresa otra vez.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
+      }
+    }
   }
 }

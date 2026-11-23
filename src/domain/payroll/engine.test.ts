@@ -130,10 +130,10 @@ describe("cases", () => {
     expect(p.grossCents).toBe(206250);
   });
 
-  it("exempt staff record time but get no overtime", () => {
+  it("salaried (exempt) staff: hours recorded, no overtime and no hourly pay", () => {
     const segs = [0, 1, 2, 3, 4].map((i) => work("job", at(day(i), "06:00"), at(day(i), "16:00"))); // 50 h
     const w = week(segs, RATES, { exempt: true });
-    expect([w.overtimeSeconds, w.grossCents]).toEqual([0, 125000]);
+    expect([w.totalSeconds / 3600, w.overtimeSeconds, w.grossCents, w.blocked]).toEqual([50, 0, 0, false]);
   });
 
   it("a missing rate blocks the week; a rate under minimum wage is flagged, not blocked", () => {
@@ -148,5 +148,45 @@ describe("cases", () => {
   it("exact seconds: 30 minutes at $10.01 is $5.005 → $5.01", () => {
     const w = week([work("job", at(day(0), "07:00"), at(day(0), "07:30"))], [{ category: "job", cents: 1001, effectiveFrom: "2026-01-01" }]);
     expect(w.grossCents).toBe(501);
+  });
+});
+
+describe("what goes into Gusto", () => {
+  it("hours per rate, two decimals; the check figure matches the plan's example", async () => {
+    const { gustoWeek } = await import("./engine");
+    const segs = [0, 1, 2, 3].map((i) => work("job", at(day(i), "06:00"), at(day(i), "15:30")));
+    segs.push(work("drive", at(day(4), "06:00"), at(day(4), "12:00")), work("ride", at(day(5), "08:00"), at(day(5), "12:00")));
+    const g = gustoWeek(week(segs));
+    expect(g.entries).toEqual([
+      { category: "job", cents: 2500, hundredths: 3800 },
+      { category: "drive", cents: 1800, hundredths: 600 },
+      { category: "ride", cents: 1500, hundredths: 400 },
+    ]);
+    expect([g.totalHundredths, g.regularHundredths, g.overtimeHundredths, g.checkGrossCents]).toEqual([4800, 4000, 800, 121117]);
+  });
+
+  it("rounds each rate's hours half up to 0.01 h (0.005 h = 18 seconds)", async () => {
+    const { gustoWeek } = await import("./engine");
+    const start = at(day(0), "07:00");
+    // 8 h 0 min 18 s → 8.005 h → 8.01; 8 h 0 min 17 s → 8.00
+    expect(gustoWeek(week([work("job", start, start + 8 * H + 18_000)])).entries[0].hundredths).toBe(801);
+    expect(gustoWeek(week([work("job", start, start + 8 * H + 17_000)])).entries[0].hundredths).toBe(800);
+  });
+
+  it("salaried: hours by category, no overtime, no pay figure", async () => {
+    const { gustoWeek } = await import("./engine");
+    const segs = [0, 1, 2, 3, 4].map((i) => work("job", at(day(i), "06:00"), at(day(i), "16:00")));
+    const w = week(segs, [], { exempt: true });
+    expect(w.blocked).toBe(false); // no rates needed
+    const g = gustoWeek(w, true);
+    expect(g).toEqual({ entries: [{ category: "job", cents: 0, hundredths: 5000 }], totalHundredths: 5000, regularHundredths: 5000, overtimeHundredths: 0, checkGrossCents: null });
+  });
+
+  it("finds the two-week pay period for a date (Nov 16 – Nov 29, 2026)", async () => {
+    const { payPeriodContaining } = await import("./engine");
+    expect(payPeriodContaining("2026-11-23", "2026-11-16", 2)).toEqual({ start: "2026-11-16", end: "2026-11-29", next: "2026-11-30", prev: "2026-11-02" });
+    expect(payPeriodContaining("2026-11-30", "2026-11-16", 2).start).toBe("2026-11-30");
+    expect(payPeriodContaining("2026-11-15", "2026-11-16", 2).start).toBe("2026-11-02");
+    expect(payPeriodContaining("2027-01-01", "2026-11-16", 2)).toMatchObject({ start: "2026-12-28", end: "2027-01-10" });
   });
 });
