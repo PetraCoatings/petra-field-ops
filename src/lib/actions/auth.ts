@@ -35,8 +35,9 @@ export async function signIn(_prev: FormState, formData: FormData): Promise<Form
   }
   (await cookies()).set(LOCALE_COOKIE, profile.preferred_locale, COOKIE_OPTS);
   // Office admins always, and anyone else who set it up: the authenticator code comes next.
-  const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (profile.role === "office_admin" || (aal?.nextLevel === "aal2" && aal.currentLevel !== "aal2")) redirect("/two-step");
+  if (profile.role === "office_admin") redirect("/two-step");
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  if (factors?.totp?.some((f) => f.status === "verified")) redirect("/two-step");
   redirect("/");
 }
 
@@ -61,9 +62,13 @@ export async function setPassword(_prev: FormState, formData: FormData): Promise
   const supabase = await createClient();
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {
-    return error.code === "weak_password"
-      ? { status: "error", fieldErrors: { password: "auth.passwordTooWeak" } }
-      : { status: "error", message: "auth.linkInvalid" };
+    if (error.code === "weak_password") {
+      // Supabase's leaked-password check says "pwned": a password seen in a data breach.
+      const reasons = (error as { reasons?: string[] }).reasons ?? [];
+      return { status: "error", fieldErrors: { password: reasons.includes("pwned") ? "auth.passwordLeaked" : "auth.passwordTooWeak" } };
+    }
+    if (error.code === "insufficient_aal") redirect("/two-step?next=/set-password");
+    return { status: "error", message: "auth.linkInvalid" };
   }
   redirect("/");
 }

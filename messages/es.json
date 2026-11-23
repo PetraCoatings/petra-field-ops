@@ -56,7 +56,8 @@
       "title": "Bienvenido a Petra Field Ops",
       "body": "Toque Continuar para iniciar sesión. Después elegirá su contraseña.",
       "continue": "Continuar"
-    }
+    },
+    "passwordLeaked": "Esa contraseña apareció en una filtración de datos de otro sitio web, así que no es segura. Elija otra."
   },
   "home": {
     "greeting": "Hola, {name}",
@@ -1718,6 +1719,7 @@
     "sixDigits": "Escriba los 6 dígitos.",
     "wrongCode": "Ese código no funcionó. Los códigos cambian cada 30 segundos; escriba el que aparece ahora.",
     "setupFailed": "No se pudo empezar. Revise su señal e inténtelo de nuevo.",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cerrar sesión",
+    "tooManyTries": "Demasiados intentos. Espere 5 minutos y escriba el código que aparezca entonces."
   }
 }

@@ -43,6 +43,28 @@ test("an office admin types an authenticator code after the password; a wrong co
   }
 });
 
+test("a password reset asks an office admin for the code first, then shows the new-password form", async ({ browser }) => {
+  const c = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await c.newPage();
+    const u = admin();
+    // Signed in with the password only (as a reset email link does).
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(u.email);
+    await page.getByLabel("Password", { exact: true }).fill(u.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/two-step$/);
+    await page.goto("/set-password");
+    await expect(page).toHaveURL(/\/two-step\?next=(%2F|\/)set-password$/);
+    await page.getByLabel("6-digit code").fill(totp(u.totpSecret!));
+    await page.getByRole("button", { name: "Confirm" }).click();
+    await expect(page).toHaveURL(/\/set-password$/);
+    await expect(page.getByLabel("New password")).toBeVisible();
+  } finally {
+    await c.close();
+  }
+});
+
 test("a password alone gives an office admin no admin powers in the database", async () => {
   const u = admin();
   const read = async (token: string) =>
