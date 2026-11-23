@@ -15,7 +15,7 @@ type Setup = { factorId: string; qr: string; secret: string; uri: string };
  * verify: type the current code.
  * Either way a correct code upgrades this sign-in to two-step ("aal2").
  */
-export function TwoStepForm({ mode, factorId, required }: { mode: "enroll" | "verify"; factorId: string | null; required: boolean }) {
+export function TwoStepForm({ mode, factorId, required, next }: { mode: "enroll" | "verify"; factorId: string | null; required: boolean; next: string }) {
   const t = useTranslations("twoStep");
   const [setup, setSetup] = useState<Setup | null>(null);
   const [code, setCode] = useState("");
@@ -47,9 +47,9 @@ export function TwoStepForm({ mode, factorId, required }: { mode: "enroll" | "ve
       const { error: err } = await createClient().auth.mfa.challengeAndVerify({ factorId: id, code: clean });
       if (err) {
         setCode("");
-        return setError(t("wrongCode"));
+        return setError(err.code === "over_request_rate_limit" ? t("tooManyTries") : err.code === "mfa_verification_failed" || err.code === "mfa_verification_rejected" ? t("wrongCode") : `${t("wrongCode")} (${err.code ?? err.status ?? "?"})`);
       }
-      window.location.assign("/");
+      window.location.assign(next);
     });
   };
 

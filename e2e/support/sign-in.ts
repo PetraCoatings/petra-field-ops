@@ -22,6 +22,8 @@ export async function signInAs(page: Page, u: Pick<RoleUser, "email" | "password
   await page.getByLabel("Email").fill(u.email);
   await page.getByLabel("Password", { exact: true }).fill(u.password);
   await page.getByRole("button", { name: "Sign in" }).click();
+  // Signing in can take a few seconds when many tests run at once.
+  await page.waitForURL((url) => url.pathname !== "/login", { timeout: 20_000 });
   if (u.totpSecret) {
     await expect(page).toHaveURL(/\/two-step$/);
     // A code can be used only once, and parallel tests share the test admin:
