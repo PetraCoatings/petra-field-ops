@@ -1520,7 +1520,14 @@
         "generic": "Algo salió mal. Inténtelo de nuevo."
       }
     },
-    "optional": "Opcional: úselo cuando haya algo que vale la pena anotar (lecturas, material, demoras, problemas)."
+    "optional": "Opcional: úselo cuando haya algo que vale la pena anotar (lecturas, material, demoras, problemas).",
+    "queuedSave": "Sin señal: guardado en este teléfono. Se enviará cuando tenga señal.",
+    "queuedSubmit": "Sin señal: guardado en este teléfono. Se enviará el reporte cuando tenga señal.",
+    "restoredQueued": "Se muestran cambios guardados en este teléfono que todavía no se enviaron. Se enviarán cuando tenga señal.",
+    "restoredTyping": "Se muestran cambios que escribió en este teléfono y no se guardaron. Toque Guardar borrador para conservarlos.",
+    "staleTyping": "Este teléfono tiene cambios que escribió y no se guardaron, pero el reporte se actualizó después. ¿Usar sus cambios o descartarlos?",
+    "useMyTyping": "Usar mis cambios",
+    "discardTyping": "Descartarlos"
   },
   "photos": {
     "title": "Fotos",
@@ -1554,7 +1561,8 @@
     "notes": "Nota",
     "save": "Guardar",
     "remove": "Quitar foto",
-    "open": "Fotos de la obra"
+    "open": "Fotos de la obra",
+    "savedOnPhone": "{count} foto(s) guardadas en este teléfono. Se subirán cuando tenga señal."
   },
   "issues": {
     "title": "Problemas en la obra",
@@ -1589,7 +1597,8 @@
     "photoAlt": "Foto del problema",
     "errors": {
       "description": "Describa qué pasó.",
-      "generic": "Algo salió mal. Inténtelo de nuevo."
+      "generic": "Algo salió mal. Inténtelo de nuevo.",
+      "offline": "Sin señal: los problemas todavía no se pueden enviar. Inténtelo otra vez cuando tenga señal (las fotos que agregue después esperarán en el teléfono)."
     }
   },
   "qc": {
@@ -1646,7 +1655,7 @@
   },
   "sync": {
     "title": "Sincronizar",
-    "intro": "Los registros del reloj hechos sin señal se guardan en este teléfono y se envían solos cuando vuelve la señal. Cada uno conserva la hora en que lo presionó.",
+    "intro": "Los registros del reloj, los reportes diarios y las fotos hechos sin señal se guardan en este teléfono y se envían solos cuando vuelve la señal. Cada uno conserva la hora en que se hizo.",
     "sendNow": "Enviar ahora",
     "sending": "Enviando…",
     "allSent": "Todo lo de este teléfono ya se envió.",
@@ -1665,6 +1674,14 @@
     "otherAccount": "{count} registro(s) en este teléfono son de la cuenta de otra persona. Se enviarán cuando esa persona inicie sesión aquí.",
     "howItWorks": "Enviar dos veces nunca registra dos veces. Si la oficina ya corrigió una hora, puede quitar de la lista un registro no aceptado.",
     "badgeWaiting": "{count} registro(s) del reloj esperando enviarse",
-    "badgeFailed": "{count} registro(s) del reloj no aceptados"
+    "badgeFailed": "{count} registro(s) del reloj no aceptados",
+    "photo": "Foto",
+    "takenAt": "Tomada {when}",
+    "reportSave": "Reporte diario guardado",
+    "reportSubmit": "Reporte diario enviado",
+    "openReport": "Abrir el reporte",
+    "reportConflict": "El reporte se cambió en otro teléfono. Ábralo y elija qué copia conservar.",
+    "reportSubmitted": "El reporte ya se había enviado.",
+    "reportRefused": "El servidor no lo aceptó. Abra el reporte para revisarlo."
   }
 }

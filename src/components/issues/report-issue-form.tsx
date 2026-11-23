@@ -8,7 +8,7 @@ import { reportIssue } from "@/lib/actions/issues";
 import { uploadPhoto } from "@/components/photos/upload";
 
 /** Report a jobsite issue, with optional photos. The PM is notified. */
-export function ReportIssueForm({ projectId }: { projectId: string }) {
+export function ReportIssueForm({ projectId, owner }: { projectId: string; owner: string }) {
   const t = useTranslations("issues");
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -30,12 +30,12 @@ export function ReportIssueForm({ projectId }: { projectId: string }) {
         e.preventDefault();
         start(async () => {
           setMessage(null);
-          const r = await reportIssue({ projectId, type, description, urgent }).catch(() => ({ ok: false as const, error: "generic" as const }));
+          const r = await reportIssue({ projectId, type, description, urgent }).catch(() => ({ ok: false as const, error: "offline" as const }));
           if (!r.ok) return setMessage({ kind: "error", text: t(`errors.${r.error}`) });
           let failed = 0;
           for (const f of [...(files.current?.files ?? [])].slice(0, 10)) {
-            const ok = await uploadPhoto(f, { projectId, stage: "issue", issueId: r.id }).catch(() => false);
-            if (!ok) failed++;
+            const result = await uploadPhoto(f, { projectId, owner, stage: "issue", issueId: r.id }).catch(() => "failed" as const);
+            if (result === "failed") failed++;
           }
           setMessage({ kind: failed ? "error" : "ok", text: failed ? t("photosFailed", { failed }) : t("sent") });
           setDescription("");

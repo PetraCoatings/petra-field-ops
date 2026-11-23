@@ -376,3 +376,88 @@ test("no signal: presses are saved on the phone and sent with their original tim
     await context.close();
   }
 });
+
+// A small real image standing in for a camera photo.
+const PNG_2x2 = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAIAAAD91JpzAAAAEElEQVR4nGNwaDgARAwQCgAoDgYBQzpj2gAAAABJRU5ErkJggg==", "base64");
+
+test("plan acceptance: offline clock-in, daily report draft and photo all arrive after reconnecting", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.skip((await api("/rest/v1/photos?select=id&limit=1")).status === 404, "field reporting migrations not applied");
+  test.setTimeout(180_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const installer = users.find((x) => x.role === "installer")!;
+  const leadId = await employeeId(lead);
+  const job = await createTestProject([lead, installer]);
+  await updateTestProject(job.id, { crew_lead_id: leadId });
+  const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await context.newPage();
+    await page.goto("/login");
+    await page.getByLabel("Email").fill(lead.email);
+    await page.getByLabel("Password", { exact: true }).fill(lead.password);
+    await page.getByRole("button", { name: "Sign in" }).click();
+    await expect(page).toHaveURL(/\/$/);
+    // In the morning, with signal: the app saves its offline pages; the lead opens the job and today's report.
+    await page.goto("/calculators");
+    await expect(page.getByText("Saved on this phone: the calculators work without signal.")).toBeVisible({ timeout: 45_000 });
+    await page.goto(`/jobs/${job.id}`);
+    await page.getByRole("button", { name: "Write a daily report for today" }).click();
+    await expect(page).toHaveURL(/\/reports\/\d{4}-\d{2}-\d{2}$/);
+    const reportUrl = new URL(page.url()).pathname;
+    await page.goto(`/jobs/${job.id}`); // saved again, now showing today's report
+    const before = new Date().toISOString();
+
+    // ---- No signal for the rest of the day
+    await context.setOffline(true);
+    await page.goto("/time-clock");
+    await page.getByRole("group", { name: "What are you doing?" }).getByRole("button", { name: "Job" }).click();
+    await page.getByRole("button", { name: "Clock in" }).click();
+    await expect(page.getByText(/No signal: saved on this phone at/)).toBeVisible({ timeout: 20_000 });
+
+    await page.goto(reportUrl);
+    await page.getByLabel("Work performed").fill("Ground and primed bays 1–3 with no signal on site.");
+    await page.getByRole("button", { name: "Save draft" }).click();
+    await expect(page.getByText("No signal: saved on this phone. It will send when you have signal.")).toBeVisible({ timeout: 20_000 });
+
+    await page.goto(`/jobs/${job.id}`);
+    const photos = page.getByRole("region", { name: "Photos" });
+    // (Wait until the saved page has started up, as a person would, before choosing.)
+    const stage = photos.getByLabel("Stage");
+    await expect(async () => {
+      await stage.selectOption({ label: "Primer" });
+      await expect(stage).toHaveValue("primer", { timeout: 1000 });
+    }).toPass({ timeout: 30_000 });
+    await photos.getByTestId("photo-input").setInputFiles({ name: "IMG_0100.png", mimeType: "image/png", buffer: PNG_2x2 });
+    await expect(photos.getByText("1 photo(s) saved on this phone. They'll upload when you have signal.")).toBeVisible({ timeout: 30_000 });
+    await expect(page.getByRole("link", { name: "3 time clock press(es) waiting to send" })).toBeVisible();
+    // Nothing has reached the server.
+    expect(((await (await api(`/rest/v1/photos?select=id&project_id=eq.${job.id}`)).json()) as unknown[]).length).toBe(0);
+
+    // ---- Signal returns: all three arrive
+    await context.setOffline(false);
+    await expect(page.getByRole("link", { name: /waiting to send/ })).toHaveCount(0, { timeout: 45_000 });
+    const events = (await (await api(`/rest/v1/time_events?select=event_type,category&employee_id=eq.${leadId}&effective_at=gte.${before}`)).json()) as { event_type: string; category: string }[];
+    expect(events).toEqual([{ event_type: "clock_in", category: "job" }]);
+    const reports = (await (await api(`/rest/v1/daily_field_reports?select=version,draft&project_id=eq.${job.id}`)).json()) as { version: number; draft: { workPerformed?: string } }[];
+    expect(reports[0].draft.workPerformed).toBe("Ground and primed bays 1–3 with no signal on site.");
+    expect(reports[0].version).toBe(2);
+    const stored = (await (await api(`/rest/v1/photos?select=stage,storage_path&project_id=eq.${job.id}`)).json()) as { stage: string; storage_path: string }[];
+    expect(stored).toHaveLength(1);
+    expect(stored[0].stage).toBe("primer");
+
+    // Clean up: clock out (online).
+    await page.goto("/time-clock");
+    await page.getByRole("button", { name: "Clock out" }).click();
+    await page.getByRole("button", { name: "Yes, clock out" }).click();
+    await expect(page.getByRole("region", { name: "Right now" })).toContainText("Not clocked in");
+  } finally {
+    await context.close();
+    const list = await api("/storage/v1/object/list/job-photos", { method: "POST", body: JSON.stringify({ prefix: job.id, limit: 100 }) });
+    if (list.ok) {
+      const names = ((await list.json()) as { name: string }[]).map((o) => `${job.id}/${o.name}`);
+      if (names.length) await api("/storage/v1/object/job-photos", { method: "DELETE", body: JSON.stringify({ prefixes: names }) });
+    }
+    await deleteTestProject(job.id);
+  }
+});

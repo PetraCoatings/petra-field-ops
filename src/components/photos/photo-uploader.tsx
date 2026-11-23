@@ -8,24 +8,27 @@ import { PHOTO_STAGES, type PhotoStage } from "@/domain/reports/field";
 import { uploadPhoto } from "./upload";
 
 /** "Add photos": choose the stage, then take photos or pick them from the phone. */
-export function PhotoUploader({ projectId }: { projectId: string }) {
+export function PhotoUploader({ projectId, owner }: { projectId: string; owner: string }) {
   const t = useTranslations("photos");
   const router = useRouter();
   const input = useRef<HTMLInputElement>(null);
   const [stage, setStage] = useState<PhotoStage>("before");
-  const [progress, setProgress] = useState<{ done: number; total: number; failed: number } | null>(null);
-  const busy = progress !== null && progress.done + progress.failed < progress.total;
+  const [progress, setProgress] = useState<{ done: number; total: number; failed: number; queued: number } | null>(null);
+  const busy = progress !== null && progress.done + progress.failed + progress.queued < progress.total;
 
   const onFiles = async (files: FileList | null) => {
     if (!files?.length) return;
     const list = [...files].slice(0, 20);
-    setProgress({ done: 0, total: list.length, failed: 0 });
+    setProgress({ done: 0, total: list.length, failed: 0, queued: 0 });
+    let uploaded = 0;
     for (const f of list) {
-      const ok = await uploadPhoto(f, { projectId, stage }).catch(() => false);
-      setProgress((p) => (p ? { ...p, done: p.done + (ok ? 1 : 0), failed: p.failed + (ok ? 0 : 1) } : p));
+      const r = await uploadPhoto(f, { projectId, owner, stage }).catch(() => "failed" as const);
+      if (r === "uploaded") uploaded++;
+      setProgress((p) => (p ? { ...p, done: p.done + (r === "uploaded" ? 1 : 0), failed: p.failed + (r === "failed" ? 1 : 0), queued: p.queued + (r === "queued" ? 1 : 0) } : p));
     }
     if (input.current) input.current.value = "";
-    router.refresh();
+    // Only refresh when something reached the server (with no signal a refresh reloads the page).
+    if (uploaded > 0) router.refresh();
   };
 
   return (
@@ -49,7 +52,13 @@ export function PhotoUploader({ projectId }: { projectId: string }) {
       </div>
       {progress && (
         <p role="status" className={`text-sm font-medium ${progress.failed ? "text-red-900" : "text-neutral-800"}`}>
-          {busy ? t("uploading", { done: progress.done, total: progress.total }) : progress.failed ? t("someFailed", { failed: progress.failed }) : t("uploaded", { count: progress.done })}
+          {busy
+            ? t("uploading", { done: progress.done + progress.queued, total: progress.total })
+            : progress.failed
+              ? t("someFailed", { failed: progress.failed })
+              : progress.queued
+                ? t("savedOnPhone", { count: progress.queued })
+                : t("uploaded", { count: progress.done })}
         </p>
       )}
     </div>

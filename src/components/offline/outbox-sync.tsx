@@ -1,30 +1,36 @@
 "use client";
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { CloudUpload, TriangleAlert } from "lucide-react";
 import { outboxItems, subscribeOutbox, syncOutbox } from "@/lib/offline/outbox";
+import { photoCounts, syncPhotos } from "@/lib/offline/photo-queue";
 
-const snapshot = () => {
-  const items = outboxItems();
-  return `${items.filter((i) => i.state === "pending" || i.state === "sending").length}|${items.filter((i) => i.state === "failed").length}`;
+const snapshotFor = (owner: string) => () => {
+  const items = outboxItems().filter((i) => i.owner === owner);
+  const photos = photoCounts(owner);
+  return `${items.filter((i) => i.state === "pending" || i.state === "sending").length + photos.pending}|${items.filter((i) => i.state === "failed").length + photos.failed}`;
 };
 
 /**
- * Sends the phone's waiting Time Clock presses whenever signal comes back,
+ * Sends the phone's waiting Time Clock presses, daily report saves and
+ * photos whenever signal comes back,
  * the app is reopened, or every 30 seconds; shows a badge in the header while
  * anything is waiting or was refused.
  */
 export function OutboxSync({ owner }: { owner: string }) {
   const t = useTranslations("sync");
   const router = useRouter();
+  const [snapshot] = useState(() => snapshotFor(owner));
   const counts = useSyncExternalStore(subscribeOutbox, snapshot, () => "0|0");
   const [waiting, failed] = counts.split("|").map(Number);
   useEffect(() => {
     const run = () => {
       if (navigator.onLine === false) return;
-      void syncOutbox(owner).then(() => router.refresh());
+      void Promise.all([syncOutbox(owner), syncPhotos(owner)]).then(([a, b]) => {
+        if (a + b > 0) router.refresh(); // only when something was actually sent
+      });
     };
     run();
     const id = setInterval(run, 30_000);

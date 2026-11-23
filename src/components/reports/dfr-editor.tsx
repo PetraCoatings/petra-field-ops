@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Plus, Save, Send, Trash2, TriangleAlert } from "lucide-react";
@@ -8,6 +8,7 @@ import { buttonClasses } from "@/components/ui/button-styles";
 import { parseDecimal } from "@/components/calculators/number";
 import { materialResult, readingResult, SPREAD_VARIANCE_FLAG_PCT, type ComputeContext, type DfrContent } from "@/domain/reports/dfr";
 import { saveDailyReport, type SaveResult } from "@/lib/actions/daily-reports";
+import { queueReport, queuedReport } from "@/lib/offline/outbox";
 import type { PickerProduct } from "@/lib/library/picker-types";
 import { ReadingBadge } from "./dfr-view";
 
@@ -84,6 +85,8 @@ export function DfrEditor({
   products,
   companyMarginF,
   correctionNote,
+  owner,
+  reportLabel,
 }: {
   id: string;
   initial: Partial<DfrContent>;
@@ -92,14 +95,56 @@ export function DfrEditor({
   products: PickerProduct[];
   companyMarginF: number;
   correctionNote: string | null;
+  owner: string;
+  reportLabel: string;
 }) {
   const t = useTranslations("reports");
   const router = useRouter();
   const crewDefault = jobCrew.map((c) => ({ employeeId: c.id, name: c.name }));
   const [s, setS] = useState<State>(() => fromContent(initial, crewDefault));
   const [version, setVersion] = useState(initialVersion);
+  // Unsaved typing and saves made with no signal are kept on this phone.
+  const localKey = `petra.dfr.${id}`;
+  const [restored, setRestored] = useState<"queued" | "typing" | "stale" | null>(null);
+  const [stale, setStale] = useState<State | null>(null);
+  /* eslint-disable react-hooks/set-state-in-effect -- restoring what this phone kept, once, after the first render (not available on the server) */
+  useEffect(() => {
+    const q = queuedReport(id);
+    if (q && (q.state === "pending" || q.state === "sending")) {
+      setS(fromContent(q.payload.content as Partial<DfrContent>, crewDefault));
+      setRestored("queued");
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(localKey);
+      if (!raw) return;
+      const local = JSON.parse(raw) as { basedOn: number; state: State };
+      if (local.basedOn === initialVersion) {
+        setS(local.state);
+        setRestored("typing");
+      } else {
+        setStale(local.state);
+        setRestored("stale");
+      }
+    } catch {
+      // ignore
+    }
+    // Only on first load.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      try {
+        window.localStorage.setItem(localKey, JSON.stringify({ basedOn: version, state: s, at: new Date().toISOString() }));
+      } catch {
+        // storage full: the queue still keeps saves
+      }
+    }, 600);
+    return () => clearTimeout(timer);
+  }, [s, version, localKey]);
   const [busy, start] = useTransition();
-  const [message, setMessage] = useState<{ kind: "ok" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ kind: "ok" | "error" | "saved"; text: string } | null>(null);
   const [conflict, setConflict] = useState<Extract<SaveResult, { error: "conflict" }>["server"] | null>(null);
   const [confirmSubmit, setConfirmSubmit] = useState(false);
   const [extraName, setExtraName] = useState("");
@@ -116,16 +161,25 @@ export function DfrEditor({
     start(async () => {
       setMessage(null);
       setConfirmSubmit(false);
+      const content = toPayload(s, byId);
       let r: SaveResult;
       try {
-        r = await saveDailyReport({ id, content: toPayload(s, byId), basedOn, submit });
+        r = await saveDailyReport({ id, content, basedOn, submit });
       } catch {
-        setMessage({ kind: "error", text: t("errors.offline") });
+        // No signal: keep it on this phone and send it when signal returns.
+        queueReport(owner, { reportId: id, href: window.location.pathname, label: reportLabel, content, basedOn, submit, deviceTs: new Date().toISOString() });
+        setMessage({ kind: "saved", text: submit ? t("queuedSubmit") : t("queuedSave") });
         return;
       }
       if (r.ok) {
         setConflict(null);
         setVersion(r.version);
+        setRestored(null);
+        try {
+          window.localStorage.removeItem(localKey);
+        } catch {
+          // ignore
+        }
         if (r.submittedVersion) {
           router.refresh();
           return;
@@ -143,6 +197,39 @@ export function DfrEditor({
 
   return (
     <div className="space-y-4">
+      {restored === "queued" && <p role="status" className="rounded-xl border-2 border-dashed border-neutral-400 bg-neutral-50 px-4 py-3">{t("restoredQueued")}</p>}
+      {restored === "typing" && <p role="status" className="rounded-xl bg-neutral-100 px-4 py-3">{t("restoredTyping")}</p>}
+      {restored === "stale" && stale && (
+        <div role="alert" className="space-y-2 rounded-xl border-2 border-accent-600 bg-amber-50 px-4 py-3">
+          <p>{t("staleTyping")}</p>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                setS(stale);
+                setRestored("typing");
+              }}
+              className={buttonClasses("secondary", "md")}
+            >
+              {t("useMyTyping")}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setRestored(null);
+                try {
+                  window.localStorage.removeItem(localKey);
+                } catch {
+                  // ignore
+                }
+              }}
+              className={buttonClasses("ghost", "md")}
+            >
+              {t("discardTyping")}
+            </button>
+          </div>
+        </div>
+      )}
       {correctionNote && (
         <p role="alert" className="flex gap-2 rounded-xl border-l-4 border-red-700 bg-red-50 px-4 py-3 text-red-950">
           <TriangleAlert aria-hidden className="size-6 shrink-0" />
@@ -379,7 +466,7 @@ export function DfrEditor({
         </div>
       )}
       {message && (
-        <p role={message.kind === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 font-medium ${message.kind === "error" ? "bg-red-50 text-red-900" : "bg-green-50 text-green-900"}`}>
+        <p role={message.kind === "error" ? "alert" : "status"} className={`rounded-xl px-4 py-3 font-medium ${message.kind === "error" ? "bg-red-50 text-red-900" : message.kind === "saved" ? "bg-neutral-100 text-neutral-900" : "bg-green-50 text-green-900"}`}>
           {message.text}
         </p>
       )}

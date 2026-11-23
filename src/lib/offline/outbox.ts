@@ -18,17 +18,28 @@ export type ClockPayload = {
   gps: { status: "captured"; lat: number; lng: number; accuracy: number } | { status: "denied" | "unavailable" | "timeout" | "not_requested" };
   employeeIds?: string[];
 };
-export type OutboxItem = {
+/** A daily report save (or submit) made with no signal; the newest one per report is kept. */
+export type ReportPayload = {
+  reportId: string;
+  href: string; // the report's page, to open it from the Sync page
+  label: string; // "Xbow RIB 3 · Mon, Nov 23"
+  content: unknown;
+  basedOn: number;
+  submit: boolean;
+  deviceTs: string;
+};
+type Base = {
   id: string;
-  kind: "clock";
   owner: string; // employee id of the person signed in when it was saved
-  payload: ClockPayload;
   state: "pending" | "sending" | "synced" | "failed";
   error?: string;
   createdAt: string;
   syncedAt?: string;
-  results?: { employeeId: string; ok: boolean; error?: string }[];
 };
+export type OutboxItem =
+  | (Base & { kind: "clock"; payload: ClockPayload; results?: { employeeId: string; ok: boolean; error?: string }[] })
+  | (Base & { kind: "report"; payload: ReportPayload; results?: undefined; version?: number });
+
 
 const KEY = "petra.outbox.v1";
 const EVENT = "petra-outbox";
@@ -65,13 +76,24 @@ export function subscribeOutbox(fn: () => void): () => void {
     window.removeEventListener("storage", onStorage);
   };
 }
-function update(id: string, patch: Partial<OutboxItem>) {
-  write(read().map((i) => (i.id === id ? { ...i, ...patch } : i)));
+function update(id: string, patch: Partial<Base> & { results?: unknown; version?: number }) {
+  write(read().map((i) => (i.id === id ? ({ ...i, ...patch } as OutboxItem) : i)));
 }
 export function addToOutbox(owner: string, payload: ClockPayload): OutboxItem {
   const item: OutboxItem = { id: payload.id, kind: "clock", owner, payload, state: "pending", createdAt: new Date().toISOString() };
   if (!read().some((i) => i.id === item.id)) write([...read(), item]);
   return item;
+}
+
+/** Keeps a daily report save on this phone (replacing an older unsent one for the same report). */
+export function queueReport(owner: string, payload: ReportPayload): OutboxItem {
+  const id = `report:${payload.reportId}`;
+  const item: OutboxItem = { id, kind: "report", owner, payload, state: "pending", createdAt: new Date().toISOString() };
+  write([...read().filter((i) => i.id !== id), item]);
+  return item;
+}
+export function queuedReport(reportId: string): Extract<OutboxItem, { kind: "report" }> | undefined {
+  return read().find((i): i is Extract<OutboxItem, { kind: "report" }> => i.kind === "report" && i.payload.reportId === reportId && i.state !== "synced");
 }
 export function dismissOutboxItem(id: string) {
   write(read().filter((i) => i.id !== id));
@@ -80,58 +102,66 @@ export function retryOutboxItem(id: string) {
   update(id, { state: "pending", error: undefined });
 }
 
-let running: Promise<void> | null = null;
+let running: Promise<number> | null = null;
 
 /**
- * Sends this person's waiting presses, oldest first. Stops at the first one
- * that can't reach the server (still no signal), so order is kept.
+ * Sends this person's waiting presses and report saves, oldest first. Stops at
+ * the first one that can't reach the server (still no signal), so order is
+ * kept. Returns how many the server answered (accepted or refused).
  */
-export function syncOutbox(owner: string): Promise<void> {
+export function syncOutbox(owner: string): Promise<number> {
   if (running) return running;
   // (The flag is cleared after the run is stored: a run with nothing to send
   // finishes synchronously, and clearing it inside would leave it stuck.)
   const run = (async () => {
+    let answered = 0;
     {
       const waiting = read()
         .filter((i) => i.owner === owner && (i.state === "pending" || i.state === "sending"))
         .sort((a, b) => a.payload.deviceTs.localeCompare(b.payload.deviceTs));
       for (const item of waiting) {
         update(item.id, { state: "sending" });
+        const url = item.kind === "clock" ? "/api/sync/clock" : "/api/sync/report";
+        const body =
+          item.kind === "clock"
+            ? { ...item.payload, deviceNow: new Date().toISOString() }
+            : { id: item.payload.reportId, content: item.payload.content, basedOn: item.payload.basedOn, submit: item.payload.submit };
         let res: Response;
         try {
-          res = await fetch("/api/sync/clock", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "same-origin",
-            body: JSON.stringify({ ...item.payload, deviceNow: new Date().toISOString() }),
-          });
+          res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) });
         } catch {
           update(item.id, { state: "pending" });
-          return; // no signal: try again later
+          return answered; // no signal: try again later
         }
         if (res.status === 401) {
           update(item.id, { state: "pending" });
-          return; // signed out: wait until they sign in again
+          return answered; // signed out: wait until they sign in again
         }
-        const body = (await res.json().catch(() => null)) as { ok: boolean; error?: string; results?: OutboxItem["results"] } | null;
-        if (!res.ok || !body) {
+        const answer = (await res.json().catch(() => null)) as { ok: boolean; error?: string; results?: { employeeId: string; ok: boolean; error?: string }[]; version?: number } | null;
+        if (!res.ok || !answer) {
           update(item.id, { state: "pending" });
-          return; // server trouble: try again later
+          return answered; // server trouble: try again later
         }
-        if (!body.ok) {
-          update(item.id, { state: "failed", error: body.error ?? "generic" });
+        answered++;
+        if (!answer.ok) {
+          update(item.id, { state: "failed", error: answer.error ?? "generic" });
           continue;
         }
-        const mine = body.results?.find((r) => r.employeeId === owner) ?? body.results?.[0];
-        const allFailed = body.results?.every((r) => !r.ok);
+        if (item.kind === "report") {
+          update(item.id, { state: "synced", syncedAt: new Date().toISOString(), version: answer.version });
+          continue;
+        }
+        const mine = answer.results?.find((r) => r.employeeId === owner) ?? answer.results?.[0];
+        const allFailed = answer.results?.every((r) => !r.ok);
         update(item.id, {
           state: allFailed ? "failed" : "synced",
           error: allFailed ? (mine?.error ?? "generic") : undefined,
           syncedAt: new Date().toISOString(),
-          results: body.results,
+          results: answer.results,
         });
       }
     }
+    return answered;
   })();
   running = run.finally(() => {
     running = null;
@@ -144,10 +174,16 @@ export function syncOutbox(owner: string): Promise<void> {
  * happened within `waitMs`: synced (with the server's answer), failed, or
  * still saved on the phone (no signal yet).
  */
-export async function submitPress(owner: string, payload: ClockPayload, waitMs = 8000): Promise<OutboxItem> {
+export async function submitPress(owner: string, payload: ClockPayload, waitMs = 8000): Promise<Extract<OutboxItem, { kind: "clock" }>> {
   addToOutbox(owner, payload);
-  await Promise.race([syncOutbox(owner), new Promise((r) => setTimeout(r, waitMs))]);
-  return read().find((i) => i.id === payload.id)!;
+  // A send already under way may have started before this press was added: run again once it ends.
+  const send = async () => {
+    await syncOutbox(owner);
+    const now = read().find((i) => i.id === payload.id);
+    if (now && now.state === "pending") await syncOutbox(owner);
+  };
+  await Promise.race([send(), new Promise((r) => setTimeout(r, waitMs))]);
+  return read().find((i) => i.id === payload.id) as Extract<OutboxItem, { kind: "clock" }>;
 }
 
 /** What the phone thinks the current status is, applying presses not sent yet on top of the server's. */

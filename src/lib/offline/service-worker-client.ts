@@ -7,7 +7,7 @@ export function serviceWorkerSupported(): boolean {
 }
 
 /** Sends a message to the active service worker and waits for its reply (or null after a timeout). */
-export async function askServiceWorker(message: { type: "warm" | "status"; force?: boolean }, timeoutMs = 60_000): Promise<OfflineStatus | null> {
+export async function askServiceWorker(message: { type: "warm" | "status"; force?: boolean } | { type: "save"; path: string }, timeoutMs = 60_000): Promise<OfflineStatus | null> {
   if (!serviceWorkerSupported()) return null;
   const reg = await navigator.serviceWorker.ready;
   const worker = reg.active;

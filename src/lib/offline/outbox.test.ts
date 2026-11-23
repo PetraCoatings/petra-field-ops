@@ -52,3 +52,34 @@ describe("sending the queue", () => {
     expect(calls).toEqual(["a"]);
   });
 });
+
+describe("a press made while another send is under way", () => {
+  it("is still sent right away", async () => {
+    const store = new Map<string, string>();
+    const calls: string[] = [];
+    let release: () => void = () => undefined;
+    const gate = new Promise<void>((r) => (release = r));
+    Object.assign(globalThis, {
+      window: {
+        localStorage: { getItem: (k: string) => store.get(k) ?? null, setItem: (k: string, v: string) => store.set(k, v) },
+        dispatchEvent: () => true,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+      },
+      fetch: async (_url: string, init: { body: string }) => {
+        const id = JSON.parse(init.body).id;
+        calls.push(id);
+        if (id === "first") await gate; // the first send is slow
+        return new Response(JSON.stringify({ ok: true, results: [{ employeeId: "me", ok: true }] }), { status: 200 });
+      },
+    });
+    const { addToOutbox, syncOutbox, submitPress } = await import("./outbox");
+    addToOutbox("me", { id: "first", action: "clock_in", category: "job", deviceTs: "2026-11-23T12:00:00Z", gps: { status: "not_requested" } });
+    const slow = syncOutbox("me");
+    const pressed = submitPress("me", { id: "second", action: "clock_out", deviceTs: "2026-11-23T13:00:00Z", gps: { status: "not_requested" } }, 3000);
+    release();
+    await slow;
+    expect((await pressed).state).toBe("synced");
+    expect(calls).toEqual(["first", "second"]);
+  });
+});

@@ -9,7 +9,7 @@ import { jobPhotos } from "@/lib/photos/load";
 import { ReportIssueForm } from "./report-issue-form";
 
 /** "Jobsite issues" on the job screen: open ones first (needs-attention at the top), report a new one, resolve. */
-export async function IssuesCard({ projectId, canResolve, canReport = true }: { projectId: string; canResolve: boolean; canReport?: boolean }) {
+export async function IssuesCard({ projectId, owner, canResolve, canReport = true }: { projectId: string; owner: string; canResolve: boolean; canReport?: boolean }) {
   const t = await getTranslations("issues");
   const format = await getFormatter();
   const supabase = await createClient();
@@ -42,7 +42,7 @@ export async function IssuesCard({ projectId, canResolve, canReport = true }: { 
         {t("title")}
         {open > 0 && <span className="rounded-full bg-red-100 px-2 py-0.5 text-sm text-red-900">{t("openCount", { count: open })}</span>}
       </h2>
-      {canReport && <ReportIssueForm projectId={projectId} />}
+      {canReport && <ReportIssueForm projectId={projectId} owner={owner} />}
       {issues.length > 0 && (
         <ul className="space-y-2">
           {issues.map((i) => {

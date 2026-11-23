@@ -1520,7 +1520,14 @@
         "generic": "Something went wrong. Try again."
       }
     },
-    "optional": "Optional: use it when there's something worth recording (readings, material, delays, issues)."
+    "optional": "Optional: use it when there's something worth recording (readings, material, delays, issues).",
+    "queuedSave": "No signal: saved on this phone. It will send when you have signal.",
+    "queuedSubmit": "No signal: saved on this phone. It will be submitted when you have signal.",
+    "restoredQueued": "Showing changes saved on this phone that haven't been sent yet. They'll send when you have signal.",
+    "restoredTyping": "Showing changes you typed on this phone that weren't saved yet. Tap Save draft to keep them.",
+    "staleTyping": "This phone has changes you typed that weren't saved, but the report was updated since. Use your changes, or discard them?",
+    "useMyTyping": "Use my changes",
+    "discardTyping": "Discard them"
   },
   "photos": {
     "title": "Photos",
@@ -1554,7 +1561,8 @@
     "notes": "Note",
     "save": "Save",
     "remove": "Remove photo",
-    "open": "Job photos"
+    "open": "Job photos",
+    "savedOnPhone": "{count} photo(s) saved on this phone. They'll upload when you have signal."
   },
   "issues": {
     "title": "Jobsite issues",
@@ -1589,7 +1597,8 @@
     "photoAlt": "Issue photo",
     "errors": {
       "description": "Describe what happened.",
-      "generic": "Something went wrong. Try again."
+      "generic": "Something went wrong. Try again.",
+      "offline": "No signal: issues can't be sent yet. Try again when you have signal (photos you add later will wait on the phone)."
     }
   },
   "qc": {
@@ -1646,7 +1655,7 @@
   },
   "sync": {
     "title": "Sync",
-    "intro": "Time Clock presses made with no signal are kept on this phone and sent automatically when signal returns. Each one keeps the time you pressed it.",
+    "intro": "Time Clock presses, daily report saves and photos made with no signal are kept on this phone and sent automatically when signal returns. Each one keeps the time it was made.",
     "sendNow": "Send now",
     "sending": "Sending…",
     "allSent": "Everything from this phone has been sent.",
@@ -1665,6 +1674,14 @@
     "otherAccount": "{count} press(es) on this phone belong to someone else's account. They'll send when that person signs in here.",
     "howItWorks": "Sending twice never records a press twice. If the office already fixed a time, a refused press can be removed from this list.",
     "badgeWaiting": "{count} time clock press(es) waiting to send",
-    "badgeFailed": "{count} time clock press(es) not accepted"
+    "badgeFailed": "{count} time clock press(es) not accepted",
+    "photo": "Photo",
+    "takenAt": "Taken {when}",
+    "reportSave": "Daily report save",
+    "reportSubmit": "Daily report submit",
+    "openReport": "Open the report",
+    "reportConflict": "The report was changed on another phone. Open it and choose which copy to keep.",
+    "reportSubmitted": "The report was already submitted.",
+    "reportRefused": "The server didn't accept it. Open the report to check it."
   }
 }
