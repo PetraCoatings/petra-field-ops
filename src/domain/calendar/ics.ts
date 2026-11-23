@@ -26,7 +26,7 @@ export type FeedLabels = {
 
 /** Escapes a TEXT value (RFC 5545 §3.3.11). */
 export function escapeText(s: string): string {
-  return s.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\r?\n/g, "\\n");
+  return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\r\n|\r|\n/g, "\\n");
 }
 
 /** Folds a content line to at most 75 octets (RFC 5545 §3.1), never splitting a character. */

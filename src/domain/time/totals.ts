@@ -26,7 +26,8 @@ export type Segment = {
   end: number | null;
 };
 
-export type Flag = "short_lunch" | "open_lunch" | "missing_clock_out";
+/** late_sync comes from the clock press itself (sent from the phone well after it was pressed), not from the times. */
+export type Flag = "short_lunch" | "open_lunch" | "missing_clock_out" | "late_sync";
 export const SHORT_LUNCH_MS = 30 * 60_000;
 export const MISSING_CLOCK_OUT_MS = 16 * 3_600_000;
 

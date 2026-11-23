@@ -14,7 +14,7 @@ export async function createTestProject(crew: RoleUser[]): Promise<{ id: string;
   const res = await api("/rest/v1/projects", {
     method: "POST",
     headers: { Prefer: "return=representation" },
-    body: JSON.stringify({ name, status: "scheduled" }),
+    body: JSON.stringify({ name, status: "scheduled", is_test: true }),
   });
   if (!res.ok) throw new Error(`create project failed: ${res.status} ${await res.text()}`);
   const [{ id }] = (await res.json()) as { id: string }[];

@@ -1053,6 +1053,7 @@
       "no_change": "Elija otra categoría u otra obra para cambiar.",
       "category_required": "Elija Trabajo, Manejo o Pasajero.",
       "before_last_entry": "Esa hora es anterior a su último registro. Pida a la oficina que lo corrija.",
+      "too_late": "Pasaron más de 3 días antes de que esto llegara a la oficina. Pida a su líder de cuadrilla o a la oficina que agregue este tiempo.",
       "inactive": "Este empleado no está activo.",
       "invalid": "Algo en este registro no estaba bien. Inténtelo de nuevo.",
       "forbidden": "No puede hacer eso.",
@@ -1118,7 +1119,8 @@
       "flags": {
         "short_lunch": "Almuerzo de menos de 30 minutos el {when}: se cuenta como pagado.",
         "open_lunch": "El almuerzo empezado el {when} nunca se terminó.",
-        "missing_clock_out": "Sigue con entrada registrada desde el {when}: probablemente falta la salida."
+        "missing_clock_out": "Sigue con entrada registrada desde el {when}: probablemente falta la salida.",
+        "late_sync": "La hora del {when} se envió desde el teléfono más de 15 minutos después de marcarla. Revise que esté bien."
       },
       "entries": "Registros",
       "noTime": "No hay tiempo esta semana.",

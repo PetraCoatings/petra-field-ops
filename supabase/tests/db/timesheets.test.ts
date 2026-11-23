@@ -7,8 +7,15 @@ import { beforeAll, describe, expect, it } from "vitest";
 import { asUser, superuser, type Q } from "./harness";
 import { E, P, U, seed } from "./fixtures";
 
-const WEEK_OF = "2026-11-04T18:00:00Z"; // the week of Monday Nov 2, 2026 (Chicago)
-let OLD_SEG = ""; // installer, Tue Nov 3, 6 AM–2 PM Chicago
+// Last workweek (crew leads may only fix this week and last week), from the
+// company settings: WEEK_START is its Monday 12:00 AM Chicago time.
+const WEEK_START: string = await superuser((c) =>
+  c.query(`select lower(app.workweek_bounds(lower(app.workweek_bounds(now())) - interval '1 second')) as s`).then((r) => (r.rows[0].s as Date).toISOString()),
+);
+/** A moment `day` days and `hour` hours after the start of last week. */
+const d = (day: number, hour: number) => new Date(Date.parse(WEEK_START) + day * 86_400_000 + (hour - 6) * 3_600_000).toISOString();
+const WEEK_OF = d(2, 18); // Wednesday of last week
+let OLD_SEG = ""; // installer, Tuesday 6 AM–2 PM Chicago
 let OTHER_SEG = ""; // other installer (not on the lead's crew), same day
 
 beforeAll(async () => {
@@ -16,9 +23,9 @@ beforeAll(async () => {
     await c.query("truncate public.time_change_requests, public.timesheets, public.time_segments, public.time_events cascade");
     await seed(c);
     OLD_SEG = (await c.query(`insert into public.time_segments (employee_id, kind, category, project_id, start_at, end_at)
-      values ($1, 'work', 'job', $2, '2026-11-03 12:00Z', '2026-11-03 20:00Z') returning id`, [E.installer, P.assigned])).rows[0].id;
+      values ($1, 'work', 'job', $2, '${d(1, 12)}', '${d(1, 20)}') returning id`, [E.installer, P.assigned])).rows[0].id;
     OTHER_SEG = (await c.query(`insert into public.time_segments (employee_id, kind, category, start_at, end_at)
-      values ($1, 'work', 'job', '2026-11-03 12:00Z', '2026-11-03 20:00Z') returning id`, [E.otherInstaller])).rows[0].id;
+      values ($1, 'work', 'job', '${d(1, 12)}', '${d(1, 20)}') returning id`, [E.otherInstaller])).rows[0].id;
   });
 });
 
@@ -72,12 +79,12 @@ describe("fixing your own time", () => {
 
   it("after 24 hours: refused; the person asks for a fix instead", async () => {
     await asUser(U.installer, async (q) => {
-      await expect(correct(q, OLD_SEG, "Wrong end time", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/Too late/);
-      await expect(correct(q, OTHER_SEG, "Not mine", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/can't change/);
+      await expect(correct(q, OLD_SEG, "Wrong end time", { start: d(1, 12), end: d(1, 21) })).rejects.toThrow(/Too late/);
+      await expect(correct(q, OTHER_SEG, "Not mine", { start: d(1, 12), end: d(1, 21) })).rejects.toThrow(/can't change/);
       await q(`select public.request_time_change($1, 'I worked until 3 PM, not 2 PM', $2)`, [WEEK_OF, OLD_SEG]);
       const req = (await q(`select week_start, status from public.time_change_requests`)).rows;
       expect(req).toHaveLength(1);
-      expect(req[0].week_start.toISOString()).toBe("2026-11-02T06:00:00.000Z");
+      expect(req[0].week_start.toISOString()).toBe(WEEK_START);
       await expect(q(`select public.resolve_time_change(id) from public.time_change_requests`)).rejects.toThrow(/crew lead or the office/);
     });
   });
@@ -86,13 +93,13 @@ describe("fixing your own time", () => {
 describe("crew leads, project managers and office admins", () => {
   it("a crew lead fixes their crew's time, not anyone else's", async () => {
     await asUser(U.lead, async (q) => {
-      const id = await correct(q, OLD_SEG, "Worked until 3 PM", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" });
+      const id = await correct(q, OLD_SEG, "Worked until 3 PM", { start: d(1, 12), end: d(1, 21) });
       expect((await active(q, E.installer)).map((s) => s.id)).toEqual([id]);
-      await expect(correct(q, OTHER_SEG, "Not my crew", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/can't change/);
+      await expect(correct(q, OTHER_SEG, "Not my crew", { start: d(1, 12), end: d(1, 21) })).rejects.toThrow(/can't change/);
       expect(await active(q, E.otherInstaller)).toHaveLength(0); // can't even see it
       // Adding a missed day, and a fix that would overlap, for the crew member
-      await correct(q, null, "Forgot to clock in Wednesday", { start: "2026-11-04 12:00Z", end: "2026-11-04 20:00Z", employee: E.installer });
-      await expect(correct(q, null, "Duplicate", { start: "2026-11-04 19:00Z", end: "2026-11-04 21:00Z", employee: E.installer })).rejects.toThrow(/overlaps/);
+      await correct(q, null, "Forgot to clock in Wednesday", { start: d(2, 12), end: d(2, 20), employee: E.installer });
+      await expect(correct(q, null, "Duplicate", { start: d(2, 19), end: d(2, 21), employee: E.installer })).rejects.toThrow(/overlaps/);
       // Removing an entry needs a reason too, and keeps the row (as void)
       await correct(q, id, "Entered on the wrong day", { void: true });
       const voided = (await q(`select status, correction_reason, corrected_by from public.time_segments where id = $1`, [id])).rows[0];
@@ -104,9 +111,9 @@ describe("crew leads, project managers and office admins", () => {
     await asUser(U.pm, async (q) => {
       // The installer is on a job this PM manages; the other installer isn't.
       expect((await q(`select count(*)::int as n from public.time_segments where employee_id = $1`, [E.installer])).rows[0].n).toBe(1);
-      const id = await correct(q, OLD_SEG, "Per the crew lead", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" });
+      const id = await correct(q, OLD_SEG, "Per the crew lead", { start: d(1, 12), end: d(1, 21) });
       expect((await active(q, E.installer)).map((s) => [s.id, s.corrected_by])).toEqual([[id, E.pm]]);
-      await expect(correct(q, OTHER_SEG, "Not my crew", { start: "2026-11-03 12:00Z", end: "2026-11-03 21:00Z" })).rejects.toThrow(/can't change/);
+      await expect(correct(q, OTHER_SEG, "Not my crew", { start: d(1, 12), end: d(1, 21) })).rejects.toThrow(/can't change/);
       expect((await q(`select count(*)::int as n from public.time_segments where employee_id = $1`, [E.otherInstaller])).rows[0].n).toBe(0);
       const r = await q(`select public.clock_action(gen_random_uuid(), 'clock_in', now(), 'denied', 'job', null, null, null, null, array[$1]::uuid[], now()) as r`, [E.installer]);
       expect(r.rows[0].r[0]).toMatchObject({ employee_id: E.installer, ok: true });
@@ -144,16 +151,16 @@ describe("submit, approve, reopen", () => {
         await as(U.lead);
         await tryQ(`select public.submit_timesheet($1, $2)`, [E.installer, WEEK_OF]);
         await expect(tryQ(`select public.submit_timesheet($1, $2)`, [E.installer, WEEK_OF])).rejects.toThrow(/already submitted/);
-        await expect(tryQ(`select public.correct_time($1, 'late fix', '2026-11-03 12:00Z', '2026-11-03 21:00Z', 'work', 'job')`, [OLD_SEG])).rejects.toThrow(/already submitted/);
+        await expect(tryQ(`select public.correct_time($1, 'late fix', '${d(1, 12)}', '${d(1, 21)}', 'work', 'job')`, [OLD_SEG])).rejects.toThrow(/already submitted/);
         await expect(tryQ(`select public.approve_timesheet($1, $2)`, [E.installer, WEEK_OF])).rejects.toThrow(/office admin/);
         const ts = (await tryQ(`select status, submitted_by from public.timesheets where employee_id = $1`, [E.installer])).rows[0];
         expect(ts).toEqual({ status: "submitted", submitted_by: E.lead });
 
         await as(U.admin);
-        const fixed = (await tryQ(`select public.correct_time($1, 'Per crew lead text', '2026-11-03 12:00Z', '2026-11-03 21:00Z', 'work', 'job') as id`, [OLD_SEG])).rows[0].id;
+        const fixed = (await tryQ(`select public.correct_time($1, 'Per crew lead text', '${d(1, 12)}', '${d(1, 21)}', 'work', 'job') as id`, [OLD_SEG])).rows[0].id;
         await tryQ(`select public.approve_timesheet($1, $2)`, [E.installer, WEEK_OF]);
-        await expect(tryQ(`select public.correct_time($1, 'after approval', '2026-11-03 12:00Z', '2026-11-03 22:00Z', 'work', 'job')`, [fixed])).rejects.toThrow(/approved and locked/);
-        await expect(tryQ(`select public.correct_time(null, 'add after approval', '2026-11-05 12:00Z', '2026-11-05 14:00Z', 'work', 'job', null, false, $1)`, [E.installer])).rejects.toThrow(/approved and locked/);
+        await expect(tryQ(`select public.correct_time($1, 'after approval', '${d(1, 12)}', '${d(1, 22)}', 'work', 'job')`, [fixed])).rejects.toThrow(/approved and locked/);
+        await expect(tryQ(`select public.correct_time(null, 'add after approval', '${d(3, 12)}', '${d(3, 14)}', 'work', 'job', null, false, $1)`, [E.installer])).rejects.toThrow(/approved and locked/);
         // Locked even for the database owner.
         await c.query("reset role");
         await expect(tryQ(`update public.time_segments set end_at = end_at + interval '1 hour' where id = $1`, [fixed])).rejects.toThrow(/approved and locked/);
@@ -163,7 +170,7 @@ describe("submit, approve, reopen", () => {
         await as(U.admin);
         await expect(tryQ(`select public.reopen_timesheet($1, $2, '')`, [E.installer, WEEK_OF])).rejects.toThrow(/reason/);
         await tryQ(`select public.reopen_timesheet($1, $2, 'Missed a day of drive time')`, [E.installer, WEEK_OF]);
-        await tryQ(`select public.correct_time($1, 'after reopening', '2026-11-03 12:00Z', '2026-11-03 22:00Z', 'work', 'job')`, [fixed]);
+        await tryQ(`select public.correct_time($1, 'after reopening', '${d(1, 12)}', '${d(1, 22)}', 'work', 'job')`, [fixed]);
         const after = (await tryQ(`select status, reopen_reason, approved_by from public.timesheets where employee_id = $1`, [E.installer])).rows[0];
         expect(after).toEqual({ status: "open", reopen_reason: "Missed a day of drive time", approved_by: null });
         // Approve again, then remove the employee: their locked records go with them.
@@ -181,7 +188,7 @@ describe("submit, approve, reopen", () => {
     await superuser(async (c) => {
       await c.query("begin");
       try {
-        await c.query(`insert into public.time_segments (employee_id, kind, category, start_at) values ($1, 'work', 'job', '2026-11-05 12:00Z')`, [E.installer]);
+        await c.query(`insert into public.time_segments (employee_id, kind, category, start_at) values ($1, 'work', 'job', '${d(3, 12)}')`, [E.installer]);
         await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: U.lead, role: "authenticated" })]);
         await c.query("set local role authenticated");
         await expect(c.query(`select public.submit_timesheet($1, $2)`, [E.installer, WEEK_OF])).rejects.toThrow(/missing clock-out/);
@@ -195,7 +202,7 @@ describe("submit, approve, reopen", () => {
     await asUser(U.installer, async (q) => {
       await q(`select public.request_time_change($1, 'Please add Thursday drive time', null)`, [WEEK_OF]);
     }); // rolled back: make a committed one instead
-    await superuser((c) => c.query(`insert into public.time_change_requests (id, employee_id, week_start, message) values ($1, $2, '2026-11-02 06:00Z', 'Please add Thursday drive time')`, [randomUUID(), E.installer]));
+    await superuser((c) => c.query(`insert into public.time_change_requests (id, employee_id, week_start, message) values ($1, $2, '${d(0, 6)}', 'Please add Thursday drive time')`, [randomUUID(), E.installer]));
     await asUser(U.otherInstaller, async (q) => {
       expect((await q(`select count(*)::int as n from public.time_change_requests`)).rows[0].n).toBe(0);
     });
