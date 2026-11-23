@@ -98,3 +98,10 @@ export async function crewData(): Promise<{ people: CrewPerson[]; crews: Record<
     })),
   };
 }
+
+/** Jobs this person is the project manager of (still open). */
+export async function managedJobIds(employeeId: string): Promise<string[]> {
+  const supabase = await createClient();
+  const { data } = await supabase.from("projects").select("id").eq("project_manager_id", employeeId).neq("status", "closed");
+  return (data ?? []).map((p) => p.id as string);
+}

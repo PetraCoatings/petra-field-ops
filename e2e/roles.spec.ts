@@ -23,6 +23,7 @@ const MANAGE_PAGES: { path: string; heading: string; roles: TestRole[] }[] = [
   { path: "/manage/employees", heading: "Employees", roles: ["office_admin"] },
   { path: "/manage/settings", heading: "Company Settings", roles: ["office_admin"] },
   { path: "/manage/audit", heading: "Audit Log", roles: ["office_admin"] },
+  { path: "/manage/time", heading: "Time", roles: ["office_admin"] },
 ];
 
 function user(role: TestRole): RoleUser {

@@ -39,6 +39,7 @@ describe("management access", () => {
       "projects",
       "templates",
       "library",
+      "time",
       "employees",
       "settings",
       "auditLog",
