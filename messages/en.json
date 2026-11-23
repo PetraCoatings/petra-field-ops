@@ -733,7 +733,9 @@
       "pending_office": "Time-off request from {name}"
     },
     "dfrSubmitted": "Daily report submitted ({date})",
-    "dfrCorrection": "Daily report sent back for corrections ({date})"
+    "dfrCorrection": "Daily report sent back for corrections ({date})",
+    "issueReported": "Jobsite issue reported by {by}",
+    "issueUrgent": "Needs attention: issue reported by {by}"
   },
   "templates": {
     "title": "Work order templates",
@@ -1508,5 +1510,75 @@
       }
     },
     "optional": "Optional: use it when there's something worth recording (readings, material, delays, issues)."
+  },
+  "photos": {
+    "title": "Photos",
+    "photo": "Photo",
+    "stage": "Stage",
+    "add": "Add photos",
+    "uploading": "Uploading {done} of {total}…",
+    "uploaded": "{count} photo(s) added.",
+    "someFailed": "{failed} photo(s) didn't upload. Try them again.",
+    "stages": {
+      "before": "Before",
+      "surface_prep": "Surface prep",
+      "repairs": "Repairs",
+      "primer": "Primer",
+      "body_coat": "Body coat",
+      "broadcast": "Broadcast",
+      "topcoat": "Topcoat",
+      "finished": "Finished",
+      "issue": "Issue",
+      "other": "Other"
+    },
+    "alt": "Job photo: {stage}",
+    "missing": "Photo not available",
+    "all": "See all {count} photos",
+    "filter": "Filter by stage",
+    "allStages": "All",
+    "none": "No photos yet.",
+    "showing": "Showing {shown} of {total}.",
+    "takenBy": "By {name}, {when}",
+    "download": "Download full size",
+    "notes": "Note",
+    "save": "Save",
+    "remove": "Remove photo",
+    "open": "Job photos"
+  },
+  "issues": {
+    "title": "Jobsite issues",
+    "openCount": "{count} open",
+    "report": "Report an issue",
+    "type": "Kind of issue",
+    "types": {
+      "concrete": "Concrete",
+      "moisture": "Moisture",
+      "equipment": "Equipment",
+      "product": "Product",
+      "delay": "Delay",
+      "extra_work": "Extra work",
+      "safety": "Safety",
+      "other": "Other"
+    },
+    "description": "What happened?",
+    "descriptionExample": "Example: Slab reads 5.2 lbs on the calcium chloride test in bay 2.",
+    "urgent": "Needs attention now",
+    "photos": "Photos (optional)",
+    "send": "Send to the PM",
+    "sending": "Sending…",
+    "cancel": "Cancel",
+    "sent": "Issue sent to the PM.",
+    "photosFailed": "Issue sent, but {failed} photo(s) didn't upload.",
+    "needsAttention": "needs attention",
+    "resolved": "resolved",
+    "reportedBy": "Reported by {name}, {when}",
+    "resolvedBy": "Resolved by {name}. {note}",
+    "resolveNote": "What was done (optional)",
+    "markResolved": "Mark resolved",
+    "photoAlt": "Issue photo",
+    "errors": {
+      "description": "Describe what happened.",
+      "generic": "Something went wrong. Try again."
+    }
   }
 }

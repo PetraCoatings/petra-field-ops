@@ -733,7 +733,9 @@
       "pending_office": "Pedido de tiempo libre de {name}"
     },
     "dfrSubmitted": "Reporte diario enviado ({date})",
-    "dfrCorrection": "Reporte diario devuelto para corregir ({date})"
+    "dfrCorrection": "Reporte diario devuelto para corregir ({date})",
+    "issueReported": "Problema reportado por {by}",
+    "issueUrgent": "Necesita atención: problema reportado por {by}"
   },
   "templates": {
     "title": "Plantillas de órdenes de trabajo",
@@ -1508,5 +1510,75 @@
       }
     },
     "optional": "Opcional: úselo cuando haya algo que vale la pena anotar (lecturas, material, demoras, problemas)."
+  },
+  "photos": {
+    "title": "Fotos",
+    "photo": "Foto",
+    "stage": "Etapa",
+    "add": "Agregar fotos",
+    "uploading": "Subiendo {done} de {total}…",
+    "uploaded": "Se agregaron {count} foto(s).",
+    "someFailed": "{failed} foto(s) no se subieron. Inténtelo otra vez.",
+    "stages": {
+      "before": "Antes",
+      "surface_prep": "Preparación",
+      "repairs": "Reparaciones",
+      "primer": "Primario",
+      "body_coat": "Capa base",
+      "broadcast": "Esparcido",
+      "topcoat": "Capa final",
+      "finished": "Terminado",
+      "issue": "Problema",
+      "other": "Otro"
+    },
+    "alt": "Foto de la obra: {stage}",
+    "missing": "Foto no disponible",
+    "all": "Ver las {count} fotos",
+    "filter": "Filtrar por etapa",
+    "allStages": "Todas",
+    "none": "Todavía no hay fotos.",
+    "showing": "Mostrando {shown} de {total}.",
+    "takenBy": "Por {name}, {when}",
+    "download": "Descargar en tamaño completo",
+    "notes": "Nota",
+    "save": "Guardar",
+    "remove": "Quitar foto",
+    "open": "Fotos de la obra"
+  },
+  "issues": {
+    "title": "Problemas en la obra",
+    "openCount": "{count} abiertos",
+    "report": "Reportar un problema",
+    "type": "Tipo de problema",
+    "types": {
+      "concrete": "Concreto",
+      "moisture": "Humedad",
+      "equipment": "Equipo",
+      "product": "Producto",
+      "delay": "Demora",
+      "extra_work": "Trabajo extra",
+      "safety": "Seguridad",
+      "other": "Otro"
+    },
+    "description": "¿Qué pasó?",
+    "descriptionExample": "Ejemplo: La losa marca 5.2 lbs en la prueba de cloruro de calcio en la bahía 2.",
+    "urgent": "Necesita atención ahora",
+    "photos": "Fotos (opcional)",
+    "send": "Enviar al gerente",
+    "sending": "Enviando…",
+    "cancel": "Cancelar",
+    "sent": "Problema enviado al gerente de proyecto.",
+    "photosFailed": "Problema enviado, pero {failed} foto(s) no se subieron.",
+    "needsAttention": "necesita atención",
+    "resolved": "resuelto",
+    "reportedBy": "Reportado por {name}, {when}",
+    "resolvedBy": "Resuelto por {name}. {note}",
+    "resolveNote": "Qué se hizo (opcional)",
+    "markResolved": "Marcar como resuelto",
+    "photoAlt": "Foto del problema",
+    "errors": {
+      "description": "Describa qué pasó.",
+      "generic": "Algo salió mal. Inténtelo de nuevo."
+    }
   }
 }
