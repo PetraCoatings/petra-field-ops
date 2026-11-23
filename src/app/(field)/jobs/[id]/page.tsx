@@ -6,6 +6,8 @@ import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
 import { IssuesCard } from "@/components/issues/issues-card";
 import { JobPhotosCard } from "@/components/photos/job-photos-card";
+import { QcCard } from "@/components/qc/qc-card";
+import type { WorkOrderContent } from "@/domain/work-orders/content";
 import { canWriteReport, recentReports } from "@/lib/reports/list";
 import { localDate } from "@/domain/time/zoned";
 import { clockSettings, serverNow } from "@/lib/time/my-time";
@@ -169,6 +171,15 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
       <IssuesCard projectId={job.id} canResolve={profile.role === "project_manager" || profile.role === "office_admin" || job.crew_lead_id === profile.employeeId} />
 
       <JobPhotosCard projectId={job.id} />
+
+      <QcCard
+        projectId={job.id}
+        canRecord={canWriteReport(profile, job)}
+        canSetRequirements={profile.role === "project_manager" || profile.role === "office_admin"}
+        me={profile.employeeId}
+        workOrderTests={[...revisions.values()].flatMap((r) => ((r.content as Partial<WorkOrderContent>).qcTests ?? []).map((q) => ({ test: q.test, target: q.target })))}
+        now={serverNow()}
+      />
 
       <DailyReportsCard
         projectId={job.id}

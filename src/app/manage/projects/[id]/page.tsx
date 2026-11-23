@@ -4,6 +4,8 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
 import { IssuesCard } from "@/components/issues/issues-card";
+import { QcCard } from "@/components/qc/qc-card";
+import { serverNow } from "@/lib/time/my-time";
 import { recentReports } from "@/lib/reports/list";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { ProjectWorkOrders } from "@/components/work-orders/project-work-orders";
@@ -87,6 +89,7 @@ export default async function EditProjectPage({ params, searchParams }: PageProp
         />
       </Card>
       <IssuesCard projectId={project.id} canResolve />
+      <QcCard projectId={project.id} canRecord={profile.role === "office_admin"} canSetRequirements me={profile.employeeId} workOrderTests={[]} now={serverNow()} />
       <p>
         <a href={`/jobs/${project.id}/photos`} className="font-semibold text-brand-700 underline">
           {t("photos.open")}
