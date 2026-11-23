@@ -59,7 +59,7 @@ test("QC: required tests, readings, pass/fail only with a limit", async ({ brows
     const lqc = page.getByRole("region", { name: "Quality control" });
     const record = async (test: RegExp, value: string, where: string) => {
       await lqc.getByLabel("Test", { exact: true }).selectOption({ label: (await lqc.getByLabel("Test", { exact: true }).locator("option").filter({ hasText: test }).first().textContent())! });
-      await lqc.getByLabel("Reading").fill(value);
+      await lqc.getByLabel("Reading", { exact: true }).fill(value);
       await lqc.getByLabel("Where").fill(where);
       await lqc.getByRole("button", { name: "Save reading" }).click();
       await expect(lqc.getByText("Reading saved.")).toBeVisible();
