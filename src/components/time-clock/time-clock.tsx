@@ -50,7 +50,8 @@ export function TimeClock({
   const dayName = (date: string) =>
     new Intl.DateTimeFormat(locale, { timeZone: tz, weekday: "short", month: "short", day: "numeric" }).format(startOfLocalDate(date, tz) + 12 * 3_600_000);
   const duration = (ms: number) => {
-    const { h, m } = hoursMinutes(ms);
+    // A phone clock a few seconds behind the server mustn't show "-1 min".
+    const { h, m } = hoursMinutes(Math.max(0, ms));
     return h > 0 ? t("hoursMinutes", { h, m }) : t("minutes", { m });
   };
   const catLabel = (c: TimeCategory | null) => t(`categories.${c ?? "job"}`);
