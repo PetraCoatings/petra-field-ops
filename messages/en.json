@@ -974,5 +974,71 @@
     "anyCategory": "Any category",
     "noMatches": "No products match.",
     "empty": "No products yet. The office adds and approves them under Products & SDS."
+  },
+  "timeClock": {
+    "status": "Right now",
+    "notClockedIn": "Not clocked in",
+    "onTheClock": "On the clock: {category}",
+    "onLunch": "On lunch",
+    "since": "Since {time} · {duration}",
+    "categories": {
+      "job": "Job",
+      "drive": "Drive",
+      "ride": "Ride"
+    },
+    "whatDoing": "What are you doing?",
+    "switchTo": "Switch to",
+    "job": "Job",
+    "noJob": "No job (shop or other)",
+    "unknownJob": "Job",
+    "clockIn": "Clock in",
+    "clockOut": "Clock out",
+    "startLunch": "Start lunch",
+    "endLunch": "End lunch (back to {category})",
+    "switchButton": "Switch to {category}",
+    "working": "Saving…",
+    "confirmClockOut": "Clock out for the day?",
+    "yesClockOut": "Yes, clock out",
+    "cancel": "Cancel",
+    "done": {
+      "clock_in": "Clocked in at {time} ({category}).",
+      "switch": "Switched to {category} at {time}.",
+      "break_start": "Lunch started at {time}.",
+      "break_end": "Lunch ended at {time}.",
+      "clock_out": "Clocked out at {time}."
+    },
+    "gpsNote": {
+      "denied": "Location was not recorded (permission is off).",
+      "unavailable": "Location was not available.",
+      "timeout": "Location took too long and was not recorded."
+    },
+    "errors": {
+      "offline": "No connection, so this wasn't recorded yet. Try again when you have signal; it will keep the time you pressed.",
+      "not_clocked_in": "You're not clocked in.",
+      "already_clocked_in": "You're already clocked in.",
+      "on_lunch": "End lunch first.",
+      "not_on_lunch": "You're not on lunch.",
+      "no_change": "Pick a different category or job to switch to.",
+      "category_required": "Choose Job, Drive or Ride.",
+      "before_last_entry": "That time is before your last entry. Ask the office to fix it.",
+      "inactive": "This employee is not active.",
+      "invalid": "Something about this entry wasn't right. Try again.",
+      "forbidden": "You can't do that.",
+      "generic": "Something went wrong. Try again."
+    },
+    "gpsExplain": "Your location is recorded only when you clock in and clock out.",
+    "gpsExplainSwitch": "Your location is recorded only when you clock in, switch, start or end lunch, and clock out.",
+    "travelReminder": "Don't clock in for your normal drive from home to the job or shop. Hotel time isn't work time.",
+    "forgotClockOut": "You've been clocked in since {day} at {time}. If you forgot to clock out, clock out now and tell the office the right time.",
+    "today": "Today",
+    "nothingToday": "No time recorded today.",
+    "now": "now",
+    "lunch": "Lunch",
+    "paidLunch": "paid (under 30 min)",
+    "unpaidLunch": "unpaid",
+    "thisWeek": "This week",
+    "weekNote": "The workweek started {day} at 12:00 AM. Lunch of 30 minutes or more isn't counted.",
+    "hoursMinutes": "{h} h {m} min",
+    "minutes": "{m} min"
   }
 }

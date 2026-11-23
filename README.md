@@ -13,7 +13,8 @@ Field operations app (installable PWA) for Petra crews and office (used across t
 | 2. Calculators | Done: five calculators, offline (airplane mode), and "Save to job"  |
 | 3. Jobs & work orders | Done: work orders (revisions, crew confirmation, drawings, notifications), templates, Job Center (my jobs + past work orders library), loading checklists, PDF export |
 | 4. Product & SDS library | Done: office library (products, approval, TDS/SDS versions), field tiles (product data sheets, SDS with offline save, in-app PDF viewer), products on work orders with pinned data sheet versions, calculator auto-fill (Dew Point uses the product's margin) |
-| 5–9 | Not started |
+| 5. Time Clock | In progress: clock in/out, Job/Drive/Ride switching, lunch, GPS with status, segments that can't overlap; group clock-in and timesheets next |
+| 6–9 | Not started |
 
 ## Stack
 
