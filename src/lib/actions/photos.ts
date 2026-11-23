@@ -34,10 +34,13 @@ export async function deletePhoto(fd: FormData): Promise<void> {
   const id = uuid.safeParse(fd.get("id"));
   if (!id.success) return;
   const supabase = await createClient();
-  const { data } = await supabase.from("photos").delete().eq("id", id.data).select("project_id, storage_path, thumb_path").maybeSingle();
+  const { data } = await supabase.from("photos").delete().eq("id", id.data).select("project_id, client_id").maybeSingle();
   if (!data) return;
   if (process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY) {
-    await createAdminClient().storage.from("job-photos").remove([data.storage_path as string, data.thumb_path as string]);
+    // The file names are rebuilt from the photo's own job and id (never taken
+    // from the stored path), so removing a photo can only ever remove its own files.
+    const base = `${data.project_id}/${data.client_id}`;
+    await createAdminClient().storage.from("job-photos").remove([`${base}.jpg`, `${base}_thumb.jpg`]);
   }
   revalidatePath(`/jobs/${data.project_id}`, "layout");
   const { redirect } = await import("next/navigation");

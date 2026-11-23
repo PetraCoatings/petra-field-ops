@@ -80,7 +80,7 @@ export function Timesheet({
   const week = { job: 0, drive: 0, ride: 0, total: 0 };
   for (const d of days) for (const k of ["job", "drive", "ride", "total"] as const) week[k] += d.ms[k];
   const hasOpen = active.some((s) => s.end === null);
-  const flagged = active.flatMap((s) => segmentFlags(asSegment(s), now).map((f) => ({ s, f })));
+  const flagged = active.flatMap((s) => [...segmentFlags(asSegment(s), now), ...(s.late ? (["late_sync"] as const) : [])].map((f) => ({ s, f })));
 
   const canFix = (s: SheetSegment | null) => {
     if (admin) return st !== "approved";

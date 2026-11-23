@@ -18,6 +18,8 @@ export type SheetSegment = {
   reason: string | null;
   correctedBy: string | null;
   createdAt: number;
+  /** Clocked on the phone but reached the server more than 15 minutes later. */
+  late: boolean;
 };
 export type SheetStatus = {
   status: "open" | "submitted" | "approved";
@@ -58,7 +60,7 @@ export async function loadSheet(employeeId: string, weekOf: number, settings: Cl
     supabase.from("employee_directory").select("id, display_name").eq("id", employeeId).maybeSingle(),
     supabase
       .from("time_segments")
-      .select("id, kind, category, project_id, start_at, end_at, status, source, supersedes_id, correction_reason, corrected_by, created_at, projects(name)")
+      .select("id, kind, category, project_id, start_at, end_at, status, source, supersedes_id, correction_reason, corrected_by, created_at, projects(name), start_event:time_events!time_segments_start_event_id_fkey(flags), end_event:time_events!time_segments_end_event_id_fkey(flags)")
       .eq("employee_id", employeeId)
       .lt("start_at", new Date(weekEnd).toISOString())
       .or(`end_at.is.null,end_at.gte.${new Date(weekStart).toISOString()}`)
@@ -86,6 +88,9 @@ export async function loadSheet(employeeId: string, weekOf: number, settings: Cl
     reason: (r.correction_reason as string | null) ?? null,
     correctedBy: (r.corrected_by as string | null) ?? null,
     createdAt: Date.parse(r.created_at as string),
+    late:
+      r.source === "events" &&
+      [r.start_event, r.end_event].some((e) => ((e as { flags: string[] } | null)?.flags ?? []).includes("late_sync")),
   }));
   const status: SheetStatus = {
     status: ((sheet?.status as SheetStatus["status"]) ?? "open"),

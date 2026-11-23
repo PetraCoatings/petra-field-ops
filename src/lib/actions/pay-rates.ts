@@ -59,7 +59,7 @@ export type RevealResult = { ok: true; rates: MyRates } | { ok: false; error: "p
  * the person's own session isn't touched.
  */
 export async function revealMyRates(password: string): Promise<RevealResult> {
-  await requireProfile();
+  const profile = await requireProfile();
   if (typeof password !== "string" || password.length === 0 || password.length > 200) return { ok: false, error: "password" };
   const supabase = await createClient();
   const { data: me } = await supabase.auth.getUser();
@@ -69,7 +69,7 @@ export async function revealMyRates(password: string): Promise<RevealResult> {
   const { error } = await check.auth.signInWithPassword({ email, password });
   if (error) return { ok: false, error: "password" };
   await check.auth.signOut({ scope: "local" });
-  const { data, error: readError } = await supabase.from("pay_rates").select("category, hourly_rate, effective_from").order("effective_from");
+  const { data, error: readError } = await supabase.from("pay_rates").select("category, hourly_rate, effective_from").eq("employee_id", profile.employeeId).order("effective_from");
   if (readError) return { ok: false, error: "generic" };
   return {
     ok: true,

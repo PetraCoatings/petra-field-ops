@@ -56,7 +56,11 @@ export async function GET(request: NextRequest) {
       for (const e of w.gusto.entries) lines.push([...base, tc(`categories.${e.category}`), r.exempt ? "" : (e.cents / 100).toFixed(2), (e.hundredths / 100).toFixed(2), ...totals]);
     });
   }
-  const esc = (v: string) => (/[",\n]/.test(v) || /^[=+\-@]/.test(v) ? `"${(/^[=+\-@]/.test(v) ? `'${v}` : v).replace(/"/g, '""')}"` : v);
+  // Quote when needed; a leading = + - @ tab or CR could make a spreadsheet run a formula, so prefix it with '.
+  const esc = (v: string) => {
+    const safe = /^[=+\-@\t\r]/.test(v) ? `'${v}` : v;
+    return /[",\r\n]/.test(safe) || safe !== v ? `"${safe.replace(/"/g, '""')}"` : safe;
+  };
   const csv = "﻿" + [cols, ...lines].map((l) => l.map(esc).join(",")).join("\r\n") + "\r\n";
   return new NextResponse(csv, { headers: { ...headers, "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": `attachment; filename="${file}.csv"` } });
 }

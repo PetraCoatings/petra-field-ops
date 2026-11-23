@@ -91,7 +91,7 @@ describe("photos", () => {
     await superuser(async (c) => {
       const id = randomUUID();
       await c.query(
-        `insert into public.photos (client_id, project_id, uploaded_by, storage_path, thumb_path, created_at) values ($1::uuid, $2::uuid, $3, $2::text || '/a.jpg', $2::text || '/a_t.jpg', now() - interval '2 days')`,
+        `insert into public.photos (client_id, project_id, uploaded_by, storage_path, thumb_path, created_at) values ($1::uuid, $2::uuid, $3, $2::text || '/' || $1::text || '.jpg', $2::text || '/' || $1::text || '_thumb.jpg', now() - interval '2 days')`,
         [id, P.assigned, E.installer],
       );
     });
@@ -105,5 +105,25 @@ describe("photos", () => {
     await asUser(U.pm, async (q) => {
       expect((await q(`delete from public.photos`)).rowCount).toBe(1);
     });
+  });
+
+  it("a photo's files must be its own, and its links must be on the same job", async () => {
+    await asUser(U.installer, async (q) => {
+      const id = randomUUID();
+      // Pointing the record at another photo's file (removing it would delete that file).
+      await expect(
+        q(`insert into public.photos (client_id, project_id, storage_path, thumb_path) values ($1::uuid, $2::uuid, $2::text || '/' || $3::text || '.jpg', $2::text || '/' || $1::text || '_thumb.jpg')`, [id, P.assigned, randomUUID()]),
+      ).rejects.toThrow(/photos_paths_match/);
+    });
+    const otherReport = await superuser(async (c) =>
+      (await c.query(`insert into public.daily_field_reports (project_id, report_date) values ($1, current_date - 40) returning id`, [P.unassigned])).rows[0].id as string,
+    );
+    await asUser(U.installer, async (q) => {
+      const id = randomUUID();
+      await expect(
+        q(`insert into public.photos (client_id, project_id, storage_path, thumb_path, dfr_id) values ($1::uuid, $2::uuid, $2::text || '/' || $1::text || '.jpg', $2::text || '/' || $1::text || '_thumb.jpg', $3)`, [id, P.assigned, otherReport]),
+      ).rejects.toThrow(/row-level security/);
+    });
+    await superuser((c) => c.query(`delete from public.daily_field_reports where id = $1`, [otherReport]));
   });
 });

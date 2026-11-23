@@ -33,6 +33,7 @@ export type ClockErrorCode =
   | "no_change"
   | "category_required"
   | "before_last_entry"
+  | "too_late"
   | "inactive"
   | "invalid"
   | "forbidden"

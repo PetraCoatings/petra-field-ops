@@ -37,7 +37,9 @@ describe("calendar feed", () => {
   });
 
   it("escapes text and folds long lines without splitting characters", () => {
-    expect(escapeText("a,b;c\\d\ne")).toBe("a\\,b\;c\\\\d\\ne");
+    expect(escapeText("a,b;c\\d\ne")).toBe("a\\,b\\;c\\\\d\\ne");
+    // A lone carriage return or a semicolon can't start a new calendar property.
+    expect(escapeText("Job\rDTSTART:19700101;X")).toBe("Job\\nDTSTART:19700101\\;X");
     const long = `SUMMARY:${"Piso epóxico ".repeat(10)}`;
     const folded = foldLine(long);
     expect(folded.split("\r\n ").join("")).toBe(long);

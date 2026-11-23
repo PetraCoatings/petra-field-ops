@@ -1053,6 +1053,7 @@
       "no_change": "Pick a different category or job to switch to.",
       "category_required": "Choose Job, Drive or Ride.",
       "before_last_entry": "That time is before your last entry. Ask the office to fix it.",
+      "too_late": "It was more than 3 days before this reached the office. Ask your crew lead or the office to add this time.",
       "inactive": "This employee is not active.",
       "invalid": "Something about this entry wasn't right. Try again.",
       "forbidden": "You can't do that.",
@@ -1118,7 +1119,8 @@
       "flags": {
         "short_lunch": "Lunch under 30 minutes on {when}: counted as paid.",
         "open_lunch": "Lunch started {when} was never ended.",
-        "missing_clock_out": "Still clocked in since {when}: probably a missing clock-out."
+        "missing_clock_out": "Still clocked in since {when}: probably a missing clock-out.",
+        "late_sync": "Time on {when} was sent from the phone more than 15 minutes after it was pressed. Check that it's right."
       },
       "entries": "Entries",
       "noTime": "No time this week.",
