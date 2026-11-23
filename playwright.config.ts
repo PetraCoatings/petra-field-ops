@@ -10,6 +10,10 @@ const PORT = 3100;
 const env = {
   NEXT_PUBLIC_SUPABASE_URL: process.env.E2E_SUPABASE_URL ?? "http://127.0.0.1:54399",
   NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: process.env.E2E_SUPABASE_KEY ?? "e2e-placeholder-key",
+  // The server side must use the SAME project as the pages: the test project's
+  // secret key (never a key for another project that happens to be set).
+  SUPABASE_SECRET_KEY: process.env.E2E_SUPABASE_SECRET_KEY ?? "",
+  SUPABASE_SERVICE_ROLE_KEY: "",
 };
 
 export default defineConfig({

@@ -8,14 +8,15 @@ to bottom; each step says who does it and roughly how long it takes.
 - [x] Security review, with fixes (`docs/SECURITY_REVIEW.md`)
 - [x] Nightly encrypted backups, with an automatic practice restore (`docs/BACKUPS.md`)
 - [x] Two-step sign-in required for office admins. Travis is set up.
+- [x] Leaked-password protection, 10-character minimum, secure password change.
 
 ## 1. Paid plans (owner, 10 minutes)
 
-- [ ] **Supabase Pro** (about $25/month). Supabase → Organization → Billing → upgrade.
+- [x] **Supabase Pro** (about $25/month). Supabase → Organization → Billing → upgrade.
   - Free projects **pause after a week without use**. A paused app means nobody can clock in.
   - Pro adds Supabase's own daily backups (7 days) on top of ours, and room for job photos.
   - After upgrading, turn on **Authentication → Attack Protection → Leaked password protection**. It blocks passwords known from data breaches.
-- [ ] **Vercel Pro** (about $20/month per team member). Vercel → Settings → Billing.
+- [x] **Vercel Pro** (about $20/month per team member). Vercel → Settings → Billing.
   - The free Hobby plan is for non-commercial use only.
 
 ## 2. A real email sender (owner + Claude, 30 minutes)
@@ -24,24 +25,23 @@ Supabase's built-in email only reaches the Supabase account's own team members, 
 only a few emails an hour. That's why Troye's invite never arrived.
 Invites and "forgot password" emails need a proper sender:
 
-- [ ] Create a free **Resend** account (resend.com). The free tier is 3,000 emails/month.
-- [ ] Add the domain **petracoatings.com** in Resend. It shows 3–4 DNS records.
-  Add them where the domain is managed (GoDaddy, Squarespace, Google…).
-  Claude can walk through this with screenshots.
-- [ ] In Supabase → Authentication → Emails → **SMTP Settings**, turn on custom SMTP:
+- [x] Create a free **Resend** account (resend.com). The free tier is 3,000 emails/month.
+- [x] Add the domain **petracoatings.com** in Resend. Its records go at **Hostinger**
+  (the domain's DNS host; Turbify is only the registrar and the mailbox provider).
+- [x] In Supabase → Authentication → Emails → **SMTP Settings**, turn on custom SMTP:
   - host `smtp.resend.com`, port `465`, user `resend`;
   - password: a Resend API key;
   - sender `no-reply@petracoatings.com`, name "Petra Coatings".
 - [ ] Paste the bilingual email templates (`supabase/templates/invite.html`,
   `recovery.html`) into *Invite user* and *Reset password* (see `docs/SETUP.md`).
-- [ ] Test: invite yourself at a second email address, and use "Forgot password".
+- [x] Test: invite yourself at a second email address, and use "Forgot password".
 
 ## 3. Settings (owner, 10 minutes)
 
-- [ ] **Vercel → Settings → Environment Variables**: add `NEXT_PUBLIC_SITE_URL` =
+- [x] **Vercel → Settings → Environment Variables**: add `NEXT_PUBLIC_SITE_URL` =
   `https://petra-field-ops.vercel.app` (or your own domain, if you add one). Then redeploy.
   Email links then always point at the real site.
-- [ ] **Supabase → Authentication → Providers → Email**: turn on **Secure password change**,
+- [x] **Supabase → Authentication → Providers → Email**: turn on **Secure password change**,
   and set the minimum password length to **10** (the app already asks for 10).
 - [ ] **Supabase → Authentication → URL Configuration**: confirm Site URL is the app
   address, and Redirect URLs include `/auth/confirm` and `/auth/accept` (see `docs/SETUP.md`).
@@ -59,9 +59,9 @@ Invites and "forgot password" emails need a proper sender:
 The automated browser tests currently run against the live database. They clean
 up after themselves and never touch payroll, but live data and tests shouldn't share a home.
 
-- [ ] Owner: create a second, **free** Supabase project named "petra-field-ops-dev".
-  Add its keys to this coding environment's secrets (Claude will say exactly where).
-- [ ] Claude: apply all migrations there and point the tests at it.
+- [x] Owner: create a second, **free** Supabase project named "petra-field-ops-dev".
+  Its keys are the four `DEV_SUPABASE_*` GitHub secrets (see `docs/SETUP.md`).
+- [x] Claude: apply all migrations there and point the tests at it (CI does this on every run).
 
 ## 6. Recommended
 

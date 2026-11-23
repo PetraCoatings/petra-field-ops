@@ -64,3 +64,22 @@ npm run dev
 - **Languages:** text lives in `messages/en.json` and `messages/es.json`. A test fails if the two files ever have different keys. Spanish text should be reviewed by a native speaker at Petra before launch.
 - **Offline (airplane mode):** `public/sw.js` is a hand-written service worker, registered for signed-in users in production builds only. It saves the five calculator pages and their code, so they open with no signal. Every other page shows `public/offline.html` when offline. Job, time and pay data are never cached. Signing out (or landing on the sign-in page) clears the saved pages and remembered calculator entries. On iPhone, add the app to the Home Screen; Safari may otherwise drop saved data from sites not opened for about a week. When adding a new offline page, list it in `OFFLINE_ROUTES` in `public/sw.js`.
 - **Brand:** colors in `src/app/globals.css` (`--color-brand-*`) and the "P" icons in `public/icons/` are placeholders for Petra's real logo and colors.
+
+## Test database (browser tests)
+
+The browser tests create and delete people, jobs and time, so they run against
+a **separate, free Supabase project** ("petra-field-ops-dev", in its own free
+organization), never the live one (`e2e/support/global-setup.ts` refuses the
+live project). In GitHub Actions (`.github/workflows/ci.yml`) every run:
+
+1. applies any new `supabase/migrations/*.sql` to the test project
+   (`scripts/apply-migrations.sh`, which also refuses the live project), then
+2. runs all browser tests against it, one run at a time.
+
+Repository secrets: `DEV_SUPABASE_URL`, `DEV_SUPABASE_PUBLISHABLE_KEY`,
+`DEV_SUPABASE_SECRET_KEY`, `DEV_SUPABASE_DB_URL` (the test project's session
+pooler connection string). The live database is still updated by pasting each
+new migration into its SQL Editor.
+
+A free project pauses after a week without use; if the browser tests start
+failing to connect, open the test project in Supabase and click **Restore**.
