@@ -187,7 +187,7 @@ export function DfrEditor({
         </div>
       </section>
 
-      <section aria-label={t("workPerformed")} className={card}>
+      <section className={card}>
         <label className="block space-y-1">
           <span className={label}>{t("workPerformed")}</span>
           <textarea rows={4} value={s.workPerformed} onChange={(e) => set({ workPerformed: e.target.value })} placeholder={t("workExample")} className={`${input} py-2`} />
@@ -346,7 +346,7 @@ export function DfrEditor({
         </button>
       </section>
 
-      <section aria-label={t("notes")} className={card}>
+      <section className={card}>
         <label className="block space-y-1">
           <span className={label}>{t("notes")}</span>
           <textarea rows={3} value={s.notes} onChange={(e) => set({ notes: e.target.value })} placeholder={t("notesExample")} className={`${input} py-2`} />

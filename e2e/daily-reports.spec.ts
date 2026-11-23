@@ -62,7 +62,7 @@ test("daily report: fill in, conflict, submit, send back, resubmit, accept", asy
 
     await page.getByRole("button", { name: "Add material" }).click();
     const material = page.getByRole("group", { name: "Material 1" });
-    await material.getByLabel("Product", { exact: true }).selectOption({ label: product });
+    await material.getByRole("combobox", { name: "Product", exact: true }).selectOption({ label: product });
     await material.getByLabel("Gallons").fill("45");
     await material.getByLabel("Area (sf)").fill("6620");
     await expect(material).toContainText("Actual 147.1 SF/gal · data sheet 160 SF/gal, -8.1%");
