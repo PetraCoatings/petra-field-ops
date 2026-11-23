@@ -85,7 +85,7 @@ test("photos and jobsite issues", async ({ browser }) => {
     await expect(pmIssues.getByText(/Resolved by .* Moisture mitigation primer/)).toBeVisible();
     // The installer sees it resolved; the issue's photo stays with the job.
     await page.reload();
-    await expect(page.getByRole("region", { name: "Jobsite issues" }).getByText("resolved", { exact: true })).toBeVisible();
+    await expect(page.getByRole("region", { name: "Jobsite issues" }).getByText("· resolved")).toBeVisible();
   } finally {
     await me.c.close();
     await office.c.close();
