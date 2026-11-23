@@ -80,7 +80,9 @@ test("an installer clocks in, switches, takes lunch and clocks out", async ({ br
     }[];
     expect(events.map((e) => e.event_type)).toEqual(["clock_in", "switch", "break_start", "break_end", "clock_out"]);
     expect(events[0]).toMatchObject({ gps_status: "captured", gps_source: "own_device", actor_employee_id: emp });
-    expect(events[1].gps_status).toBe("not_requested");
+    // GPS on a switch follows the company setting ("record GPS when switching").
+    const [{ gps_on_category_switch: gpsOnSwitch }] = (await (await api("/rest/v1/app_settings?select=gps_on_category_switch")).json()) as { gps_on_category_switch: boolean }[];
+    expect(events[1].gps_status).toBe(gpsOnSwitch ? "captured" : "not_requested");
     expect(events[4].gps_status).toBe("captured");
   } finally {
     await context.close();
