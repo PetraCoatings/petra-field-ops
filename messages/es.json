@@ -1580,5 +1580,57 @@
       "description": "Describa qué pasó.",
       "generic": "Algo salió mal. Inténtelo de nuevo."
     }
+  },
+  "qc": {
+    "title": "Control de calidad",
+    "fromWorkOrder": "La orden de trabajo indica:",
+    "requiredTests": "Pruebas que necesita esta obra",
+    "noRequirements": "Todavía no hay pruebas.",
+    "limit": "Límite: {limit}",
+    "noLimit": "Sin límite: las lecturas se registran, no se califican",
+    "remove": "Quitar",
+    "removeRequirement": "Quitar {test}",
+    "addRequirement": "Agregar una prueba que necesita esta obra",
+    "test": "Prueba",
+    "min": "Mínimo (opcional)",
+    "max": "Máximo (opcional)",
+    "limitHelp": "Deje ambos vacíos si no hay límite de aprobación.",
+    "requirementNotes": "Nota (opcional)",
+    "requirementNotesExample": "Ejemplo: 3 pruebas por cada 1,000 sf",
+    "addRequirementButton": "Agregar prueba",
+    "added": "Prueba agregada.",
+    "record": "Registrar una lectura",
+    "value": "Lectura",
+    "location": "Dónde",
+    "locationExample": "Ejemplo: Bahía 2, pared norte",
+    "notes": "Nota (opcional)",
+    "save": "Guardar lectura",
+    "recorded": "Lectura guardada.",
+    "required": "necesaria",
+    "readings": "Lecturas",
+    "noReadings": "Todavía no hay lecturas.",
+    "pass": "Aprueba",
+    "fail": "No aprueba",
+    "recordedOnly": "Registrada",
+    "againstLimit": "límite {limit}",
+    "removeReading": "Quitar lectura",
+    "rule": "Aprueba o no aprueba solo aparece cuando la oficina puso un límite para esa prueba. El límite vigente cuando se toma una lectura queda con esa lectura.",
+    "types": {
+      "moisture_rh": "Humedad: humedad relativa (sonda en la losa)",
+      "moisture_cacl": "Humedad: cloruro de calcio (MVER)",
+      "ph": "pH de la superficie",
+      "csp": "Perfil de la superficie (CSP)",
+      "wft": "Espesor de película húmeda",
+      "dft": "Espesor de película seca",
+      "adhesion": "Adherencia por tracción",
+      "esd": "Resistencia ESD (punto a tierra)"
+    },
+    "errors": {
+      "type": "Elija una prueba.",
+      "limits": "Revise los límites: solo números, y el mínimo no puede ser mayor que el máximo.",
+      "duplicate": "Esa prueba ya está en esta obra.",
+      "forbidden": "No puede hacer eso en esta obra.",
+      "value": "Escriba la lectura como un número."
+    }
   }
 }

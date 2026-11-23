@@ -1580,5 +1580,57 @@
       "description": "Describe what happened.",
       "generic": "Something went wrong. Try again."
     }
+  },
+  "qc": {
+    "title": "Quality control",
+    "fromWorkOrder": "The work order lists:",
+    "requiredTests": "Tests this job needs",
+    "noRequirements": "No tests set yet.",
+    "limit": "Limit: {limit}",
+    "noLimit": "No limit set: readings are recorded, not judged",
+    "remove": "Remove",
+    "removeRequirement": "Remove {test}",
+    "addRequirement": "Add a test this job needs",
+    "test": "Test",
+    "min": "Minimum (optional)",
+    "max": "Maximum (optional)",
+    "limitHelp": "Leave both empty if there's no pass/fail limit.",
+    "requirementNotes": "Note (optional)",
+    "requirementNotesExample": "Example: 3 tests per 1,000 sf",
+    "addRequirementButton": "Add test",
+    "added": "Test added.",
+    "record": "Record a reading",
+    "value": "Reading",
+    "location": "Where",
+    "locationExample": "Example: Bay 2, north wall",
+    "notes": "Note (optional)",
+    "save": "Save reading",
+    "recorded": "Reading saved.",
+    "required": "needed",
+    "readings": "Readings",
+    "noReadings": "No readings yet.",
+    "pass": "Pass",
+    "fail": "Fail",
+    "recordedOnly": "Recorded",
+    "againstLimit": "limit {limit}",
+    "removeReading": "Remove reading",
+    "rule": "Pass or fail only shows when the office set a limit for that test. The limit in force when a reading is taken stays with that reading.",
+    "types": {
+      "moisture_rh": "Moisture: relative humidity (in-slab probe)",
+      "moisture_cacl": "Moisture: calcium chloride (MVER)",
+      "ph": "Surface pH",
+      "csp": "Surface profile (CSP)",
+      "wft": "Wet film thickness",
+      "dft": "Dry film thickness",
+      "adhesion": "Pull-off adhesion",
+      "esd": "ESD resistance (point to ground)"
+    },
+    "errors": {
+      "type": "Choose a test.",
+      "limits": "Check the limits: numbers only, and the minimum can't be above the maximum.",
+      "duplicate": "That test is already on this job.",
+      "forbidden": "You can't do that on this job.",
+      "value": "Enter the reading as a number."
+    }
   }
 }
