@@ -1657,15 +1657,27 @@
       "wft": "Wet film thickness",
       "dft": "Dry film thickness",
       "adhesion": "Pull-off adhesion",
-      "esd": "ESD resistance (point to ground)"
+      "esd": "ESD resistance (point to ground)",
+      "dew_point": "Dew point: surface above dew point"
     },
     "errors": {
       "type": "Choose a test.",
       "limits": "Check the limits: numbers only, and the minimum can't be above the maximum.",
       "duplicate": "That test is already on this job.",
       "forbidden": "You can't do that on this job.",
-      "value": "Enter the reading as a number."
-    }
+      "value": "Enter the reading as a number.",
+      "humidity": "Humidity must be between 1 and 100%.",
+      "temperature": "Check the temperatures (°F).",
+      "dewInputs": "Enter air temp, humidity and surface temp."
+    },
+    "airTemp": "Air temp (°F)",
+    "humidity": "Humidity (%)",
+    "surfaceTemp": "Surface temp (°F)",
+    "dewPointPreview": "Dew point {dew} °F · surface {spread} °F above it",
+    "dewPointBelow": "Surface is {spread} °F below the dew point: condensation. Do not coat.",
+    "dewPointNeeds": "This job needs at least {min} °F above.",
+    "dewPointDetails": "Air {air} °F · humidity {rh}% · surface {surface} °F · dew point {dew} °F",
+    "dewPointRequirementHelp": "For Dew point: leave the minimum empty to use the company margin ({margin} °F above the dew point)."
   },
   "sync": {
     "title": "Sync",

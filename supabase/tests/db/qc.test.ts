@@ -87,3 +87,24 @@ describe("QC checks", () => {
     });
   });
 });
+
+describe("dew point test", () => {
+  it("records the spread above the dew point with its readings, judged against the job's minimum", async () => {
+    const { asUser: as, superuser: su } = await import("./harness");
+    const { P: Pj, U: Us } = await import("./fixtures");
+    const typeId = await su(async (c) => (await c.query(`select id from public.qc_test_types where code = 'dew_point'`)).rows[0].id as string);
+    await as(Us.pm, async (q) => {
+      await q(`insert into public.qc_requirements (project_id, test_type_id, min_value) values ($1, $2, 5)`, [Pj.assigned, typeId]);
+      // Without the readings behind it, a dew point value is refused.
+      await expect(q(`select public.record_qc_measurement($1, $2, 6.5)`, [Pj.assigned, typeId])).rejects.toThrow(/air temperature/);
+      const inputs = { airTempF: 70, humidityPct: 50, surfaceTempF: 57, dewPointF: 50.5, formula: "magnus-alduchov-eskridge-1996" };
+      const id = (await q(`select public.record_qc_measurement($1, $2, 6.5, 'Bay 2', null, null, null, $3::jsonb) as id`, [Pj.assigned, typeId, JSON.stringify(inputs)])).rows[0].id;
+      const low = (await q(`select public.record_qc_measurement($1, $2, 3.2, 'Bay 3', null, null, null, $3::jsonb) as id`, [Pj.assigned, typeId, JSON.stringify({ ...inputs, surfaceTempF: 53.7 })])).rows[0].id;
+      const rows = (await q(`select id, value::float, unit, result, criteria_min::float, inputs ->> 'dewPointF' as dew from public.qc_measurements where id in ($1, $2) order by value desc`, [id, low])).rows;
+      expect(rows).toEqual([
+        { id, value: 6.5, unit: "°F above dew point", result: "pass", criteria_min: 5, dew: "50.5" },
+        { id: low, value: 3.2, unit: "°F above dew point", result: "fail", criteria_min: 5, dew: "50.5" },
+      ]);
+    });
+  });
+});

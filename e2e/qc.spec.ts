@@ -87,3 +87,42 @@ test("QC: required tests, readings, pass/fail only with a limit", async ({ brows
     await deleteTestProject(job.id);
   }
 });
+
+test("QC dew point: the crew lead enters three readings; the app works out the dew point and pass/fail", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.setTimeout(120_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const pm = users.find((x) => x.role === "project_manager")!;
+  const job = await createTestProject([lead]);
+  await updateTestProject(job.id, { crew_lead_id: await employeeId(lead), project_manager_id: await employeeId(pm) });
+  const office = await signIn(browser, pm);
+  const ld = await signIn(browser, lead);
+  try {
+    // The PM adds the test with no limit typed: the company margin applies.
+    await office.page.goto(`/jobs/${job.id}`);
+    const qc = office.page.getByRole("region", { name: "Quality control" });
+    await qc.getByLabel("Test", { exact: true }).first().selectOption({ label: "Dew point: surface above dew point (°F above dew point)" });
+    await qc.getByRole("button", { name: "Add test" }).click();
+    await expect(qc.getByText(/Limit: ≥ \d+(\.\d+)? °F above dew point/)).toBeVisible();
+
+    // The crew lead records a reading: 70 °F air, 50 % humidity, 57 °F surface.
+    await ld.page.goto(`/jobs/${job.id}`);
+    const lqc = ld.page.getByRole("region", { name: "Quality control" });
+    const form = lqc.locator("form").filter({ hasText: "Record a reading" });
+    await form.getByLabel("Test", { exact: true }).selectOption({ label: "Dew point: surface above dew point (°F above dew point) · needed" });
+    await form.getByLabel("Air temp (°F)").fill("70");
+    await form.getByLabel("Humidity (%)").fill("50");
+    await form.getByLabel("Surface temp (°F)").fill("57");
+    await expect(form.getByRole("status")).toContainText("Dew point 50.5 °F · surface 6.5 °F above it");
+    await form.getByLabel("Where").fill("Bay 2");
+    await form.getByRole("button", { name: "Save reading" }).click();
+    const reading = lqc.getByRole("list", { name: "Readings" }).getByRole("listitem").first();
+    await expect(reading).toContainText("6.5 °F above dew point");
+    await expect(reading).toContainText("Air 70 °F · humidity 50% · surface 57 °F · dew point 50.5 °F");
+    await expect(reading.getByText(/^(Pass|Fail)$/)).toBeVisible();
+  } finally {
+    for (const x of [office, ld]) await x.c.close();
+    await deleteTestProject(job.id);
+  }
+});
