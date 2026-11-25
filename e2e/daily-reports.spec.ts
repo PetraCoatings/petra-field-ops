@@ -153,6 +153,21 @@ test("a project manager writes a report, and edits a submitted one before accept
     await expect(page.getByText("prep starts Tuesday")).toBeVisible();
     await page.getByRole("link", { name: /Version 1/ }).click();
     await expect(page.getByText("prep starts Monday")).toBeVisible();
+
+    // After it's accepted: reopen for changes, with a reason; the history stays.
+    await page.goto(new URL(page.url()).pathname);
+    await page.getByRole("button", { name: "Reopen for changes" }).click();
+    await expect(page.getByRole("button", { name: "Reopen report" })).toBeDisabled();
+    await page.getByLabel("Why are you reopening it? (required)").fill("GC moved the start to Wednesday");
+    await page.getByRole("button", { name: "Reopen report" }).click();
+    await expect(page.getByLabel("Work performed")).toHaveValue("Walked the job with the GC; prep starts Tuesday.");
+    await page.getByLabel("Work performed").fill("Walked the job with the GC; prep starts Wednesday.");
+    await page.getByRole("button", { name: "Submit report" }).click();
+    await page.getByRole("button", { name: "Yes, submit" }).click();
+    await expect(status).toContainText("version 3");
+    await page.getByRole("button", { name: "Accept report" }).click();
+    await expect(status).toContainText("Accepted");
+    await expect(page.getByRole("list", { name: "Reopened" })).toContainText("GC moved the start to Wednesday (version 2 had been accepted by E2E project_manager");
   } finally {
     await office.c.close();
     await deleteTestProject(job.id);

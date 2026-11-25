@@ -55,3 +55,16 @@ export async function editSubmittedDailyReport(payload: { id: string }): Promise
   revalidatePath("/jobs", "layout");
   return { ok: true };
 }
+
+/** Office (PMs and office admins): reopen an accepted report for changes, with a reason. */
+export async function reopenDailyReport(payload: { id: string; reason: string }): Promise<ReviewResult> {
+  await requireProfile();
+  if (!uuid.safeParse(payload?.id).success) return { ok: false, error: "generic" };
+  const reason = String(payload?.reason ?? "").trim();
+  if (reason.length < 3) return { ok: false, error: "note" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("reopen_daily_report", { p_id: payload.id, p_reason: reason.slice(0, 500) });
+  if (error) return { ok: false, error: error.code === "42501" ? "forbidden" : error.code === "P0001" ? "state" : error.code === "22023" ? "note" : "generic" };
+  revalidatePath("/jobs", "layout");
+  return { ok: true };
+}

@@ -74,3 +74,60 @@ describe("daily reports: project managers and office edits", () => {
     });
   });
 });
+
+describe("reopening an accepted report", () => {
+  it("the office reopens it with a reason; the accepted version and the reopening are kept", async () => {
+    await superuser(async (c) => {
+      await c.query("begin");
+      const as = async (u: string) => {
+        await c.query("reset role");
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: u, role: "authenticated", aal: "aal2" })]);
+        await c.query("set local role authenticated");
+      };
+      const q = async (sql: string, p: unknown[] = []) => {
+        await c.query("savepoint s");
+        try {
+          const r = await c.query(sql, p);
+          await c.query("release savepoint s");
+          return r.rows;
+        } catch (e) {
+          await c.query("rollback to savepoint s");
+          throw e;
+        }
+      };
+      try {
+        await as(U.lead);
+        const id = (await q(`select public.ensure_daily_report($1, current_date - 5) as id`, [P.assigned]))[0].id as string;
+        const v = (await q(`select public.save_daily_report($1, '{"notes":"Topcoat lot A1"}', 1) as v`, [id]))[0].v as number;
+        await q(`select public.submit_daily_report($1, $2)`, [id, v]);
+        await as(U.admin);
+        await q(`select public.accept_daily_report($1)`, [id]);
+
+        // Crew leads can't reopen; a reason is required.
+        await as(U.lead);
+        await expect(q(`select public.reopen_daily_report($1, 'Wrong lot')`, [id])).rejects.toThrow(/Only the office/);
+        await as(U.pm);
+        await expect(q(`select public.reopen_daily_report($1, '')`, [id])).rejects.toThrow(/reason/);
+        const rv = (await q(`select public.reopen_daily_report($1, 'Wrong topcoat lot number') as v`, [id]))[0].v as number;
+        expect((await q(`select status, accepted_by, draft ->> 'notes' as notes from public.daily_field_reports where id = $1`, [id]))[0]).toEqual({ status: "draft", accepted_by: null, notes: "Topcoat lot A1" });
+        const fixed = (await q(`select public.save_daily_report($1, '{"notes":"Topcoat lot B7"}', $2) as v`, [id, rv]))[0].v as number;
+        await q(`select public.submit_daily_report($1, $2)`, [id, fixed]);
+        await q(`select public.accept_daily_report($1)`, [id]);
+
+        expect(await q(`select accepted_version, accepted_by, reason, reopened_by from public.dfr_reopens where dfr_id = $1`, [id])).toEqual([
+          { accepted_version: 1, accepted_by: E.admin, reason: "Wrong topcoat lot number", reopened_by: E.pm },
+        ]);
+        expect((await q(`select string_agg(content ->> 'notes', ' → ' order by version_number) as h from public.dfr_versions where dfr_id = $1`, [id]))[0].h).toBe("Topcoat lot A1 → Topcoat lot B7");
+        // The crew on the job can read the history too.
+        await as(U.installer);
+        expect((await q(`select count(*)::int as n from public.dfr_reopens where dfr_id = $1`, [id]))[0].n).toBe(1);
+        // Only an accepted report can be reopened.
+        await as(U.pm);
+        await q(`select public.reopen_daily_report($1, 'Again')`, [id]);
+        await expect(q(`select public.reopen_daily_report($1, 'Twice')`, [id])).rejects.toThrow(/Only an accepted report/);
+      } finally {
+        await c.query("rollback");
+      }
+    });
+  });
+});

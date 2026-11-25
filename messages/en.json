@@ -1541,7 +1541,24 @@
     "staleTyping": "This phone has changes you typed that weren't saved, but the report was updated since. Use your changes, or discard them?",
     "useMyTyping": "Use my changes",
     "discardTyping": "Discard them",
-    "editYourself": "Edit it yourself"
+    "editYourself": "Edit it yourself",
+    "reopen": {
+      "button": "Reopen for changes",
+      "title": "Reopen this accepted report",
+      "help": "It goes back to editing so you can fix it, then submit and accept it again. The accepted version, your reason and your name stay in its history.",
+      "reasonLabel": "Why are you reopening it? (required)",
+      "confirm": "Reopen report",
+      "cancel": "Cancel",
+      "historyLabel": "Reopened",
+      "historyLine": "Reopened by {name} on {when}: {reason} (version {version} had been accepted by {acceptedBy}).",
+      "draftAfterReopen": "Reopened for changes: not accepted again yet. Submit it, then accept it.",
+      "errors": {
+        "note": "Write why you're reopening it.",
+        "state": "This report isn't accepted (anymore). Reload the page.",
+        "forbidden": "Only the office (project managers and office admins) can reopen a report.",
+        "generic": "Something went wrong. Try again."
+      }
+    }
   },
   "photos": {
     "title": "Photos",
