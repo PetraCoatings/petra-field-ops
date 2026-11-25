@@ -1,4 +1,5 @@
 import { randomUUID } from "node:crypto";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import sharp from "sharp";
 import { devices, expect, test } from "@playwright/test";
 import { flat, pdfText } from "./support/pdf-text";
@@ -23,7 +24,15 @@ test("the office prints a job's closeout package: work order, daily reports, QC 
   await updateTestProject(job.id, { crew_lead_id: leadId, project_manager_id: await employeeId(pm) });
 
   // A published work order, a submitted daily report, a QC reading and a photo.
-  await publishAsOffice(pm, job.id, { v: 1, notes: "Grind and prime all bays.", trailerMaterials: [{ item: "Grinder" }] });
+  const woContent = { v: 1, notes: "Grind and prime all bays.", trailerMaterials: [{ item: "Grinder" }] };
+  const fwoId = await publishAsOffice(pm, job.id, woContent);
+  // Revision 2 attaches a PDF drawing (like the grounding-point diagram).
+  const drawing = await PDFDocument.create();
+  drawing.addPage([792, 612]).drawText("GROUNDING POINT DIAGRAM", { x: 60, y: 520, size: 24, font: await drawing.embedFont(StandardFonts.Helvetica) });
+  const drawingBytes = await drawing.save();
+  const file = `${job.id}/${fwoId}/grounding.pdf`;
+  expect((await api(`/storage/v1/object/fwo-files/${file}`, { method: "POST", headers: { "Content-Type": "application/pdf" }, body: new Uint8Array(drawingBytes) })).ok).toBe(true);
+  await publishAsOffice(pm, job.id, { ...woContent, attachments: [{ path: file, name: "Grounding.pdf", contentType: "application/pdf", size: drawingBytes.length, caption: "Grounding points" }] }, { fwoId, changeSummary: "Grounding diagram" });
   const asLead = await sessionFetch(lead);
   const rpc = async (fn: string, args: object) => {
     const r = await asLead(`/rest/v1/rpc/${fn}`, { method: "POST", body: JSON.stringify(args) });
@@ -59,11 +68,20 @@ test("the office prints a job's closeout package: work order, daily reports, QC 
     await page.goto(`/jobs/${job.id}`);
     const link = page.getByRole("link", { name: "Print closeout package" });
     await expect(link).toHaveAttribute("href", `/jobs/${job.id}/closeout`);
+    // The work order PDF prints the attached drawing after the work order, numbered with it.
+    const wo = await page.request.get(`/jobs/library/${fwoId}/pdf`);
+    expect(wo.ok()).toBe(true);
+    const woText = flat(pdfText(await wo.body()));
+    expect(woText).toContain(flat("Grind and prime all bays."));
+    expect(woText).toContain(flat("GROUNDING POINT DIAGRAM"));
+    expect(woText.indexOf(flat("Grind and prime all bays."))).toBeLessThan(woText.indexOf(flat("GROUNDING POINT DIAGRAM")));
+    expect(woText).toMatch(/Page2of2/);
+
     const res = await page.request.get(`/jobs/${job.id}/closeout`, { timeout: 120_000 });
     expect(res.ok()).toBe(true);
     expect(res.headers()["content-type"]).toContain("application/pdf");
     const text = flat(pdfText(await res.body()));
-    for (const s of ["Job closeout package", job.name, "Contents", "Work orders: 1", "Daily reports: 1", "Photos: 1", "Grind and prime all bays.", "Primed bays 1 through 3.", "Daily reports not yet accepted", "Quality control readings", "Surface pH", "Bay 1", "Primer"]) {
+    for (const s of ["Job closeout package", job.name, "Contents", "Work orders: 1", "Daily reports: 1", "Photos: 1", "Grind and prime all bays.", "GROUNDING POINT DIAGRAM", "Primed bays 1 through 3.", "Daily reports not yet accepted", "Quality control readings", "Surface pH", "Bay 1", "Primer"]) {
       expect(text, s).toContain(flat(s));
     }
 

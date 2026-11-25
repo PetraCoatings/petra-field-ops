@@ -718,7 +718,7 @@
       "revisionLine": "Revision {n} · published {when}",
       "contactInfo": "Contact information",
       "target": "Target",
-      "attachedPdf": "PDF, open it in the app",
+      "attachedPdf": "printed on the pages after this work order",
       "page": "Page",
       "of": "of",
       "sheetsInApp": "The exact TDS and SDS versions for this work order are in the app."

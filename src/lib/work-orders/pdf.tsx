@@ -283,7 +283,6 @@ export function WorkOrderPages({
           <Text>
             {project.name} · {L.workOrderN} · {L.revisionLine}
           </Text>
-          <Text render={({ pageNumber, totalPages }) => `${L.page} ${pageNumber} ${L.of} ${totalPages}`} />
         </View>
       </Page>
 
@@ -296,7 +295,6 @@ export function WorkOrderPages({
             <Text>
               {project.name} · {L.workOrderN} · {L.revisionLine}
             </Text>
-            <Text render={({ pageNumber, totalPages }) => `${L.page} ${pageNumber} ${L.of} ${totalPages}`} />
           </View>
         </Page>
       ))}

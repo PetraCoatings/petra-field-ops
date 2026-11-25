@@ -36,7 +36,7 @@ export async function GET(_request: Request, ctx: RouteContext<"/jobs/[id]/close
     const built = await buildCloseout(supabase, id, px);
     if (!built) return new Response("Not found", { status: 404 });
     fileName = built.fileName;
-    pdf = await renderCloseoutPdf(built.model);
+    pdf = await renderCloseoutPdf(built.model, built.drawings);
     if (pdf.length <= LIMIT_BYTES) break;
   }
   if (!pdf) return new Response("Not found", { status: 404 });
