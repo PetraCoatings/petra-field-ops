@@ -55,7 +55,8 @@ const NETWORK_TIMEOUT_MS = 4000;
 const OPTIONAL_ROUTES = ["/time-clock/crew"];
 // Weak signal: give up on other pages after this long and show the
 // "No connection" page (with buttons to the Time Clock) instead of hanging.
-const PAGE_TIMEOUT_MS = 10000;
+// Long enough that a merely slow server is never mistaken for no signal.
+const PAGE_TIMEOUT_MS = 20000;
 const PDFJS_WORKER = "/pdfjs/pdf.worker-6.4.299.min.mjs";
 const WARM_EVERY_MS = 10 * 60 * 1000;
 const META_WARMED = "/__petra-offline/warmed";
