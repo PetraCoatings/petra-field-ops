@@ -6,7 +6,7 @@ import type { WorkOrderPdfProps } from "@/lib/work-orders/pdf-props";
 /**
  * The job closeout package: one PDF with a cover page, the job's work
  * order(s), every submitted daily report, the QC readings, jobsite issues and
- * all job photos. Everything arrives already translated and formatted (see
+ * all job photos (six per page). Everything arrives already translated and formatted (see
  * build.ts); this file only lays it out.
  */
 
@@ -50,10 +50,11 @@ const s = StyleSheet.create({
   tr: { flexDirection: "row", borderBottomWidth: 1, borderColor: "#ddd" },
   th: { flex: 1, padding: 3, fontFamily: "Helvetica-Bold", fontSize: 8.5, backgroundColor: "#eef2f7" },
   td: { flex: 1, padding: 3, fontSize: 8.5 },
-  photoRow: { marginBottom: 14 },
-  photo: { objectFit: "contain", maxHeight: 300, marginBottom: 4 },
-  photoCaption: { fontFamily: "Helvetica-Bold", fontSize: 10 },
-  photoSub: { fontSize: 9, color: "#444" },
+  photoGrid: { flexDirection: "row", flexWrap: "wrap", justifyContent: "space-between" },
+  photoCell: { width: "48.5%", height: 214, marginBottom: 8 },
+  photo: { objectFit: "contain", height: 168, marginBottom: 3 },
+  photoCaption: { fontFamily: "Helvetica-Bold", fontSize: 9 },
+  photoSub: { fontSize: 8, color: "#444" },
   footer: { position: "absolute", bottom: 24, left: 40, right: 40, flexDirection: "row", justifyContent: "space-between", fontSize: 8, color: "#555" },
 });
 
@@ -86,8 +87,9 @@ function Blocks({ blocks }: { blocks: CloseoutBlock[] }) {
 }
 
 export function CloseoutPdf({ m }: { m: CloseoutModel }) {
-  const pairs: CloseoutPhoto[][] = [];
-  for (let i = 0; i < m.photos.length; i += 2) pairs.push(m.photos.slice(i, i + 2));
+  const PER_PAGE = 6; // two columns of three
+  const pages: CloseoutPhoto[][] = [];
+  for (let i = 0; i < m.photos.length; i += PER_PAGE) pages.push(m.photos.slice(i, i + PER_PAGE));
   return (
     <Document title={`${m.jobName} - ${m.labels.title}`} author="Petra Field Operations" creator="Petra Field Operations">
       {/* Cover */}
@@ -180,19 +182,21 @@ export function CloseoutPdf({ m }: { m: CloseoutModel }) {
         </Page>
       )}
 
-      {/* Photos, two per page */}
-      {pairs.map((pair, i) => (
+      {/* Photos, six per page (two columns of three) */}
+      {pages.map((group, i) => (
         <Page key={`p-${i}`} size="LETTER" style={s.page}>
-          {i === 0 && <Text style={[s.h2, { marginTop: 0 }]}>{m.labels.photos}</Text>}
-          {pair.map((p, j) => (
-            <View key={j} style={s.photoRow} wrap={false}>
-              {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, not an HTML img */}
-              <Image src={{ data: p.data, format: "jpg" }} style={s.photo} />
-              <Text style={s.photoCaption}>{p.caption}</Text>
-              <Text style={s.photoSub}>{p.sub}</Text>
-              {p.notes && <Text style={s.photoSub}>{p.notes}</Text>}
-            </View>
-          ))}
+          <Text style={[s.h2, { marginTop: 0 }]}>{m.labels.photos}</Text>
+          <View style={s.photoGrid}>
+            {group.map((p, j) => (
+              <View key={j} style={s.photoCell} wrap={false}>
+                {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, not an HTML img */}
+                <Image src={{ data: p.data, format: "jpg" }} style={s.photo} />
+                <Text style={s.photoCaption}>{p.caption}</Text>
+                <Text style={s.photoSub}>{p.sub}</Text>
+                {p.notes && <Text style={s.photoSub}>{p.notes.length > 90 ? `${p.notes.slice(0, 88)}…` : p.notes}</Text>}
+              </View>
+            ))}
+          </View>
           <Footer m={m} />
         </Page>
       ))}

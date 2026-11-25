@@ -32,7 +32,7 @@ export async function GET(_request: Request, ctx: RouteContext<"/jobs/[id]/close
   const supabase = await createClient();
   let pdf: Buffer | null = null;
   let fileName = "Closeout package.pdf";
-  for (const px of [1400, 1000, 700]) {
+  for (const px of [1000, 750, 550]) {
     const built = await buildCloseout(supabase, id, px);
     if (!built) return new Response("Not found", { status: 404 });
     fileName = built.fileName;

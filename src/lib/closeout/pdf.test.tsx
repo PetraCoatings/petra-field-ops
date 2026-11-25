@@ -6,7 +6,7 @@ import { flat, pdfPageCount, pdfText } from "../../../e2e/support/pdf-text";
 import { renderCloseoutPdf, type CloseoutModel } from "./pdf";
 
 describe("job closeout package PDF", () => {
-  it("puts the cover, daily reports, QC, issues and photos (two per page) in one PDF", async () => {
+  it("puts the cover, daily reports, QC, issues and photos (six per page) in one PDF", async () => {
     const jpg = await sharp({ create: { width: 1200, height: 900, channels: 3, background: { r: 120, g: 120, b: 120 } } }).jpeg().toBuffer();
     const model: CloseoutModel = {
       labels: { title: "Job closeout package", contents: "Contents", dailyReports: "Daily reports", qc: "Quality control readings", issues: "Jobsite issues", photos: "Photos", page: "Page", of: "of", none: "None" },
@@ -22,14 +22,14 @@ describe("job closeout package PDF", () => {
       ],
       qc: { headers: ["Test", "Reading", "Result", "Where", "When / by"], rows: [["Dew point", "6.5 F above dew point", "Pass", "Bay 2", "Nov 23"]] },
       issues: [{ title: "Moisture", lines: ["Slab reads 5.2 lbs", "Still open."], warn: true }],
-      photos: [1, 2, 3].map((i) => ({ caption: `Primer ${i}`, sub: "Nov 23 - Dakota", notes: null, data: jpg })),
+      photos: [1, 2, 3, 4, 5, 6, 7].map((i) => ({ caption: `Primer ${i}`, sub: "Nov 23 - Dakota", notes: null, data: jpg })),
     };
     const pdf = await renderCloseoutPdf(model);
     const text = flat(pdfText(pdf));
-    for (const s of ["Job closeout package", "Xbow RIB 3", "Job #2611", "Daily reports not yet accepted", "Ground the floor and primed bays 1-3.", "Quality control readings", "6.5 F above dew point", "Jobsite issues", "Slab reads 5.2 lbs", "Primer 3"]) {
+    for (const s of ["Job closeout package", "Xbow RIB 3", "Job #2611", "Daily reports not yet accepted", "Ground the floor and primed bays 1-3.", "Quality control readings", "6.5 F above dew point", "Jobsite issues", "Slab reads 5.2 lbs", "Primer 3", "Primer 7"]) {
       expect(text).toContain(flat(s));
     }
-    // Cover + 2 reports + QC/issues + 2 photo pages (3 photos, two per page).
+    // Cover + 2 reports + QC/issues + 2 photo pages (7 photos, six per page).
     expect(pdfPageCount(pdf)).toBe(6);
   });
 });
