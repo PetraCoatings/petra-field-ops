@@ -481,7 +481,8 @@ test("weak signal at the end of the day: the crew lead can still open crew clock
 
     // Leaving the job, no signal; the app is closed and opened again.
     await context.setOffline(true);
-    await page.goto("/");
+    // (A background refresh still finishing can interrupt the first try, as a tap on the app icon can be.)
+    await page.goto("/").catch(() => page.goto("/"));
     await expect(page.getByRole("heading", { name: "No connection" })).toBeVisible({ timeout: 20_000 });
     await page.getByRole("link", { name: "Crew clock-in (crew leads)" }).click();
     await expect(page.getByRole("button", { name: /^Clock out/ })).toBeVisible({ timeout: 20_000 });
