@@ -44,3 +44,14 @@ export async function reviewDailyReport(payload: { id: string; action: "accept" 
   revalidatePath("/jobs", "layout");
   return { ok: true };
 }
+
+/** Office (PMs and office admins): open a submitted report for editing before accepting it. */
+export async function editSubmittedDailyReport(payload: { id: string }): Promise<ReviewResult> {
+  await requireProfile();
+  if (!uuid.safeParse(payload?.id).success) return { ok: false, error: "generic" };
+  const supabase = await createClient();
+  const { error } = await supabase.rpc("edit_submitted_daily_report", { p_id: payload.id });
+  if (error) return { ok: false, error: error.code === "42501" ? "forbidden" : error.code === "P0001" ? "state" : "generic" };
+  revalidatePath("/jobs", "layout");
+  return { ok: true };
+}
