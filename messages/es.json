@@ -1540,7 +1540,8 @@
     "restoredTyping": "Se muestran cambios que escribió en este teléfono y no se guardaron. Toque Guardar borrador para conservarlos.",
     "staleTyping": "Este teléfono tiene cambios que escribió y no se guardaron, pero el reporte se actualizó después. ¿Usar sus cambios o descartarlos?",
     "useMyTyping": "Usar mis cambios",
-    "discardTyping": "Descartarlos"
+    "discardTyping": "Descartarlos",
+    "editYourself": "Editarlo usted"
   },
   "photos": {
     "title": "Fotos",

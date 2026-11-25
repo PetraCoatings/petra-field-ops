@@ -1540,7 +1540,8 @@
     "restoredTyping": "Showing changes you typed on this phone that weren't saved yet. Tap Save draft to keep them.",
     "staleTyping": "This phone has changes you typed that weren't saved, but the report was updated since. Use your changes, or discard them?",
     "useMyTyping": "Use my changes",
-    "discardTyping": "Discard them"
+    "discardTyping": "Discard them",
+    "editYourself": "Edit it yourself"
   },
   "photos": {
     "title": "Photos",

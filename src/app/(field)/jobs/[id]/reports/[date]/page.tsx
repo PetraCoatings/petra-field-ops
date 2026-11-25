@@ -68,7 +68,10 @@ export default async function DailyReportPage({ params, searchParams }: PageProp
   const names = await directoryNames([...versions.map((v) => v.submitted_by), dfr.correction_by, dfr.accepted_by, ...jobRow.project_assignments.map((a) => a.employee_id), jobRow.crew_lead_id]);
   const name = (x: string | null) => (x ? (names.get(x)?.display_name ?? "?") : "?");
   const status = dfr.status as "draft" | "submitted" | "correction_requested" | "accepted";
-  const editing = canWrite && (status === "draft" || status === "correction_requested");
+  // A report sent back is the crew lead's to fix: the office sees its status,
+  // with a button to edit it themselves instead (?edit=1).
+  const office = canAccessManagement(profile.role);
+  const editing = canWrite && (status === "draft" || (status === "correction_requested" && (!office || sp.edit === "1")));
   const when = (s: string) => format.dateTime(new Date(s), { dateStyle: "medium", timeStyle: "short" });
 
   if (editing) {
@@ -105,6 +108,11 @@ export default async function DailyReportPage({ params, searchParams }: PageProp
           {shown && <p>{t("submittedBy", { name: name(shown.submitted_by), when: when(shown.submitted_at), version: shown.version_number })}</p>}
           {status === "accepted" && dfr.accepted_at && <p>{t("acceptedBy", { name: name(dfr.accepted_by as string), when: when(dfr.accepted_at as string) })}</p>}
           {status === "correction_requested" && <p>{t("correctionBy", { name: name(dfr.correction_by as string), note: dfr.correction_note as string })}</p>}
+          {status === "correction_requested" && office && canWrite && (
+            <Link href={`/jobs/${id}/reports/${date}?edit=1`} className={`${buttonClasses("secondary", "md")} mt-2`}>
+              {t("editYourself")}
+            </Link>
+          )}
           {status === "draft" && <p>{t("draftOnly")}</p>}
         </section>
         {status === "submitted" && canAccessManagement(profile.role) && <ReviewBox id={dfr.id as string} />}
