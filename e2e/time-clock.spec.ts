@@ -343,13 +343,15 @@ test("no signal: presses are saved on the phone and sent with their original tim
     await page.evaluate((owner) => {
       const list = JSON.parse(localStorage.getItem("petra.outbox.v1") ?? "[]");
       const id = crypto.randomUUID();
-      list.push({ id, kind: "clock", owner, state: "pending", createdAt: new Date().toISOString(), payload: { id, action: "clock_in", category: "ride", deviceTs: new Date().toISOString(), gps: { status: "not_requested" } } });
+      // A genuinely wrong press: lunch started before the current entry began.
+      const before = new Date(Date.now() - 6 * 3_600_000).toISOString();
+      list.push({ id, kind: "clock", owner, state: "pending", createdAt: new Date().toISOString(), payload: { id, action: "break_start", deviceTs: before, gps: { status: "not_requested" } } });
       localStorage.setItem("petra.outbox.v1", JSON.stringify(list));
     }, emp);
     await page.goto("/sync");
     await page.getByRole("button", { name: "Send now" }).click();
     const refused = page.getByRole("list", { name: "Time clock presses on this phone" }).getByRole("listitem").filter({ hasText: "Not accepted" });
-    await expect(refused).toContainText("The server didn't accept it: You're already clocked in.");
+    await expect(refused).toContainText("The server didn't accept it: That time is before your last entry.");
     await expect(page.getByRole("link", { name: "1 time clock press(es) not accepted" })).toBeVisible();
     await refused.getByRole("button", { name: "Remove from this list" }).click();
     await expect(page.getByText("Not accepted")).toHaveCount(0);
