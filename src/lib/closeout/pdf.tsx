@@ -1,6 +1,7 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import { PETRA_LOGO_PNG } from "@/lib/work-orders/pdf-logo";
-import { WorkOrderPages } from "@/lib/work-orders/pdf";
+import { assemblePdf } from "@/lib/pdf/assemble";
+import { WorkOrderPdf } from "@/lib/work-orders/pdf";
 import type { WorkOrderPdfProps } from "@/lib/work-orders/pdf-props";
 
 /**
@@ -64,7 +65,6 @@ function Footer({ m }: { m: CloseoutModel }) {
       <Text>
         {m.jobName} · {m.labels.title}
       </Text>
-      <Text render={({ pageNumber, totalPages }) => `${m.labels.page} ${pageNumber} ${m.labels.of} ${totalPages}`} />
     </View>
   );
 }
@@ -86,13 +86,12 @@ function Blocks({ blocks }: { blocks: CloseoutBlock[] }) {
   );
 }
 
-export function CloseoutPdf({ m }: { m: CloseoutModel }) {
-  const PER_PAGE = 6; // two columns of three
-  const pages: CloseoutPhoto[][] = [];
-  for (let i = 0; i < m.photos.length; i += PER_PAGE) pages.push(m.photos.slice(i, i + PER_PAGE));
+const docProps = (m: CloseoutModel) => ({ title: `${m.jobName} - ${m.labels.title}`, author: "Petra Field Operations", creator: "Petra Field Operations" });
+
+/** The cover page. */
+export function CloseoutCoverPdf({ m }: { m: CloseoutModel }) {
   return (
-    <Document title={`${m.jobName} - ${m.labels.title}`} author="Petra Field Operations" creator="Petra Field Operations">
-      {/* Cover */}
+    <Document {...docProps(m)}>
       <Page size="LETTER" style={s.page}>
         <View style={s.brand}>
           {/* eslint-disable-next-line jsx-a11y/alt-text -- react-pdf Image, not an HTML img */}
@@ -124,12 +123,19 @@ export function CloseoutPdf({ m }: { m: CloseoutModel }) {
         <Text style={[s.meta, { marginTop: 16 }]}>{m.generated}</Text>
         <Footer m={m} />
       </Page>
+    </Document>
+  );
+}
 
-      {/* Work orders, exactly as their own PDF */}
-      {m.workOrders.map((wo, i) => (
-        <WorkOrderPages key={`wo-${i}`} {...wo} />
-      ))}
+const hasRest = (m: CloseoutModel) => m.reports.length > 0 || m.qc !== null || m.issues.length > 0 || m.photos.length > 0;
 
+/** Daily reports, QC readings, jobsite issues and photos (after the work orders). */
+export function CloseoutRestPdf({ m }: { m: CloseoutModel }) {
+  const PER_PAGE = 6; // two columns of three
+  const pages: CloseoutPhoto[][] = [];
+  for (let i = 0; i < m.photos.length; i += PER_PAGE) pages.push(m.photos.slice(i, i + PER_PAGE));
+  return (
+    <Document {...docProps(m)}>
       {/* Daily reports: each starts on a new page */}
       {m.reports.map((r, i) => (
         <Page key={`r-${i}`} size="LETTER" style={s.page}>
@@ -204,7 +210,17 @@ export function CloseoutPdf({ m }: { m: CloseoutModel }) {
   );
 }
 
-export async function renderCloseoutPdf(m: CloseoutModel): Promise<Buffer> {
+/**
+ * The whole package as one PDF: cover, each work order followed by its
+ * attached PDF drawings (`drawings[i]` belongs to `m.workOrders[i]`), then the
+ * reports, QC, issues and photos, numbered "Page X of Y" throughout.
+ */
+export async function renderCloseoutPdf(m: CloseoutModel, drawings: Buffer[][] = []): Promise<Buffer> {
   const { renderToBuffer } = await import("@react-pdf/renderer");
-  return renderToBuffer(<CloseoutPdf m={m} />);
+  const parts: Uint8Array[] = [await renderToBuffer(<CloseoutCoverPdf m={m} />)];
+  for (const [i, wo] of m.workOrders.entries()) {
+    parts.push(await renderToBuffer(<WorkOrderPdf {...wo} />), ...(drawings[i] ?? []));
+  }
+  if (hasRest(m)) parts.push(await renderToBuffer(<CloseoutRestPdf m={m} />));
+  return (await assemblePdf(parts, (n, total) => `${m.labels.page} ${n} ${m.labels.of} ${total}`)).pdf;
 }

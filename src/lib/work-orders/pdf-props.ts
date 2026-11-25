@@ -29,7 +29,7 @@ export async function workOrderPdfProps(
   supabase: Awaited<ReturnType<typeof createClient>>,
   fwoId: string,
   rev: number | null,
-): Promise<{ props: WorkOrderPdfProps; fileName: string } | null> {
+): Promise<{ props: WorkOrderPdfProps; fileName: string; attachedPdfs: Buffer[] } | null> {
   const { data } = await supabase.rpc("get_library_work_order", { p_fwo_id: fwoId, p_revision: rev });
   const wo = ((data ?? []) as Row[])[0];
   if (!wo) return null;
@@ -38,22 +38,43 @@ export async function workOrderPdfProps(
   const format = await getFormatter();
   const content = readContent(wo.content);
 
-  // Drawings: photos are printed one per page; PDFs are listed with a link.
+  // Drawings: pictures are printed one per page; attached PDFs (shop drawings,
+  // diagrams) are printed in full after the work order (see assemblePdf).
   const urls = await signedUrls(content.attachments);
-  const images: PdfImage[] = [];
-  for (const a of content.attachments.filter((x) => x.contentType === "image/png" || x.contentType === "image/jpeg").slice(0, MAX_IMAGES)) {
-    const url = urls.get(a.path);
-    if (!url) continue;
+  const fetchBytes = async (path: string): Promise<Buffer | null> => {
+    const url = urls.get(path);
+    if (!url) return null;
     try {
       const res = await fetch(url);
-      if (res.ok) images.push({ name: a.name, caption: a.caption ?? null, data: Buffer.from(await res.arrayBuffer()), format: a.contentType === "image/png" ? "png" : "jpg" });
+      return res.ok ? Buffer.from(await res.arrayBuffer()) : null;
     } catch {
-      // A drawing that can't be fetched is left out rather than failing the PDF.
+      return null; // a drawing that can't be fetched is left out rather than failing the PDF
     }
+  };
+  const images: PdfImage[] = [];
+  for (const a of content.attachments.filter((x) => x.contentType.startsWith("image/")).slice(0, MAX_IMAGES)) {
+    let data = await fetchBytes(a.path);
+    if (!data) continue;
+    let fmt: "png" | "jpg" = a.contentType === "image/png" ? "png" : "jpg";
+    if (a.contentType !== "image/png" && a.contentType !== "image/jpeg") {
+      // WebP and other picture types: converted for the PDF.
+      try {
+        const sharp = (await import("sharp")).default;
+        data = await sharp(data).rotate().jpeg({ quality: 85 }).toBuffer();
+        fmt = "jpg";
+      } catch {
+        continue;
+      }
+    }
+    images.push({ name: a.name, caption: a.caption ?? null, data, format: fmt });
   }
-  const pdfAttachments = content.attachments
-    .filter((a) => a.contentType === "application/pdf" || a.contentType === "image/webp")
-    .map((a) => ({ name: a.name, caption: a.caption ?? null, url: urls.get(a.path) ?? null }));
+  const pdfList = content.attachments.filter((a) => a.contentType === "application/pdf");
+  const attachedPdfs: Buffer[] = [];
+  for (const a of pdfList.slice(0, MAX_IMAGES)) {
+    const bytes = await fetchBytes(a.path);
+    if (bytes) attachedPdfs.push(bytes);
+  }
+  const pdfAttachments = pdfList.map((a) => ({ name: a.name, caption: a.caption ?? null, url: urls.get(a.path) ?? null }));
 
   const days = content.schedule.map((d) => ({
     title: d.title,
@@ -99,5 +120,5 @@ export async function workOrderPdfProps(
   };
 
   const fileName = `${wo.project_snapshot.name ?? "Work order"} - WO ${wo.fwo_number} rev ${wo.revision_number}.pdf`.replace(/[^\w .,()-]+/g, "_");
-  return { props, fileName };
+  return { props, fileName, attachedPdfs };
 }

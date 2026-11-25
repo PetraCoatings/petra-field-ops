@@ -718,7 +718,7 @@
       "revisionLine": "Revisión {n} · publicada {when}",
       "contactInfo": "Información de contacto",
       "target": "Meta",
-      "attachedPdf": "PDF, ábralo en la app",
+      "attachedPdf": "impreso en las páginas después de esta orden de trabajo",
       "page": "Página",
       "of": "de",
       "sheetsInApp": "Las versiones exactas de la TDS y SDS de esta orden están en la app."

@@ -12,7 +12,8 @@ export function pdfText(pdf: Buffer): string {
     try {
       parts.push(inflateSync(Buffer.from(m[1], "latin1")).toString("latin1"));
     } catch {
-      // not a compressed content stream (fonts, images)
+      // Not compressed: page numbers added when PDFs are joined, or a font/image.
+      if (/\bTj\b|\bTJ\b/.test(m[1])) parts.push(m[1]);
     }
   }
   const content = parts.join("\n");

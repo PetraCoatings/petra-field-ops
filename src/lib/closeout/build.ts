@@ -19,7 +19,7 @@ export const MAX_PHOTOS = 150;
  * issues and photos. Read with the person's own access (office staff see
  * everything on the job). `photoPx` is the long edge photos are shrunk to.
  */
-export async function buildCloseout(supabase: Supabase, projectId: string, photoPx: number): Promise<{ model: CloseoutModel; fileName: string } | null> {
+export async function buildCloseout(supabase: Supabase, projectId: string, photoPx: number): Promise<{ model: CloseoutModel; fileName: string; drawings: Buffer[][] } | null> {
   const { data: job } = await supabase
     .from("projects")
     .select("id, name, job_number, site_street, site_city, site_state, site_postal_code, project_manager_id, crew_lead_id, status, customers(name)")
@@ -43,9 +43,13 @@ export async function buildCloseout(supabase: Supabase, projectId: string, photo
 
   // Work orders: the current published revision of each.
   const workOrders = [];
+  const drawings: Buffer[][] = [];
   for (const f of fwos ?? []) {
     const built = await workOrderPdfProps(supabase, f.id as string, null);
-    if (built) workOrders.push(built.props);
+    if (built) {
+      workOrders.push(built.props);
+      drawings.push(built.attachedPdfs);
+    }
   }
 
   // Daily reports: the latest submitted version of each (drafts never submitted are only listed).
@@ -236,5 +240,5 @@ export async function buildCloseout(supabase: Supabase, projectId: string, photo
     photos: photoItems,
   };
   const fileName = `${job.name} - Closeout package.pdf`.replace(/[^\w .,()-]+/g, "_");
-  return { model, fileName };
+  return { model, fileName, drawings };
 }
