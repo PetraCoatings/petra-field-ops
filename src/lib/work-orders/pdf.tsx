@@ -95,7 +95,8 @@ function StepList({ steps, importantLabel, bullets = false }: { steps: Step[]; i
   );
 }
 
-export function WorkOrderPdf({
+/** The work order's pages, for the work order PDF or inside a larger PDF (job closeout package). */
+export function WorkOrderPages({
   labels: L,
   title,
   project,
@@ -119,7 +120,7 @@ export function WorkOrderPdf({
   const rows = Math.max(c.trailerMaterials.length, c.jobsiteMaterials.length);
 
   return (
-    <Document title={`${project.name ?? ""} - ${title}`} author="Petra Field Operations" creator="Petra Field Operations">
+    <>
       <Page size="LETTER" style={s.page}>
         <View style={s.headerRow}>
           <View style={s.brand}>
@@ -299,6 +300,14 @@ export function WorkOrderPdf({
           </View>
         </Page>
       ))}
+    </>
+  );
+}
+
+export function WorkOrderPdf(props: Parameters<typeof WorkOrderPages>[0]) {
+  return (
+    <Document title={`${props.project.name ?? ""} - ${props.title}`} author="Petra Field Operations" creator="Petra Field Operations">
+      <WorkOrderPages {...props} />
     </Document>
   );
 }
