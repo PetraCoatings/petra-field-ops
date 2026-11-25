@@ -11,6 +11,6 @@ export async function recentReports(projectId: string, limit = 14): Promise<Repo
 
 /** May this person write the job's daily report? (Mirrors app.can_write_dfr; the database decides.) */
 export function canWriteReport(profile: { employeeId: string; role: string }, job: { crew_lead_id: string | null; project_assignments: { employee_id: string }[] }): boolean {
-  if (profile.role === "office_admin") return true;
+  if (profile.role === "office_admin" || profile.role === "project_manager") return true;
   return profile.role === "crew_lead" && (job.crew_lead_id === profile.employeeId || job.project_assignments.some((a) => a.employee_id === profile.employeeId));
 }

@@ -1527,9 +1527,11 @@
       "errors": {
         "note": "Escriba qué hay que corregir.",
         "state": "Este reporte ya se revisó. Vuelva a cargar la página.",
-        "forbidden": "Solo la oficina revisa los reportes diarios.",
+        "forbidden": "Solo la oficina (gerentes de proyecto y administradores) revisa los reportes diarios.",
         "generic": "Algo salió mal. Inténtelo de nuevo."
-      }
+      },
+      "editFirst": "Editar antes de aceptar",
+      "editFirstHelp": "Corríjalo usted, luego envíelo y acéptelo. La versión del líder de cuadrilla queda en el historial."
     },
     "optional": "Opcional: úselo cuando haya algo que vale la pena anotar (lecturas, material, demoras, problemas).",
     "queuedSave": "Sin señal: guardado en este teléfono. Se enviará cuando tenga señal.",

@@ -1527,9 +1527,11 @@
       "errors": {
         "note": "Write what needs correcting.",
         "state": "This report was already reviewed. Reload the page.",
-        "forbidden": "Only the office reviews daily reports.",
+        "forbidden": "Only the office (project managers and office admins) reviews daily reports.",
         "generic": "Something went wrong. Try again."
-      }
+      },
+      "editFirst": "Edit before accepting",
+      "editFirstHelp": "Fix it yourself, then submit and accept it. The crew lead's version stays in the history."
     },
     "optional": "Optional: use it when there's something worth recording (readings, material, delays, issues).",
     "queuedSave": "No signal: saved on this phone. It will send when you have signal.",

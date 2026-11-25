@@ -1,0 +1,76 @@
+/**
+ * Project managers write daily reports like office admins, and the office can
+ * edit a submitted report before accepting it (migration 20261201000100).
+ */
+import { beforeAll, describe, expect, it } from "vitest";
+import { superuser } from "./harness";
+import { E, P, U, seed } from "./fixtures";
+
+beforeAll(async () => {
+  await superuser(async (c) => {
+    await c.query("truncate public.dfr_versions, public.daily_field_reports, public.notifications cascade");
+    await seed(c);
+  });
+});
+
+describe("daily reports: project managers and office edits", () => {
+  it("a PM starts, edits and submits a report; the office edits a submitted one, then accepts it", async () => {
+    await superuser(async (c) => {
+      await c.query("begin");
+      const as = async (u: string) => {
+        await c.query("reset role");
+        await c.query("select set_config('request.jwt.claims', $1, true)", [JSON.stringify({ sub: u, role: "authenticated", aal: "aal2" })]);
+        await c.query("set local role authenticated");
+      };
+      const q = async (sql: string, p: unknown[] = []) => {
+        await c.query("savepoint s");
+        try {
+          const r = await c.query(sql, p);
+          await c.query("release savepoint s");
+          return r.rows;
+        } catch (e) {
+          await c.query("rollback to savepoint s");
+          throw e;
+        }
+      };
+      try {
+        // A PM writes a report on a job (no crew lead needed).
+        await as(U.pm);
+        const id = (await q(`select public.ensure_daily_report($1, current_date - 1) as id`, [P.unassigned]))[0].id as string;
+        const v1 = (await q(`select public.save_daily_report($1, '{"notes":"PM wrote this"}', 1) as v`, [id]))[0].v as number;
+        await q(`select public.submit_daily_report($1, $2)`, [id, v1]);
+
+        // The crew lead's report on their own job, as before.
+        await as(U.lead);
+        const leadReport = (await q(`select public.ensure_daily_report($1, current_date - 2) as id`, [P.assigned]))[0].id as string;
+        const lv = (await q(`select public.save_daily_report($1, '{"notes":"Primer down, 2 kits"}', 1) as v`, [leadReport]))[0].v as number;
+        await q(`select public.submit_daily_report($1, $2)`, [leadReport, lv]);
+        // Crew leads and installers can't open a submitted report for editing.
+        await expect(q(`select public.edit_submitted_daily_report($1)`, [leadReport])).rejects.toThrow(/Only the office/);
+        await as(U.installer);
+        await expect(q(`select public.edit_submitted_daily_report($1)`, [leadReport])).rejects.toThrow(/Only the office/);
+        await expect(q(`select public.ensure_daily_report($1, current_date - 3)`, [P.assigned])).rejects.toThrow(/crew lead/);
+
+        // The PM fixes it, submits the corrected version and accepts it.
+        await as(U.pm);
+        const ev = (await q(`select public.edit_submitted_daily_report($1) as v`, [leadReport]))[0].v as number;
+        const draft = (await q(`select status, draft from public.daily_field_reports where id = $1`, [leadReport]))[0];
+        expect(draft).toEqual({ status: "draft", draft: { notes: "Primer down, 2 kits" } }); // starts from what was submitted
+        await expect(q(`select public.save_daily_report($1, '{}', $2)`, [leadReport, lv])).rejects.toThrow(/version_conflict/); // an old phone copy can't overwrite
+        const fv = (await q(`select public.save_daily_report($1, '{"notes":"Primer down, 3 kits"}', $2) as v`, [leadReport, ev]))[0].v as number;
+        await q(`select public.submit_daily_report($1, $2)`, [leadReport, fv]);
+        await q(`select public.accept_daily_report($1)`, [leadReport]);
+        const versions = await q(`select version_number, content ->> 'notes' as notes, submitted_by from public.dfr_versions where dfr_id = $1 order by version_number`, [leadReport]);
+        expect(versions).toEqual([
+          { version_number: 1, notes: "Primer down, 2 kits", submitted_by: E.lead },
+          { version_number: 2, notes: "Primer down, 3 kits", submitted_by: E.pm },
+        ]);
+        expect((await q(`select status, accepted_by from public.daily_field_reports where id = $1`, [leadReport]))[0]).toEqual({ status: "accepted", accepted_by: E.pm });
+        // Accepted reports are final, even for the office.
+        await expect(q(`select public.edit_submitted_daily_report($1)`, [leadReport])).rejects.toThrow(/Only a submitted report/);
+      } finally {
+        await c.query("rollback");
+      }
+    });
+  });
+});

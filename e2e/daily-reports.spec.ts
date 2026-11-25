@@ -119,3 +119,42 @@ test("daily report: fill in, conflict, submit, send back, resubmit, accept", asy
     await deleteTestProject(job.id);
   }
 });
+
+test("a project manager writes a report, and edits a submitted one before accepting it", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.setTimeout(150_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const pm = users.find((x) => x.role === "project_manager")!;
+  const job = await createTestProject([lead]);
+  await updateTestProject(job.id, { crew_lead_id: await employeeId(lead), project_manager_id: await employeeId(pm) });
+  const office = await signIn(browser, pm);
+  try {
+    const page = office.page;
+    // The PM can start the day's report (not only the crew lead).
+    await page.goto(`/jobs/${job.id}`);
+    await page.getByRole("button", { name: "Write a daily report for today" }).click();
+    await expect(page).toHaveURL(new RegExp(`/jobs/${job.id}/reports/\\d{4}-\\d{2}-\\d{2}$`));
+    await page.getByLabel("Work performed").fill("Walked the job with the GC; prep starts Monday.");
+    await page.getByRole("button", { name: "Submit report" }).click();
+    await page.getByRole("button", { name: "Yes, submit" }).click();
+    const status = page.getByRole("region", { name: "Report status" });
+    await expect(status).toContainText("version 1");
+
+    // Edit before accepting: fix it, submit the corrected version, accept.
+    await page.getByRole("button", { name: "Edit before accepting" }).click();
+    await expect(page.getByLabel("Work performed")).toHaveValue("Walked the job with the GC; prep starts Monday.");
+    await page.getByLabel("Work performed").fill("Walked the job with the GC; prep starts Tuesday.");
+    await page.getByRole("button", { name: "Submit report" }).click();
+    await page.getByRole("button", { name: "Yes, submit" }).click();
+    await expect(status).toContainText("version 2");
+    await page.getByRole("button", { name: "Accept report" }).click();
+    await expect(status).toContainText("Accepted");
+    await expect(page.getByText("prep starts Tuesday")).toBeVisible();
+    await page.getByRole("link", { name: /Version 1/ }).click();
+    await expect(page.getByText("prep starts Monday")).toBeVisible();
+  } finally {
+    await office.c.close();
+    await deleteTestProject(job.id);
+  }
+});
