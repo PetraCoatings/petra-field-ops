@@ -466,7 +466,15 @@ test("weak signal at the end of the day: the crew lead can still open crew clock
     await page.goto("/time-clock/crew");
     await page.getByLabel("Job", { exact: true }).selectOption(job.id);
     await page.getByRole("button", { name: /^Clock in/ }).click();
-    await expect(page.getByRole("status").filter({ hasText: "✓" })).toHaveCount(1, { timeout: 20_000 });
+    // Sent right away, or (slow connection) saved on the phone and sent moments later.
+    for (const emp of [leadId, instId]) {
+      await expect
+        .poll(async () => {
+          const open = (await (await api(`/rest/v1/time_segments?select=id&employee_id=eq.${emp}&status=eq.active&end_at=is.null`)).json()) as unknown[];
+          return open.length;
+        }, { timeout: 45_000 })
+        .toBe(1);
+    }
 
     // Leaving the job, no signal; the app is closed and opened again.
     await context.setOffline(true);
