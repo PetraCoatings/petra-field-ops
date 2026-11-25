@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ChevronLeft } from "lucide-react";
+import { BackLinkIcon } from "./link-pending";
 import type { ReactNode } from "react";
 
 export function PageHeader({
@@ -20,7 +20,7 @@ export function PageHeader({
           href={backHref}
           className="-ml-1 inline-flex min-h-11 items-center gap-1 rounded-lg pr-2 text-base font-semibold text-brand-700"
         >
-          <ChevronLeft aria-hidden className="size-5" />
+          <BackLinkIcon />
           {backLabel}
         </Link>
       )}

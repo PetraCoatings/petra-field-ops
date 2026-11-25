@@ -20,7 +20,8 @@
     "saved": "Guardado.",
     "genericError": "Algo salió mal. Inténtelo de nuevo.",
     "comingInPhase": "Esta parte de la app se está construyendo en la Fase {phase}.",
-    "notConfigured": "La app todavía no está conectada a su base de datos. Un administrador debe terminar la configuración (vea docs/SETUP.md)."
+    "notConfigured": "La app todavía no está conectada a su base de datos. Un administrador debe terminar la configuración (vea docs/SETUP.md).",
+    "loadingPage": "Cargando…"
   },
   "roles": {
     "installer": "Instalador",

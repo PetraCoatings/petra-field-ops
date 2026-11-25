@@ -20,13 +20,25 @@ export async function openDailyReport(fd: FormData): Promise<void> {
   redirect(`/jobs/${project.data}/reports/${day.data}`);
 }
 
+
+/**
+ * After a report changes: refresh just that job's screens (the job and its
+ * reports), not every job, so going back to the job afterwards is quick.
+ */
+async function refreshReportJob(supabase: Awaited<ReturnType<typeof createClient>>, reportId: string) {
+  const { data } = await supabase.from("daily_field_reports").select("project_id").eq("id", reportId).maybeSingle();
+  if (data?.project_id) revalidatePath(`/jobs/${data.project_id}`, "layout");
+  else revalidatePath("/jobs", "layout");
+}
+
 export type SaveResult = SaveCoreResult;
 
 /** Save the draft (and optionally submit it); see lib/reports/save-core.ts. */
 export async function saveDailyReport(payload: { id: string; content: unknown; basedOn: number; submit?: boolean }): Promise<SaveResult> {
   await requireProfile();
-  const r = await saveReportCore(await createClient(), payload);
-  if (r.ok) revalidatePath("/jobs", "layout");
+  const supabase = await createClient();
+  const r = await saveReportCore(supabase, payload);
+  if (r.ok && typeof payload?.id === "string") await refreshReportJob(supabase, payload.id);
   return r;
 }
 
@@ -41,7 +53,7 @@ export async function reviewDailyReport(payload: { id: string; action: "accept" 
       ? await supabase.rpc("accept_daily_report", { p_id: payload.id })
       : await supabase.rpc("request_daily_report_correction", { p_id: payload.id, p_note: payload.note ?? "" });
   if (error) return { ok: false, error: /corrected/.test(error.message) ? "note" : error.code === "42501" ? "forbidden" : error.code === "P0001" ? "state" : "generic" };
-  revalidatePath("/jobs", "layout");
+  await refreshReportJob(supabase, payload.id);
   return { ok: true };
 }
 
@@ -52,7 +64,7 @@ export async function editSubmittedDailyReport(payload: { id: string }): Promise
   const supabase = await createClient();
   const { error } = await supabase.rpc("edit_submitted_daily_report", { p_id: payload.id });
   if (error) return { ok: false, error: error.code === "42501" ? "forbidden" : error.code === "P0001" ? "state" : "generic" };
-  revalidatePath("/jobs", "layout");
+  await refreshReportJob(supabase, payload.id);
   return { ok: true };
 }
 
@@ -65,6 +77,6 @@ export async function reopenDailyReport(payload: { id: string; reason: string })
   const supabase = await createClient();
   const { error } = await supabase.rpc("reopen_daily_report", { p_id: payload.id, p_reason: reason.slice(0, 500) });
   if (error) return { ok: false, error: error.code === "42501" ? "forbidden" : error.code === "P0001" ? "state" : error.code === "22023" ? "note" : "generic" };
-  revalidatePath("/jobs", "layout");
+  await refreshReportJob(supabase, payload.id);
   return { ok: true };
 }
