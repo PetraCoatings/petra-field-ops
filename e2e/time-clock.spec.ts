@@ -139,9 +139,9 @@ test("a crew lead clocks the crew in and out together", async ({ browser }) => {
     await crewSide.page.goto("/time-clock/crew");
     await expect(crewSide.page).not.toHaveURL(/\/time-clock\/crew/);
 
-    // Clocking the installer in again is refused for them only.
+    // Clocking them in again changes nothing, and says so (not shown as an error).
     await page.getByRole("button", { name: "Clock in (2)" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Clock in at" })).toContainText("You're already clocked in.");
+    await expect(page.getByRole("status").filter({ hasText: "Clock in at" })).toContainText("E2E installer Test (already done)");
 
     await page.getByRole("button", { name: "Clock out (2)" }).click();
     await page.getByRole("button", { name: "Yes, clock out" }).click();
