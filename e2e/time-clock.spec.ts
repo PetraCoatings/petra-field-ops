@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
-import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { createTestProject, deleteTestProject, employeeId, sessionFetch, updateTestProject } from "./support/test-project";
 import { signInAs } from "./support/sign-in";
 
 /**
@@ -505,5 +505,44 @@ test("weak signal at the end of the day: the crew lead can still open crew clock
   } finally {
     await context.close();
     await deleteTestProject(job.id);
+  }
+});
+
+test("clocked in by the crew lead, then pressing Clock in on your own phone: told it's already done, not an error", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.setTimeout(120_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const installer = users.find((x) => x.role === "installer")!;
+  const instId = await employeeId(installer);
+  const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await context.newPage();
+    await signInAs(page, installer);
+    await page.goto("/time-clock");
+    const status = page.getByRole("region", { name: "Right now" });
+    await expect(status).toContainText("Not clocked in");
+
+    // Meanwhile the crew lead clocks them in from the lead's phone.
+    const asLead = await sessionFetch(lead);
+    const r = await asLead("/rest/v1/rpc/clock_action", {
+      method: "POST",
+      body: JSON.stringify({ p_client_event_id: crypto.randomUUID(), p_action: "clock_in", p_device_ts: new Date().toISOString(), p_device_now: new Date().toISOString(), p_gps_status: "not_requested", p_category: "job", p_employee_ids: [instId] }),
+    });
+    expect(r.ok).toBe(true);
+
+    // The installer (screen not refreshed) presses Clock in too.
+    await page.getByRole("button", { name: "Clock in" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "You were already clocked in" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.getByRole("link", { name: /not accepted/ })).toHaveCount(0); // no red badge
+    await expect(status).toContainText("On the clock");
+
+    // Clean up.
+    await page.getByRole("button", { name: "Clock out" }).click();
+    await page.getByRole("button", { name: "Yes, clock out" }).click();
+    await expect(status).toContainText("Not clocked in");
+  } finally {
+    await context.close();
   }
 });

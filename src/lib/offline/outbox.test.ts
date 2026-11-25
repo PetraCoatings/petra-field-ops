@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { predictOpen, type ClockPayload } from "./outbox";
+import { isAlreadyDone, predictOpen, pressesSince, type ClockPayload, type OutboxItem } from "./outbox";
 
 const press = (action: ClockPayload["action"], deviceTs: string, extra: Partial<ClockPayload> = {}): ClockPayload => ({
   id: deviceTs,
@@ -81,5 +81,34 @@ describe("a press made while another send is under way", () => {
     await slow;
     expect((await pressed).state).toBe("synced");
     expect(calls).toEqual(["first", "second"]);
+  });
+});
+
+describe("the Time Clock status opened from the copy saved on the phone", () => {
+  const me = "me";
+  const press = (id: string, action: ClockPayload["action"], at: string): ClockPayload => ({ id, action, category: action === "clock_in" ? "job" : null, deviceTs: at, gps: { status: "not_requested" } });
+  const item = (p: ClockPayload, state: OutboxItem["state"], results?: { employeeId: string; ok: boolean; error?: string }[]): OutboxItem => ({ id: p.id, kind: "clock", owner: me, state, createdAt: p.deviceTs, payload: p, results });
+  const savedAt = Date.parse("2026-11-25T13:00:00Z"); // when the saved copy was made
+
+  it("applies presses sent since the copy was made, and everything not sent yet", () => {
+    const items = [
+      item(press("a", "clock_in", "2026-11-25T12:00:00Z"), "synced", [{ employeeId: me, ok: true }]), // already in the copy
+      item(press("b", "break_start", "2026-11-25T17:00:00Z"), "synced", [{ employeeId: me, ok: true }]), // sent after the copy
+      item(press("c", "break_end", "2026-11-25T17:30:00Z"), "pending"),
+      item(press("d", "clock_out", "2026-11-25T18:00:00Z"), "synced", [{ employeeId: me, ok: false, error: "before_last_entry" }]), // refused
+      { ...item(press("e", "clock_out", "2026-11-25T19:00:00Z"), "pending"), owner: "someone else" },
+    ];
+    expect(pressesSince(items, me, savedAt).map((p) => p.id)).toEqual(["b", "c"]);
+    // So the screen shows "back from lunch", not the morning's status.
+    expect(predictOpen({ kind: "work", category: "job", projectId: null, start: Date.parse("2026-11-25T12:00:00Z") }, pressesSince(items, me, savedAt))).toMatchObject({ kind: "work", start: Date.parse("2026-11-25T17:30:00Z") });
+  });
+
+  it("treats \"already done\" as fine (the crew lead did it first)", () => {
+    expect(isAlreadyDone("clock_in", "already_clocked_in")).toBe(true);
+    expect(isAlreadyDone("clock_out", "not_clocked_in")).toBe(true);
+    expect(isAlreadyDone("clock_out", "before_last_entry")).toBe(false);
+    expect(isAlreadyDone("clock_in", undefined)).toBe(false);
+    const already = item(press("f", "clock_in", "2026-11-25T14:00:00Z"), "synced", [{ employeeId: me, ok: false, error: "already_clocked_in" }]);
+    expect(pressesSince([already], me, savedAt).map((p) => p.id)).toEqual(["f"]);
   });
 });
