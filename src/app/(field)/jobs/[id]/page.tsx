@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { ClipboardList, ExternalLink, Phone } from "lucide-react";
+import { ClipboardList, ExternalLink, FileDown, Phone } from "lucide-react";
+import { buttonClasses } from "@/components/ui/button-styles";
 import { getFormatter, getTranslations } from "next-intl/server";
 import { SavedCalculations } from "@/components/calculators/saved-calculations";
 import { DailyReportsCard } from "@/components/reports/daily-reports-card";
@@ -189,6 +190,18 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
         canWrite={canWriteReport(profile, job)}
         today={localDate(serverNow(), (await clockSettings()).timezone)}
       />
+
+      {(profile.role === "project_manager" || profile.role === "office_admin") && (
+        <Card title={t("closeout.cardTitle")}>
+          <div className="space-y-2">
+            <a href={`/jobs/${job.id}/closeout`} target="_blank" rel="noopener" className={buttonClasses("secondary", "md")}>
+              <FileDown aria-hidden className="size-5" />
+              {t("closeout.button")}
+            </a>
+            <p className="text-sm text-neutral-700">{t("closeout.help")}</p>
+          </div>
+        </Card>
+      )}
 
       {job.scope_summary && (
         <Card title={t("jobs.scope")}>
