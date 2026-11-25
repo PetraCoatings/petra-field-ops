@@ -3,6 +3,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useHydrated } from "@/lib/use-hydrated";
 import { Upload } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { ensureDocument, recordDocumentVersion } from "@/lib/actions/library";
@@ -90,8 +91,9 @@ export function DocumentUploader({
     router.refresh();
   }
 
+  const ready = useHydrated();
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-ready={ready}>
       <div className="flex flex-wrap items-end gap-2">
         <input ref={input} id={id} type="file" accept="application/pdf" multiple={multiple} onChange={(e) => void upload(e.target.files)} className="sr-only" />
         <label htmlFor={id} className={buttonClasses("secondary", "md", `cursor-pointer ${busy ? "pointer-events-none opacity-60" : ""}`)}>

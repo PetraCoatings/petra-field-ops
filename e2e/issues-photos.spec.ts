@@ -44,6 +44,7 @@ test("photos and jobsite issues", async ({ browser }) => {
     await page.goto(`/jobs/${job.id}`);
     const photos = page.getByRole("region", { name: "Photos" });
     await photos.getByLabel("Stage").selectOption({ label: "Before" });
+    await expect(photos.locator("[data-ready]").first()).toHaveAttribute("data-ready", "true");
     await photos.getByTestId("photo-input").setInputFiles({ name: "IMG_0001.png", mimeType: "image/png", buffer: PNG });
     await expect(photos.getByRole("status")).toContainText("1 photo(s) added.");
     await photos.getByRole("link", { name: /Before/ }).first().click();
