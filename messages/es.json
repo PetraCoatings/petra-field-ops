@@ -1657,15 +1657,27 @@
       "wft": "Espesor de película húmeda",
       "dft": "Espesor de película seca",
       "adhesion": "Adherencia por tracción",
-      "esd": "Resistencia ESD (punto a tierra)"
+      "esd": "Resistencia ESD (punto a tierra)",
+      "dew_point": "Punto de rocío: superficie sobre el punto de rocío"
     },
     "errors": {
       "type": "Elija una prueba.",
       "limits": "Revise los límites: solo números, y el mínimo no puede ser mayor que el máximo.",
       "duplicate": "Esa prueba ya está en esta obra.",
       "forbidden": "No puede hacer eso en esta obra.",
-      "value": "Escriba la lectura como un número."
-    }
+      "value": "Escriba la lectura como un número.",
+      "humidity": "La humedad debe estar entre 1 y 100%.",
+      "temperature": "Revise las temperaturas (°F).",
+      "dewInputs": "Escriba la temperatura del aire, la humedad y la temperatura de la superficie."
+    },
+    "airTemp": "Temp. del aire (°F)",
+    "humidity": "Humedad (%)",
+    "surfaceTemp": "Temp. de la superficie (°F)",
+    "dewPointPreview": "Punto de rocío {dew} °F · superficie {spread} °F por encima",
+    "dewPointBelow": "La superficie está {spread} °F por debajo del punto de rocío: condensación. No aplicar.",
+    "dewPointNeeds": "Este trabajo necesita al menos {min} °F por encima.",
+    "dewPointDetails": "Aire {air} °F · humedad {rh}% · superficie {surface} °F · punto de rocío {dew} °F",
+    "dewPointRequirementHelp": "Para punto de rocío: deje el mínimo vacío para usar el margen de la empresa ({margin} °F sobre el punto de rocío)."
   },
   "sync": {
     "title": "Sincronizar",

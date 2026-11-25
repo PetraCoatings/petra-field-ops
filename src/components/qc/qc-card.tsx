@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { addQcRequirement, recordQcReading, removeQcReading, removeQcRequirement } from "@/lib/actions/qc";
 import { directoryNames } from "@/lib/db/queries";
 import { limitText } from "@/domain/reports/qc";
+import { reportContext } from "@/lib/reports/context";
 import { AddRequirementForm, RecordReadingForm } from "./qc-forms";
 
 type Req = { id: string; test_type_id: string; min_value: string | null; max_value: string | null; notes: string | null };
@@ -21,6 +22,7 @@ type Reading = {
   criteria_max: string | null;
   result: "pass" | "fail" | null;
   created_at: string;
+  inputs: { airTempF: number; humidityPct: number; surfaceTempF: number; dewPointF: number } | null;
 };
 const n = (v: string | null) => (v === null ? null : Number(v));
 
@@ -52,7 +54,7 @@ export async function QcCard({
     supabase.from("qc_requirements").select("id, test_type_id, min_value, max_value, notes").eq("project_id", projectId),
     supabase.from("qc_measurements").select("*").eq("project_id", projectId).order("measured_at", { ascending: false }).limit(100),
   ]);
-  const CODES = ["moisture_rh", "moisture_cacl", "ph", "csp", "wft", "dft", "adhesion", "esd"] as const;
+  const CODES = ["moisture_rh", "moisture_cacl", "ph", "csp", "wft", "dft", "adhesion", "esd", "dew_point"] as const;
   const typeList = ((types ?? []) as { id: string; code: string; name: string; unit: string; method: string | null }[]).map((x) => ({
     ...x,
     name: (CODES as readonly string[]).includes(x.code) ? t(`types.${x.code as (typeof CODES)[number]}`) : x.name,
@@ -127,8 +129,21 @@ export async function QcCard({
         )}
       </div>
 
-      {office && <AddRequirementForm action={addQcRequirement.bind(null, projectId)} types={typeList.filter((x) => !requirements.some((r) => r.test_type_id === x.id))} />}
-      {canRecord && <RecordReadingForm action={recordQcReading.bind(null, projectId)} types={typeList} preferred={requirements.map((r) => r.test_type_id)} />}
+      {office && (
+        <AddRequirementForm
+          action={addQcRequirement.bind(null, projectId)}
+          types={typeList.filter((x) => !requirements.some((r) => r.test_type_id === x.id))}
+          companyMarginF={(await reportContext()).companyMarginF}
+        />
+      )}
+      {canRecord && (
+        <RecordReadingForm
+          action={recordQcReading.bind(null, projectId)}
+          types={typeList}
+          preferred={requirements.map((r) => r.test_type_id)}
+          minimums={Object.fromEntries(requirements.map((r) => [r.test_type_id, n(r.min_value)]))}
+        />
+      )}
 
       <div>
         <h3 className="font-semibold">{t("readings")}</h3>
@@ -154,6 +169,11 @@ export async function QcCard({
                       .filter(Boolean)
                       .join(" · ")}
                   </p>
+                  {r.inputs && (
+                    <p className="text-sm text-neutral-700">
+                      {t("dewPointDetails", { air: num(r.inputs.airTempF), rh: num(r.inputs.humidityPct), surface: num(r.inputs.surfaceTempF), dew: num(r.inputs.dewPointF) })}
+                    </p>
+                  )}
                   {r.notes && <p className="text-sm">{r.notes}</p>}
                   {canRemove && (
                     <form action={removeQcReading}>
