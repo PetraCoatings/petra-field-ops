@@ -1063,7 +1063,7 @@
       "no_change": "Pick a different category or job to switch to.",
       "category_required": "Choose Job, Drive or Ride.",
       "before_last_entry": "That time is before your last entry. Ask the office to fix it.",
-      "too_late": "It was more than 3 days before this reached the office. Ask your crew lead or the office to add this time.",
+      "too_late": "It was more than 7 days before this reached the office. Ask your crew lead or the office to add this time.",
       "inactive": "This employee is not active.",
       "invalid": "Something about this entry wasn't right. Try again.",
       "forbidden": "You can't do that.",
@@ -1104,7 +1104,8 @@
         "clock_out": "Clock out at {time}:"
       },
       "gpsExplain": "Your phone's location is recorded for everyone you clock in or out, and marked as yours.",
-      "savedOnPhone": "Weak or no signal: saved on this phone at {time} for {count} people. It sends by itself when you have signal, with the time you pressed. No need to press again."
+      "savedOnPhone": "Weak or no signal: saved on this phone at {time} for {count} people. It sends by itself when you have signal, with the time you pressed. No need to press again.",
+      "already": "already done"
     },
     "sheet": {
       "title": "My timesheet",
@@ -1212,7 +1213,15 @@
       "break_end": "End lunch",
       "clock_out": "Clock out"
     },
-    "seeSync": "See what's waiting"
+    "seeSync": "See what's waiting",
+    "sendingSlow": "Saved on this phone at {time}. Weak signal: sending in the background. No need to press again.",
+    "alreadyDone": {
+      "clock_in": "You were already clocked in (your crew lead may have done it). Your time is fine.",
+      "clock_out": "You were already clocked out (your crew lead may have done it). Your time is fine.",
+      "break_start": "Lunch was already started. Your time is fine.",
+      "break_end": "Lunch was already ended. Your time is fine.",
+      "switch": "That was already your job and category. Nothing changed."
+    }
   },
   "payRates": {
     "title": "Pay rates",

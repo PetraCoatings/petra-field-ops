@@ -1063,7 +1063,7 @@
       "no_change": "Elija otra categoría u otra obra para cambiar.",
       "category_required": "Elija Trabajo, Manejo o Pasajero.",
       "before_last_entry": "Esa hora es anterior a su último registro. Pida a la oficina que lo corrija.",
-      "too_late": "Pasaron más de 3 días antes de que esto llegara a la oficina. Pida a su líder de cuadrilla o a la oficina que agregue este tiempo.",
+      "too_late": "Pasaron más de 7 días antes de que esto llegara a la oficina. Pida a su líder de cuadrilla o a la oficina que agregue este tiempo.",
       "inactive": "Este empleado no está activo.",
       "invalid": "Algo en este registro no estaba bien. Inténtelo de nuevo.",
       "forbidden": "No puede hacer eso.",
@@ -1104,7 +1104,8 @@
         "clock_out": "Salida a las {time}:"
       },
       "gpsExplain": "La ubicación de su teléfono se registra para todas las personas a las que registra entrada o salida, y queda marcada como suya.",
-      "savedOnPhone": "Señal débil o sin señal: guardado en este teléfono a las {time} para {count} personas. Se envía solo cuando haya señal, con la hora en que lo marcó. No hace falta marcar otra vez."
+      "savedOnPhone": "Señal débil o sin señal: guardado en este teléfono a las {time} para {count} personas. Se envía solo cuando haya señal, con la hora en que lo marcó. No hace falta marcar otra vez.",
+      "already": "ya estaba hecho"
     },
     "sheet": {
       "title": "Mi hoja de horas",
@@ -1212,7 +1213,15 @@
       "break_end": "Terminar almuerzo",
       "clock_out": "Registrar salida"
     },
-    "seeSync": "Ver lo que está esperando"
+    "seeSync": "Ver lo que está esperando",
+    "sendingSlow": "Guardado en este teléfono a las {time}. Señal débil: se está enviando en segundo plano. No hace falta marcar otra vez.",
+    "alreadyDone": {
+      "clock_in": "Ya tenía entrada registrada (quizá su líder de cuadrilla lo hizo). Su tiempo está bien.",
+      "clock_out": "Ya tenía salida registrada (quizá su líder de cuadrilla lo hizo). Su tiempo está bien.",
+      "break_start": "El almuerzo ya había empezado. Su tiempo está bien.",
+      "break_end": "El almuerzo ya había terminado. Su tiempo está bien.",
+      "switch": "Ese ya era su trabajo y categoría. No cambió nada."
+    }
   },
   "payRates": {
     "title": "Tarifas de pago",

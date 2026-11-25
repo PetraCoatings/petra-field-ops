@@ -21,9 +21,9 @@ const press = (action: string, at: string, opts: { category?: string; people?: s
 });
 
 describe("late clock presses", () => {
-  it("are flagged after 15 minutes and refused after 3 days", async () => {
+  it("are flagged after 15 minutes and refused after 7 days", async () => {
     await asUser(U.installer, async (q) => {
-      const old = press("clock_in", "now() - interval '4 days'");
+      const old = press("clock_in", "now() - interval '8 days'");
       expect((await q(old.sql, old.params)).rows[0].r).toEqual([{ employee_id: E.installer, ok: false, error: "too_late" }]);
       const late = press("clock_in", "now() - interval '2 hours'");
       expect((await q(late.sql, late.params)).rows[0].r[0]).toMatchObject({ ok: true });
@@ -36,6 +36,19 @@ describe("late clock presses", () => {
         { t: "clock_in", flags: ["late_sync"] },
         { t: "clock_out", flags: [] },
       ]);
+    });
+  });
+});
+
+describe("presses saved over a weekend", () => {
+  it("a clock-out sent 5 days later is still recorded (flagged late)", async () => {
+    await asUser(U.otherInstaller, async (q) => {
+      const inn = press("clock_in", "now() - interval '5 days' - interval '8 hours'");
+      expect((await q(inn.sql, inn.params)).rows[0].r[0]).toMatchObject({ ok: true });
+      const out = press("clock_out", "now() - interval '5 days'");
+      expect((await q(out.sql, out.params)).rows[0].r[0]).toMatchObject({ ok: true });
+      const flags = (await q(`select flags from public.time_events where employee_id = $1 order by effective_at desc limit 1`, [E.otherInstaller])).rows[0].flags;
+      expect(flags).toContain("late_sync");
     });
   });
 });

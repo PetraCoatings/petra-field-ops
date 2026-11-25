@@ -7,12 +7,12 @@ import { Coffee, LogIn, LogOut, MapPin, Repeat, UserPlus } from "lucide-react";
 import { Segmented } from "@/components/calculators/segmented";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { hoursMinutes, TIME_CATEGORIES, type TimeCategory } from "@/domain/time/totals";
-import { submitPress, type ClockPayload } from "@/lib/offline/outbox";
+import { isAlreadyDone, settledPress, submitPress, type ClockPayload, type OutboxItem } from "@/lib/offline/outbox";
 import type { ClockJob, ClockSettings, CrewPerson, CrewStatus } from "@/lib/time/my-time";
-import { readGps } from "./gps";
+import { readGps, warmGps } from "./gps";
 
 type Action = ClockPayload["action"];
-type Outcome = { name: string; ok: boolean; error?: string };
+type Outcome = { name: string; ok: boolean; error?: string; already?: boolean };
 
 /**
  * Crew clock-in. The lead picks the job and who is here, then clocks them all
@@ -45,6 +45,7 @@ export function CrewClock({
     const tick = () => setNow(Date.now());
     tick();
     const id = setInterval(tick, 30_000);
+    warmGps(); // a location ready before any button is pressed
     return () => clearInterval(id);
   }, []);
 
@@ -116,15 +117,23 @@ export function CrewClock({
         gps,
         employeeIds: chosen,
       });
-      if (item.state === "pending" || item.state === "sending")
-        return setSaved(tc("savedOnPhone", { time: time(Date.parse(deviceTs)), count: chosen.length }));
-      if (item.state === "failed" && !item.results) return setError(t(`errors.${(item.error ?? "generic") as "generic"}`));
-      setOutcome({
-        action,
-        time: time(Date.parse(deviceTs)),
-        rows: (item.results ?? []).map((x) => ({ name: nameOf.get(x.employeeId) ?? "?", ok: x.ok, error: x.error })),
-      });
-      router.refresh();
+      const show = (done: Extract<OutboxItem, { kind: "clock" }>) => {
+        if (done.state === "failed" && !done.results) return setError(t(`errors.${(done.error ?? "generic") as "generic"}`));
+        setSaved(null);
+        setOutcome({
+          action,
+          time: time(Date.parse(deviceTs)),
+          rows: (done.results ?? []).map((x) => ({ name: nameOf.get(x.employeeId) ?? "?", ok: x.ok || isAlreadyDone(action, x.error), already: !x.ok && isAlreadyDone(action, x.error), error: x.error })),
+        });
+        router.refresh();
+      };
+      if (item.state === "pending" || item.state === "sending") {
+        setSaved(tc("savedOnPhone", { time: time(Date.parse(deviceTs)), count: chosen.length }));
+        // Weak signal: keeps sending in the background; shows who was done once it's through.
+        void settledPress(id).then((done) => done && show(done));
+        return;
+      }
+      show(item);
     });
   };
 
@@ -263,7 +272,7 @@ export function CrewClock({
             <ul className="space-y-1">
               {outcome.rows.map((r) => (
                 <li key={r.name} className={r.ok ? "text-green-900" : "text-red-900"}>
-                  {r.ok ? `✓ ${r.name}` : `✗ ${r.name}: ${t(`errors.${(r.error ?? "generic") as "generic"}`)}`}
+                  {r.already ? `✓ ${r.name} (${tc("already")})` : r.ok ? `✓ ${r.name}` : `✗ ${r.name}: ${t(`errors.${(r.error ?? "generic") as "generic"}`)}`}
                 </li>
               ))}
             </ul>

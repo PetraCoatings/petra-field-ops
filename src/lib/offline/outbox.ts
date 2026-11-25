@@ -41,6 +41,22 @@ export type OutboxItem =
   | (Base & { kind: "report"; payload: ReportPayload; results?: undefined; version?: number });
 
 
+/**
+ * A refusal that means "it was already done": e.g. the crew lead clocked this
+ * person in, then their own Clock in arrived. Their time is right, so it's
+ * not shown as an error.
+ */
+const ALREADY: Record<ClockPayload["action"], string> = {
+  clock_in: "already_clocked_in",
+  clock_out: "not_clocked_in",
+  break_start: "on_lunch",
+  break_end: "not_on_lunch",
+  switch: "no_change",
+};
+export function isAlreadyDone(action: ClockPayload["action"], error: string | undefined): boolean {
+  return error !== undefined && ALREADY[action] === error;
+}
+
 const KEY = "petra.outbox.v1";
 const EVENT = "petra-outbox";
 const KEEP_SYNCED_MS = 24 * 3_600_000;
@@ -155,7 +171,8 @@ export function syncOutbox(owner: string): Promise<number> {
           continue;
         }
         const mine = answer.results?.find((r) => r.employeeId === owner) ?? answer.results?.[0];
-        const allFailed = answer.results?.every((r) => !r.ok);
+        const action = item.payload.action;
+        const allFailed = answer.results?.every((r) => !r.ok && !isAlreadyDone(action, r.error));
         update(item.id, {
           state: allFailed ? "failed" : "synced",
           error: allFailed ? (mine?.error ?? "generic") : undefined,
@@ -174,10 +191,11 @@ export function syncOutbox(owner: string): Promise<number> {
 
 /**
  * Records a press: saved on the phone first, then sent. Resolves with what
- * happened within `waitMs`: synced (with the server's answer), failed, or
- * still saved on the phone (no signal yet).
+ * happened within `waitMs` (kept short so nobody waits on a weak signal):
+ * synced (with the server's answer), failed, or still saved on the phone and
+ * sending in the background (see settledPress).
  */
-export async function submitPress(owner: string, payload: ClockPayload, waitMs = 8000): Promise<Extract<OutboxItem, { kind: "clock" }>> {
+export async function submitPress(owner: string, payload: ClockPayload, waitMs = 3000): Promise<Extract<OutboxItem, { kind: "clock" }>> {
   addToOutbox(owner, payload);
   // A send already under way may have started before this press was added: run again once it ends.
   const send = async () => {
@@ -201,4 +219,46 @@ export function predictOpen(serverOpen: PredictedOpen, pending: ClockPayload[]):
     else if (p.action === "clock_out") open = null;
   }
   return open;
+}
+
+/** Resolves once a press is answered (synced or failed), or with null after `timeoutMs`. */
+export function settledPress(id: string, timeoutMs = 60_000): Promise<Extract<OutboxItem, { kind: "clock" }> | null> {
+  return new Promise((resolve) => {
+    const check = () => {
+      const item = read().find((i) => i.id === id);
+      if (item && item.kind === "clock" && (item.state === "synced" || item.state === "failed")) {
+        stop();
+        resolve(item);
+      }
+    };
+    const timer = setTimeout(() => {
+      stop();
+      resolve(null);
+    }, timeoutMs);
+    const unsubscribe = subscribeOutbox(check);
+    function stop() {
+      clearTimeout(timer);
+      unsubscribe();
+    }
+    check();
+  });
+}
+
+/**
+ * This person's own presses that the Time Clock screen should apply on top of
+ * what the server said when the screen was made (`asOf`): everything not sent
+ * yet, plus presses sent since then. The second part matters when the screen
+ * was opened from the copy saved on the phone (no signal): without it, it
+ * would show the status from when that copy was saved.
+ */
+export function pressesSince(items: OutboxItem[], owner: string, asOf: number): ClockPayload[] {
+  return items
+    .filter((i): i is Extract<OutboxItem, { kind: "clock" }> => i.kind === "clock" && i.owner === owner)
+    .filter((i) => {
+      if (i.state === "pending" || i.state === "sending") return true;
+      if (i.state !== "synced" || Date.parse(i.payload.deviceTs) <= asOf) return false;
+      const mine = i.results?.find((r) => r.employeeId === owner);
+      return !mine || mine.ok || isAlreadyDone(i.payload.action, mine.error);
+    })
+    .map((i) => i.payload);
 }

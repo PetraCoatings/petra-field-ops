@@ -1,6 +1,6 @@
 import { devices, expect, test } from "@playwright/test";
 import { api, readRoleUsers, signedInTestsEnabled } from "./support/role-users";
-import { createTestProject, deleteTestProject, employeeId, updateTestProject } from "./support/test-project";
+import { createTestProject, deleteTestProject, employeeId, sessionFetch, updateTestProject } from "./support/test-project";
 import { signInAs } from "./support/sign-in";
 
 /**
@@ -139,9 +139,9 @@ test("a crew lead clocks the crew in and out together", async ({ browser }) => {
     await crewSide.page.goto("/time-clock/crew");
     await expect(crewSide.page).not.toHaveURL(/\/time-clock\/crew/);
 
-    // Clocking the installer in again is refused for them only.
+    // Clocking them in again changes nothing, and says so (not shown as an error).
     await page.getByRole("button", { name: "Clock in (2)" }).click();
-    await expect(page.getByRole("status").filter({ hasText: "Clock in at" })).toContainText("You're already clocked in.");
+    await expect(page.getByRole("status").filter({ hasText: "Clock in at" })).toContainText("E2E installer Test (already done)");
 
     await page.getByRole("button", { name: "Clock out (2)" }).click();
     await page.getByRole("button", { name: "Yes, clock out" }).click();
@@ -343,13 +343,15 @@ test("no signal: presses are saved on the phone and sent with their original tim
     await page.evaluate((owner) => {
       const list = JSON.parse(localStorage.getItem("petra.outbox.v1") ?? "[]");
       const id = crypto.randomUUID();
-      list.push({ id, kind: "clock", owner, state: "pending", createdAt: new Date().toISOString(), payload: { id, action: "clock_in", category: "ride", deviceTs: new Date().toISOString(), gps: { status: "not_requested" } } });
+      // A genuinely wrong press: lunch started before the current entry began.
+      const before = new Date(Date.now() - 6 * 3_600_000).toISOString();
+      list.push({ id, kind: "clock", owner, state: "pending", createdAt: new Date().toISOString(), payload: { id, action: "break_start", deviceTs: before, gps: { status: "not_requested" } } });
       localStorage.setItem("petra.outbox.v1", JSON.stringify(list));
     }, emp);
     await page.goto("/sync");
     await page.getByRole("button", { name: "Send now" }).click();
     const refused = page.getByRole("list", { name: "Time clock presses on this phone" }).getByRole("listitem").filter({ hasText: "Not accepted" });
-    await expect(refused).toContainText("The server didn't accept it: You're already clocked in.");
+    await expect(refused).toContainText("The server didn't accept it: That time is before your last entry.");
     await expect(page.getByRole("link", { name: "1 time clock press(es) not accepted" })).toBeVisible();
     await refused.getByRole("button", { name: "Remove from this list" }).click();
     await expect(page.getByText("Not accepted")).toHaveCount(0);
@@ -479,7 +481,8 @@ test("weak signal at the end of the day: the crew lead can still open crew clock
 
     // Leaving the job, no signal; the app is closed and opened again.
     await context.setOffline(true);
-    await page.goto("/");
+    // (A background refresh still finishing can interrupt the first try, as a tap on the app icon can be.)
+    await page.goto("/").catch(() => page.goto("/"));
     await expect(page.getByRole("heading", { name: "No connection" })).toBeVisible({ timeout: 20_000 });
     await page.getByRole("link", { name: "Crew clock-in (crew leads)" }).click();
     await expect(page.getByRole("button", { name: /^Clock out/ })).toBeVisible({ timeout: 20_000 });
@@ -505,5 +508,44 @@ test("weak signal at the end of the day: the crew lead can still open crew clock
   } finally {
     await context.close();
     await deleteTestProject(job.id);
+  }
+});
+
+test("clocked in by the crew lead, then pressing Clock in on your own phone: told it's already done, not an error", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.setTimeout(120_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const installer = users.find((x) => x.role === "installer")!;
+  const instId = await employeeId(installer);
+  const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await context.newPage();
+    await signInAs(page, installer);
+    await page.goto("/time-clock");
+    const status = page.getByRole("region", { name: "Right now" });
+    await expect(status).toContainText("Not clocked in");
+
+    // Meanwhile the crew lead clocks them in from the lead's phone.
+    const asLead = await sessionFetch(lead);
+    const r = await asLead("/rest/v1/rpc/clock_action", {
+      method: "POST",
+      body: JSON.stringify({ p_client_event_id: crypto.randomUUID(), p_action: "clock_in", p_device_ts: new Date().toISOString(), p_device_now: new Date().toISOString(), p_gps_status: "not_requested", p_category: "job", p_employee_ids: [instId] }),
+    });
+    expect(r.ok).toBe(true);
+
+    // The installer (screen not refreshed) presses Clock in too.
+    await page.getByRole("button", { name: "Clock in" }).click();
+    await expect(page.getByRole("status").filter({ hasText: "You were already clocked in" })).toBeVisible({ timeout: 20_000 });
+    await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0); // no error message (Next's empty page announcer doesn't count)
+    await expect(page.getByRole("link", { name: /not accepted/ })).toHaveCount(0); // no red badge
+    await expect(status).toContainText("On the clock");
+
+    // Clean up.
+    await page.getByRole("button", { name: "Clock out" }).click();
+    await page.getByRole("button", { name: "Yes, clock out" }).click();
+    await expect(status).toContainText("Not clocked in");
+  } finally {
+    await context.close();
   }
 });

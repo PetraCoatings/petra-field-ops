@@ -9,9 +9,9 @@ import { Segmented } from "@/components/calculators/segmented";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { dailyTotals, hoursMinutes, isPaidLunch, segmentFlags, weekTotals, TIME_CATEGORIES, type TimeCategory } from "@/domain/time/totals";
 import { localDate, startOfLocalDate, addDays } from "@/domain/time/zoned";
-import { outboxItems, predictOpen, submitPress, subscribeOutbox, type ClockPayload, type OutboxItem } from "@/lib/offline/outbox";
+import { isAlreadyDone, outboxItems, predictOpen, pressesSince, settledPress, submitPress, subscribeOutbox, type ClockPayload, type OutboxItem } from "@/lib/offline/outbox";
 import type { ClockJob, ClockSegment, ClockSettings } from "@/lib/time/my-time";
-import { readGps } from "./gps";
+import { readGps, warmGps } from "./gps";
 
 type Action = ClockPayload["action"];
 const ICONS: Record<TimeCategory, typeof HardHat> = { job: HardHat, drive: Car, ride: Users };
@@ -37,6 +37,8 @@ export function TimeClock({
     const tick = () => setNow(Date.now());
     tick();
     const id = setInterval(tick, 30_000);
+    // Get a location ready now, so a press later doesn't wait for GPS.
+    warmGps();
     return () => clearInterval(id);
   }, []);
 
@@ -47,8 +49,11 @@ export function TimeClock({
     (i): i is Extract<OutboxItem, { kind: "clock" }> => i.kind === "clock" && i.owner === me && (i.state === "pending" || i.state === "sending"),
   );
   const serverOpen = segments.find((s) => s.end === null) ?? null;
-  const predicted = predictOpen(serverOpen ? { kind: serverOpen.kind, category: serverOpen.category, projectId: serverOpen.projectId, start: serverOpen.start } : null, waiting.map((i) => i.payload));
-  const open = waiting.length ? (predicted ? { ...predicted, id: "pending", end: null } : null) : serverOpen;
+  // Presses not sent yet, plus ones sent since this screen was made (it may be
+  // the copy saved on the phone, opened with no signal).
+  const applied = pressesSince(parseSnapshot(outbox), me, serverNow);
+  const predicted = predictOpen(serverOpen ? { kind: serverOpen.kind, category: serverOpen.category, projectId: serverOpen.projectId, start: serverOpen.start } : null, applied);
+  const open = applied.length ? (predicted ? { ...predicted, id: "pending", end: null } : null) : serverOpen;
   const [category, setCategory] = useState<TimeCategory>(open?.category ?? "job");
   const [projectId, setProjectId] = useState<string>(open?.projectId ?? (jobs.length === 1 ? jobs[0].id : ""));
   const [busy, startTransition] = useTransition();
@@ -86,16 +91,25 @@ export function TimeClock({
         gps,
       });
       const at = time(Date.parse(deviceTs));
-      if (item.state === "pending" || item.state === "sending") {
-        setMessage({ kind: "saved", text: t("savedOnPhone", { time: at }) });
-        return;
-      }
-      if (item.state === "failed") {
-        setMessage({ kind: "error", text: t(`errors.${(item.error ?? "generic") as "generic"}`) });
-        return;
-      }
       const gpsNote = gps.status !== "captured" && gps.status !== "not_requested" ? ` ${t(`gpsNote.${gps.status}`)}` : "";
-      setMessage({ kind: "ok", text: t(`done.${action}`, { time: at, category: catLabel(category) }) + gpsNote });
+      const show = (done: typeof item) => {
+        const mine = done.results?.find((r) => r.employeeId === me) ?? done.results?.[0];
+        if (mine && !mine.ok && isAlreadyDone(action, mine.error)) setMessage({ kind: "saved", text: t(`alreadyDone.${action}`) });
+        else if (done.state === "failed") setMessage({ kind: "error", text: t(`errors.${(done.error ?? mine?.error ?? "generic") as "generic"}`) });
+        else setMessage({ kind: "ok", text: t(`done.${action}`, { time: at, category: catLabel(category) }) + gpsNote });
+      };
+      if (item.state === "pending" || item.state === "sending") {
+        // Saved on the phone (the status above already shows it). No signal,
+        // or a slow one: it keeps sending in the background; nobody waits.
+        setMessage({ kind: "saved", text: navigator.onLine === false ? t("savedOnPhone", { time: at }) : t("sendingSlow", { time: at }) });
+        void settledPress(id).then((done) => {
+          if (!done) return;
+          show(done);
+          router.refresh();
+        });
+        return;
+      }
+      show(item);
       router.refresh();
     });
   };
