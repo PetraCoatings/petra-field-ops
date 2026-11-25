@@ -12,6 +12,8 @@
       section { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; padding: 20px; margin-bottom: 16px; }
       h1 { font-size: 24px; margin: 0 0 8px; }
       p { font-size: 17px; line-height: 1.45; margin: 0 0 16px; color: #262626; }
+      a.btn + a.btn { margin-top: 10px; }
+      a.alt { background: #fff; color: #173f73; border: 2px solid #173f73; }
       a.btn { display: flex; align-items: center; justify-content: center; min-height: 56px; border-radius: 12px; background: #173f73; color: #fff; font-size: 18px; font-weight: 600; text-decoration: none; }
       button { width: 100%; min-height: 48px; margin-top: 10px; border-radius: 12px; border: 2px solid #d4d4d4; background: #fff; font-size: 16px; font-weight: 600; color: #171717; }
     </style>
@@ -21,14 +23,18 @@
     <main>
       <section lang="en">
         <h1>No connection</h1>
-        <p>This page needs a signal. The calculators still work without one.</p>
-        <a class="btn" href="/calculators">Open Calculators</a>
+        <p>This page needs a signal. The Time Clock, crew clock-in and calculators still work without one: presses are saved on this phone and sent when you have signal.</p>
+        <a class="btn" href="/time-clock">Open Time Clock</a>
+        <a class="btn alt" href="/time-clock/crew">Crew clock-in (crew leads)</a>
+        <a class="btn alt" href="/calculators">Open Calculators</a>
         <button type="button" onclick="location.reload()">Try again</button>
       </section>
       <section lang="es">
         <h1>Sin conexión</h1>
-        <p>Esta página necesita señal. Las calculadoras funcionan sin ella.</p>
-        <a class="btn" href="/calculators">Abrir calculadoras</a>
+        <p>Esta página necesita señal. El reloj, el registro de cuadrilla y las calculadoras funcionan sin ella: lo que marque se guarda en este teléfono y se envía cuando haya señal.</p>
+        <a class="btn" href="/time-clock">Abrir reloj</a>
+        <a class="btn alt" href="/time-clock/crew">Registro de cuadrilla (líderes)</a>
+        <a class="btn alt" href="/calculators">Abrir calculadoras</a>
         <button type="button" onclick="location.reload()">Intentar de nuevo</button>
       </section>
     </main>

@@ -63,6 +63,7 @@ export function CrewClock({
   const [confirmOut, setConfirmOut] = useState(false);
   const [outcome, setOutcome] = useState<{ action: Action; time: string; rows: Outcome[] } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [saved, setSaved] = useState<string | null>(null);
   const router = useRouter();
 
   const time = (ms: number) => new Intl.DateTimeFormat(locale, { timeZone: tz, hour: "numeric", minute: "2-digit" }).format(ms);
@@ -103,6 +104,7 @@ export function CrewClock({
     const needsGps = action === "clock_in" || action === "clock_out" || settings.gpsOnSwitch;
     startTransition(async () => {
       setError(null);
+      setSaved(null);
       setOutcome(null);
       const gps: ClockPayload["gps"] = needsGps ? await readGps() : { status: "not_requested" };
       const item = await submitPress(me, {
@@ -114,7 +116,8 @@ export function CrewClock({
         gps,
         employeeIds: chosen,
       });
-      if (item.state === "pending" || item.state === "sending") return setError(t("savedOnPhone", { time: time(Date.parse(deviceTs)) }));
+      if (item.state === "pending" || item.state === "sending")
+        return setSaved(tc("savedOnPhone", { time: time(Date.parse(deviceTs)), count: chosen.length }));
       if (item.state === "failed" && !item.results) return setError(t(`errors.${(item.error ?? "generic") as "generic"}`));
       setOutcome({
         action,
@@ -247,6 +250,11 @@ export function CrewClock({
         {error && (
           <p role="alert" className="rounded-xl bg-red-50 px-4 py-3 text-base font-medium text-red-900">
             {error}
+          </p>
+        )}
+        {saved && (
+          <p role="status" className="rounded-xl bg-neutral-100 px-4 py-3 text-base font-medium text-neutral-900">
+            {saved}
           </p>
         )}
         {outcome && (

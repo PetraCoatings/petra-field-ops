@@ -445,3 +445,56 @@ test("plan acceptance: offline clock-in, daily report draft and photo all arrive
     await deleteTestProject(job.id);
   }
 });
+
+test("weak signal at the end of the day: the crew lead can still open crew clock-in and clock everyone out", async ({ browser }) => {
+  test.skip(test.info().project.name !== "phone", "one phone run");
+  test.setTimeout(150_000);
+  const users = readRoleUsers();
+  const lead = users.find((x) => x.role === "crew_lead")!;
+  const installer = users.find((x) => x.role === "installer")!;
+  const [leadId, instId] = [await employeeId(lead), await employeeId(installer)];
+  const job = await createTestProject([lead, installer]);
+  await updateTestProject(job.id, { crew_lead_id: leadId });
+  const context = await browser.newContext({ ...devices["iPhone 13"], baseURL: test.info().project.use.baseURL });
+  try {
+    const page = await context.newPage();
+    await signInAs(page, lead);
+    await expect(page).toHaveURL(/\/$/);
+    // In the morning, with signal: the app saves its offline pages, and the lead clocks the crew in.
+    await page.goto("/calculators");
+    await expect(page.getByText("Saved on this phone: the calculators work without signal.")).toBeVisible({ timeout: 45_000 });
+    await page.goto("/time-clock/crew");
+    await page.getByLabel("Job", { exact: true }).selectOption(job.id);
+    await page.getByRole("button", { name: /^Clock in/ }).click();
+    await expect(page.getByRole("status").filter({ hasText: "✓" })).toHaveCount(1, { timeout: 20_000 });
+
+    // Leaving the job, no signal; the app is closed and opened again.
+    await context.setOffline(true);
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: "No connection" })).toBeVisible({ timeout: 20_000 });
+    await page.getByRole("link", { name: "Crew clock-in (crew leads)" }).click();
+    await expect(page.getByRole("button", { name: /^Clock out/ })).toBeVisible({ timeout: 20_000 });
+    await page.getByLabel("Job", { exact: true }).selectOption(job.id);
+    await page.getByRole("button", { name: /^Clock out/ }).click();
+    await page.getByRole("button", { name: "Yes, clock out" }).click();
+    // Shown as saved (not as an error), and nothing reached the server yet.
+    await expect(page.getByRole("status").filter({ hasText: /saved on this phone at .* No need to press again/ })).toBeVisible({ timeout: 25_000 });
+    await expect(page.getByRole("alert").filter({ hasText: /saved on this phone/ })).toHaveCount(0);
+
+    // Back in signal: the clock-out is sent with the time it was pressed.
+    await context.setOffline(false);
+    await page.goto("/sync");
+    await expect(page.getByText(/waiting for signal/)).toHaveCount(0, { timeout: 30_000 });
+    for (const emp of [leadId, instId]) {
+      await expect
+        .poll(async () => {
+          const ev = (await (await api(`/rest/v1/time_events?select=event_type,is_group_action&employee_id=eq.${emp}&order=effective_at.desc&limit=1`)).json()) as { event_type: string; is_group_action: boolean }[];
+          return ev[0]?.event_type;
+        })
+        .toBe("clock_out");
+    }
+  } finally {
+    await context.close();
+    await deleteTestProject(job.id);
+  }
+});

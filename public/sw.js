@@ -38,6 +38,7 @@ const OWN_CACHES = [CACHE, SHELL_CACHE];
 const OFFLINE_PAGE = "/offline.html";
 const OFFLINE_ROUTES = [
   "/time-clock",
+  "/time-clock/crew",
   "/sync",
   "/sds",
   "/library/view",
@@ -49,6 +50,12 @@ const OFFLINE_ROUTES = [
   "/calculators/dew-point",
 ];
 const NETWORK_TIMEOUT_MS = 4000;
+// Pages only some people can open (crew clock-in: crew leads, PMs, office).
+// Others are sent elsewhere, so a redirect there is skipped, not a failure.
+const OPTIONAL_ROUTES = ["/time-clock/crew"];
+// Weak signal: give up on other pages after this long and show the
+// "No connection" page (with buttons to the Time Clock) instead of hanging.
+const PAGE_TIMEOUT_MS = 10000;
 const PDFJS_WORKER = "/pdfjs/pdf.worker-6.4.299.min.mjs";
 const WARM_EVERY_MS = 10 * 60 * 1000;
 const META_WARMED = "/__petra-offline/warmed";
@@ -116,7 +123,7 @@ async function offlinePage() {
 
 async function otherPage(request) {
   try {
-    return await fetch(request);
+    return await withTimeout(fetch(request), PAGE_TIMEOUT_MS);
   } catch {
     return offlinePage();
   }
@@ -168,7 +175,10 @@ async function warm(force) {
     } catch {
       return status(); // went offline mid-way; keep what we have
     }
-    if (!isCacheablePage(res)) return status(); // signed out or server error: don't overwrite
+    if (!isCacheablePage(res)) {
+      if (OPTIONAL_ROUTES.includes(route) && res && res.redirected) continue; // not for this person
+      return status(); // signed out or server error: don't overwrite
+    }
     const html = await res.clone().text();
     await cache.put(route, res);
     for (const a of assetUrls(html)) keep.add(a);
@@ -205,7 +215,7 @@ async function warm(force) {
 /** Ready when every calculator page is saved. */
 async function status() {
   const cache = await caches.open(CACHE);
-  const hits = await Promise.all(OFFLINE_ROUTES.map((r) => cache.match(r)));
+  const hits = await Promise.all(OFFLINE_ROUTES.filter((r) => !OPTIONAL_ROUTES.includes(r)).map((r) => cache.match(r)));
   return { ready: hits.every(Boolean) };
 }
 
