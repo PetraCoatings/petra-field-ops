@@ -412,6 +412,7 @@ test("plan acceptance: offline clock-in, daily report draft and photo all arrive
       await stage.selectOption({ label: "Primer" });
       await expect(stage).toHaveValue("primer", { timeout: 1000 });
     }).toPass({ timeout: 30_000 });
+    await expect(photos.locator("[data-ready]").first()).toHaveAttribute("data-ready", "true");
     await photos.getByTestId("photo-input").setInputFiles({ name: "IMG_0100.png", mimeType: "image/png", buffer: PNG_2x2 });
     await expect(photos.getByText("1 photo(s) saved on this phone. They'll upload when you have signal.")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByRole("link", { name: "3 time clock press(es) waiting to send" })).toBeVisible();

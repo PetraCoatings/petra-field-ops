@@ -20,7 +20,8 @@
     "saved": "Saved.",
     "genericError": "Something went wrong. Please try again.",
     "comingInPhase": "This part of the app is being built in Phase {phase}.",
-    "notConfigured": "The app is not connected to its database yet. An administrator needs to finish setup (see docs/SETUP.md)."
+    "notConfigured": "The app is not connected to its database yet. An administrator needs to finish setup (see docs/SETUP.md).",
+    "loadingPage": "Loading…"
   },
   "roles": {
     "installer": "Installer",

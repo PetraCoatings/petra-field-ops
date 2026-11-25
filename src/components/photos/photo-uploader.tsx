@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
+import { useHydrated } from "@/lib/use-hydrated";
 import { Camera } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button-styles";
 import { PHOTO_STAGES, type PhotoStage } from "@/domain/reports/field";
@@ -31,8 +32,9 @@ export function PhotoUploader({ projectId, owner }: { projectId: string; owner: 
     if (uploaded > 0) router.refresh();
   };
 
+  const ready = useHydrated();
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" data-ready={ready}>
       <div className="flex flex-wrap items-end gap-2">
         <label className="min-w-0 flex-1 space-y-1">
           <span className="block text-sm font-semibold">{t("stage")}</span>

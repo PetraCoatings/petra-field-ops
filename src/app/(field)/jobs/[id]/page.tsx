@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
+import { CardSkeleton } from "@/components/ui/page-loading";
 import { notFound } from "next/navigation";
 import { ClipboardList, ExternalLink, FileDown, Phone } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button-styles";
@@ -20,7 +22,12 @@ import { WorkOrderOnJob } from "@/components/work-orders/work-order-on-job";
 import { requireProfile } from "@/lib/auth/dal";
 import { parseDateOnly } from "@/lib/dates";
 import { directoryNames } from "@/lib/db/queries";
-import { type AssignmentRow, type ProjectContactRow, type ProjectRow, formatAddress } from "@/lib/db/types";
+import {
+  type AssignmentRow,
+  type ProjectContactRow,
+  type ProjectRow,
+  formatAddress,
+} from "@/lib/db/types";
 import { createClient } from "@/lib/supabase/server";
 import type { ProjectSnapshot } from "@/lib/work-orders/snapshot";
 
@@ -30,7 +37,8 @@ type JobDetail = ProjectRow & {
   project_assignments: AssignmentRow[];
 };
 
-const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 async function loadJob(id: string): Promise<JobDetail | null> {
   if (!UUID_RE.test(id)) return null;
@@ -44,7 +52,9 @@ async function loadJob(id: string): Promise<JobDetail | null> {
   return data as JobDetail | null;
 }
 
-export async function generateMetadata({ params }: PageProps<"/jobs/[id]">): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: PageProps<"/jobs/[id]">): Promise<Metadata> {
   const job = await loadJob((await params).id);
   return { title: job?.name };
 }
@@ -67,51 +77,109 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
     .eq("project_id", job.id)
     .eq("status", "published")
     .order("fwo_number");
-  const fwos = (fwoRows ?? []) as { id: string; fwo_number: number; title: string; current_revision_id: string }[];
+  const fwos = (fwoRows ?? []) as {
+    id: string;
+    fwo_number: number;
+    title: string;
+    current_revision_id: string;
+  }[];
   const { data: revRows } = fwos.length
     ? await supabase
         .from("fwo_revisions")
-        .select("id, revision_number, content, project_snapshot, change_summary, published_at")
-        .in("id", fwos.map((f) => f.current_revision_id))
+        .select(
+          "id, revision_number, content, project_snapshot, change_summary, published_at",
+        )
+        .in(
+          "id",
+          fwos.map((f) => f.current_revision_id),
+        )
     : { data: [] };
   const revisions = new Map(
-    ((revRows ?? []) as { id: string; revision_number: number; content: unknown; project_snapshot: ProjectSnapshot; change_summary: string | null; published_at: string }[]).map(
-      (r) => [r.id, r],
-    ),
+    (
+      (revRows ?? []) as {
+        id: string;
+        revision_number: number;
+        content: unknown;
+        project_snapshot: ProjectSnapshot;
+        change_summary: string | null;
+        published_at: string;
+      }[]
+    ).map((r) => [r.id, r]),
   );
 
-  const names = await directoryNames([job.project_manager_id, job.crew_lead_id, ...job.project_assignments.map((a) => a.employee_id)]);
-  const name = (id: string | null) => (id ? names.get(id)?.display_name : undefined) ?? t("common.notSet");
+  const names = await directoryNames([
+    job.project_manager_id,
+    job.crew_lead_id,
+    ...job.project_assignments.map((a) => a.employee_id),
+  ]);
+  const name = (id: string | null) =>
+    (id ? names.get(id)?.display_name : undefined) ?? t("common.notSet");
   const address = formatAddress(job);
-  const contacts = [...job.project_contacts].sort((a, b) => Number(b.is_primary) - Number(a.is_primary));
+  const contacts = [...job.project_contacts].sort(
+    (a, b) => Number(b.is_primary) - Number(a.is_primary),
+  );
   const facts = [
     job.scheduled_start && {
       label: t("jobs.startDate"),
       value: [
-        format.dateTime(parseDateOnly(job.scheduled_start), { weekday: "long", month: "long", day: "numeric", year: "numeric" }),
-        job.estimated_duration_days ? t("jobs.durationDays", { days: job.estimated_duration_days }) : null,
+        format.dateTime(parseDateOnly(job.scheduled_start), {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+          year: "numeric",
+        }),
+        job.estimated_duration_days
+          ? t("jobs.durationDays", { days: job.estimated_duration_days })
+          : null,
       ]
         .filter(Boolean)
         .join(" · "),
     },
-    job.total_sqft && { label: t("jobs.sqft"), value: t("jobs.sqftValue", { value: format.number(Number(job.total_sqft)) }) },
-    job.flooring_system && { label: t("jobs.flooringSystem"), value: job.flooring_system },
-    job.crew_lead_id && { label: t("jobs.crewLead"), value: name(job.crew_lead_id) },
-    job.project_manager_id && { label: t("jobs.projectManager"), value: name(job.project_manager_id) },
+    job.total_sqft && {
+      label: t("jobs.sqft"),
+      value: t("jobs.sqftValue", {
+        value: format.number(Number(job.total_sqft)),
+      }),
+    },
+    job.flooring_system && {
+      label: t("jobs.flooringSystem"),
+      value: job.flooring_system,
+    },
+    job.crew_lead_id && {
+      label: t("jobs.crewLead"),
+      value: name(job.crew_lead_id),
+    },
+    job.project_manager_id && {
+      label: t("jobs.projectManager"),
+      value: name(job.project_manager_id),
+    },
   ].filter(Boolean) as { label: string; value: string }[];
 
   return (
     <div className="space-y-4">
-      <PageHeader title={job.name} backHref="/jobs" backLabel={t("home.modules.jobCenter")} />
+      <PageHeader
+        title={job.name}
+        backHref="/jobs"
+        backLabel={t("home.modules.jobCenter")}
+      />
       <SaveForOffline />
 
       {/* Job header: the details crews need on the way and at the door */}
-      <section aria-label={t("jobs.details")} className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+      <section
+        aria-label={t("jobs.details")}
+        className="space-y-3 rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm"
+      >
         <div className="flex flex-wrap items-center gap-2">
           <ProjectStatusBadge status={job.status} />
-          {job.job_number && <span className="text-base font-semibold text-neutral-700">{t("jobs.jobNumber")} {job.job_number}</span>}
+          {job.job_number && (
+            <span className="text-base font-semibold text-neutral-700">
+              {t("jobs.jobNumber")} {job.job_number}
+            </span>
+          )}
         </div>
-        {job.customers?.name && <p className="text-lg font-semibold">{job.customers.name}</p>}
+        {job.customers?.name && (
+          <p className="text-lg font-semibold">{job.customers.name}</p>
+        )}
         {address && (
           <a
             className="inline-flex items-center gap-1 text-base font-semibold text-brand-700 underline"
@@ -127,10 +195,15 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
         {contacts.length > 0 && (
           <ul className="space-y-2">
             {contacts.map((c) => (
-              <li key={c.id} className="flex flex-wrap items-center justify-between gap-2">
+              <li
+                key={c.id}
+                className="flex flex-wrap items-center justify-between gap-2"
+              >
                 <span className="text-base">
                   <span className="font-semibold">{c.name}</span>
-                  {c.title && <span className="text-neutral-700"> ({c.title})</span>}
+                  {c.title && (
+                    <span className="text-neutral-700"> ({c.title})</span>
+                  )}
                 </span>
                 {c.phone && (
                   <a
@@ -149,7 +222,9 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
           <dl className="grid gap-x-6 gap-y-2 border-t border-neutral-200 pt-3 sm:grid-cols-2">
             {facts.map((f) => (
               <div key={f.label}>
-                <dt className="text-sm font-semibold text-neutral-600">{f.label}</dt>
+                <dt className="text-sm font-semibold text-neutral-600">
+                  {f.label}
+                </dt>
                 <dd className="text-base text-neutral-950">{f.value}</dd>
               </div>
             ))}
@@ -159,42 +234,80 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
 
       {fwos.length === 0 ? (
         <p className="flex items-center gap-3 rounded-2xl border-2 border-dashed border-neutral-300 bg-white p-4 text-base text-neutral-700">
-          <ClipboardList aria-hidden className="size-6 shrink-0 text-neutral-500" />
+          <ClipboardList
+            aria-hidden
+            className="size-6 shrink-0 text-neutral-500"
+          />
           {t("jobs.noWorkOrder")}
         </p>
       ) : (
         fwos.map((f) => {
           const rev = revisions.get(f.current_revision_id);
           return rev ? (
-            <WorkOrderOnJob key={f.id} projectId={job.id} fwo={f} revision={rev} profile={profile} showTitle={fwos.length > 1} />
+            <WorkOrderOnJob
+              key={f.id}
+              projectId={job.id}
+              fwo={f}
+              revision={rev}
+              profile={profile}
+              showTitle={fwos.length > 1}
+            />
           ) : null;
         })
       )}
 
-      <IssuesCard projectId={job.id} owner={profile.employeeId} canResolve={profile.role === "project_manager" || profile.role === "office_admin" || job.crew_lead_id === profile.employeeId} />
+      {/* The slower sections fill in as they're ready; the top of the job shows right away. */}
+      <Suspense fallback={<CardSkeleton />}>
+        <IssuesCard
+          projectId={job.id}
+          owner={profile.employeeId}
+          canResolve={
+            profile.role === "project_manager" ||
+            profile.role === "office_admin" ||
+            job.crew_lead_id === profile.employeeId
+          }
+        />
+      </Suspense>
 
-      <JobPhotosCard projectId={job.id} owner={profile.employeeId} />
+      <Suspense fallback={<CardSkeleton lines={2} />}>
+        <JobPhotosCard projectId={job.id} owner={profile.employeeId} />
+      </Suspense>
 
-      <QcCard
-        projectId={job.id}
-        canRecord={canWriteReport(profile, job)}
-        canSetRequirements={profile.role === "project_manager" || profile.role === "office_admin"}
-        me={profile.employeeId}
-        workOrderTests={[...revisions.values()].flatMap((r) => ((r.content as Partial<WorkOrderContent>).qcTests ?? []).map((q) => ({ test: q.test, target: q.target })))}
-        now={serverNow()}
-      />
+      <Suspense fallback={<CardSkeleton />}>
+        <QcCard
+          projectId={job.id}
+          canRecord={canWriteReport(profile, job)}
+          canSetRequirements={
+            profile.role === "project_manager" ||
+            profile.role === "office_admin"
+          }
+          me={profile.employeeId}
+          workOrderTests={[...revisions.values()].flatMap((r) =>
+            ((r.content as Partial<WorkOrderContent>).qcTests ?? []).map(
+              (q) => ({ test: q.test, target: q.target }),
+            ),
+          )}
+          now={serverNow()}
+        />
+      </Suspense>
 
-      <DailyReportsCard
-        projectId={job.id}
-        reports={await recentReports(job.id)}
-        canWrite={canWriteReport(profile, job)}
-        today={localDate(serverNow(), (await clockSettings()).timezone)}
-      />
+      <Suspense fallback={<CardSkeleton lines={2} />}>
+        <DailyReportsSection
+          projectId={job.id}
+          canWrite={canWriteReport(profile, job)}
+        />
+      </Suspense>
 
-      {(profile.role === "project_manager" || profile.role === "office_admin") && (
+      {(profile.role === "project_manager" ||
+        profile.role === "office_admin") && (
         <Card title={t("closeout.cardTitle")}>
           <div className="space-y-2">
-            <a href={`/jobs/${job.id}/closeout`} target="_blank" rel="noopener" className={buttonClasses("secondary", "md")}>
+            <a
+              href={`/jobs/${job.id}/closeout`}
+              target="_blank"
+              rel="noopener"
+              className={buttonClasses("secondary", "md")}
+            >
               <FileDown aria-hidden className="size-5" />
               {t("closeout.button")}
             </a>
@@ -225,5 +338,26 @@ export default async function JobPage({ params }: PageProps<"/jobs/[id]">) {
 
       <SavedCalculations projectId={job.id} profile={profile} />
     </div>
+  );
+}
+
+async function DailyReportsSection({
+  projectId,
+  canWrite,
+}: {
+  projectId: string;
+  canWrite: boolean;
+}) {
+  const [reports, settings] = await Promise.all([
+    recentReports(projectId),
+    clockSettings(),
+  ]);
+  return (
+    <DailyReportsCard
+      projectId={projectId}
+      reports={reports}
+      canWrite={canWrite}
+      today={localDate(serverNow(), settings.timezone)}
+    />
   );
 }

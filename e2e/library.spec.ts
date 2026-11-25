@@ -58,10 +58,12 @@ test("office manages products and data sheets; crews can open SDS", async ({ bro
     await expect(p.getByText("Saved.", { exact: true })).toBeVisible();
 
     const tds = p.getByRole("region", { name: "Technical data sheet (TDS)" });
+    await expect(tds.locator("[data-ready]").first()).toHaveAttribute("data-ready", "true");
     await tds.locator('input[type="file"]').setInputFiles(pdf("Sikafloor-264-TDS-2025"));
     await expect(tds.getByText("1 file uploaded.")).toBeVisible();
     await expect(tds.getByRole("link", { name: /Sikafloor-264-TDS-2025\.pdf/ })).toBeVisible();
     await tds.getByLabel("Revision date on the sheet (optional)").fill("2026-06-01");
+    await expect(tds.locator("[data-ready]").first()).toHaveAttribute("data-ready", "true");
     await tds.locator('input[type="file"]').setInputFiles(pdf("Sikafloor-264-TDS-2026"));
     await expect(tds.getByRole("link", { name: /Sikafloor-264-TDS-2026\.pdf/ })).toBeVisible();
     await expect(tds).toContainText("Version 2");
@@ -82,6 +84,8 @@ test("office manages products and data sheets; crews can open SDS", async ({ bro
 
     // ---- Several standalone SDS at once
     await p.goto("/manage/library/sds");
+    // Wait until the upload box is ready (the page shows before it can take files).
+    await expect(p.locator("[data-ready]").first()).toHaveAttribute("data-ready", "true");
     await p.locator('input[type="file"]').first().setInputFiles([pdf(`${prefix}_Acetone_SDS`), pdf(`${prefix}_Xylene_SDS`)]);
     await expect(p.getByText("2 files uploaded.")).toBeVisible();
     await expect(p.getByText(`${prefix} Acetone SDS`)).toBeVisible();
