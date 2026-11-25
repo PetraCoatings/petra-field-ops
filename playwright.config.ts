@@ -18,6 +18,9 @@ const env = {
 
 export default defineConfig({
   testDir: "e2e",
+  // In GitHub Actions the tests use the free test project, which is slower to
+  // answer than the live one: give each check a little longer there.
+  expect: { timeout: process.env.CI ? 10_000 : 5_000 },
   globalSetup: "./e2e/support/global-setup.ts",
   globalTeardown: "./e2e/support/global-teardown.ts",
   fullyParallel: true,

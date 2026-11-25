@@ -128,7 +128,10 @@ export function syncOutbox(owner: string): Promise<number> {
             : { id: item.payload.reportId, content: item.payload.content, basedOn: item.payload.basedOn, submit: item.payload.submit };
         let res: Response;
         try {
-          res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body) });
+          // Weak signal can leave a request hanging for minutes and hold up the
+          // whole queue: give up after 20 s and try again later. (Sending twice
+          // is safe: each press and save carries its own id.)
+          res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body), signal: AbortSignal.timeout(20_000) });
         } catch {
           update(item.id, { state: "pending" });
           return answered; // no signal: try again later

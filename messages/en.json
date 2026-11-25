@@ -1103,7 +1103,7 @@
         "clock_out": "Clock out at {time}:"
       },
       "gpsExplain": "Your phone's location is recorded for everyone you clock in or out, and marked as yours.",
-      "savedOnPhone": "No signal: saved on this phone at {time}. It will send automatically when you have signal."
+      "savedOnPhone": "Weak or no signal: saved on this phone at {time} for {count} people. It sends by itself when you have signal, with the time you pressed. No need to press again."
     },
     "sheet": {
       "title": "My timesheet",

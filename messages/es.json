@@ -1103,7 +1103,7 @@
         "clock_out": "Salida a las {time}:"
       },
       "gpsExplain": "La ubicación de su teléfono se registra para todas las personas a las que registra entrada o salida, y queda marcada como suya.",
-      "savedOnPhone": "Sin señal: guardado en este teléfono a las {time}. Se enviará solo cuando tenga señal."
+      "savedOnPhone": "Señal débil o sin señal: guardado en este teléfono a las {time} para {count} personas. Se envía solo cuando haya señal, con la hora en que lo marcó. No hace falta marcar otra vez."
     },
     "sheet": {
       "title": "Mi hoja de horas",
