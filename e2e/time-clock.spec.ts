@@ -536,7 +536,7 @@ test("clocked in by the crew lead, then pressing Clock in on your own phone: tol
     // The installer (screen not refreshed) presses Clock in too.
     await page.getByRole("button", { name: "Clock in" }).click();
     await expect(page.getByRole("status").filter({ hasText: "You were already clocked in" })).toBeVisible({ timeout: 20_000 });
-    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.getByRole("alert").filter({ hasText: /\S/ })).toHaveCount(0); // no error message (Next's empty page announcer doesn't count)
     await expect(page.getByRole("link", { name: /not accepted/ })).toHaveCount(0); // no red badge
     await expect(status).toContainText("On the clock");
 
