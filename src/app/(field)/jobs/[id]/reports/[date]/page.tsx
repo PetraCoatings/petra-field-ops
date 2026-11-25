@@ -8,6 +8,7 @@ import { DfrEditor } from "@/components/reports/dfr-editor";
 import { SaveForOffline } from "@/components/offline/save-for-offline";
 import { DfrView } from "@/components/reports/dfr-view";
 import { ReviewBox } from "@/components/reports/review-box";
+import { ReopenBox } from "@/components/reports/reopen-box";
 import { requireProfile } from "@/lib/auth/dal";
 import { canAccessManagement } from "@/lib/auth/roles";
 import { createClient } from "@/lib/supabase/server";
@@ -65,7 +66,16 @@ export default async function DailyReportPage({ params, searchParams }: PageProp
 
   const { data: versionRows } = await supabase.from("dfr_versions").select("version_number, content, submitted_by, submitted_at").eq("dfr_id", dfr.id).order("version_number", { ascending: false });
   const versions = (versionRows ?? []) as { version_number: number; content: DfrContent; submitted_by: string | null; submitted_at: string }[];
-  const names = await directoryNames([...versions.map((v) => v.submitted_by), dfr.correction_by, dfr.accepted_by, ...jobRow.project_assignments.map((a) => a.employee_id), jobRow.crew_lead_id]);
+  const { data: reopenRows } = await supabase.from("dfr_reopens").select("accepted_version, accepted_by, accepted_at, reason, reopened_by, reopened_at").eq("dfr_id", dfr.id).order("reopened_at");
+  const reopens = (reopenRows ?? []) as { accepted_version: number; accepted_by: string | null; accepted_at: string | null; reason: string; reopened_by: string | null; reopened_at: string }[];
+  const names = await directoryNames([
+    ...versions.map((v) => v.submitted_by),
+    dfr.correction_by,
+    dfr.accepted_by,
+    ...jobRow.project_assignments.map((a) => a.employee_id),
+    jobRow.crew_lead_id,
+    ...reopens.flatMap((r) => [r.accepted_by, r.reopened_by]),
+  ]);
   const name = (x: string | null) => (x ? (names.get(x)?.display_name ?? "?") : "?");
   const status = dfr.status as "draft" | "submitted" | "correction_requested" | "accepted";
   // A report sent back is the crew lead's to fix: the office sees its status,
@@ -113,9 +123,19 @@ export default async function DailyReportPage({ params, searchParams }: PageProp
               {t("editYourself")}
             </Link>
           )}
-          {status === "draft" && <p>{t("draftOnly")}</p>}
+          {status === "draft" && <p>{t(reopens.length ? "reopen.draftAfterReopen" : "draftOnly")}</p>}
+          {reopens.length > 0 && (
+            <ul aria-label={t("reopen.historyLabel")} className="mt-2 space-y-1 text-sm">
+              {reopens.map((r, i) => (
+                <li key={i}>
+                  {t("reopen.historyLine", { name: name(r.reopened_by), when: when(r.reopened_at), reason: r.reason, version: r.accepted_version, acceptedBy: name(r.accepted_by) })}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
         {status === "submitted" && canAccessManagement(profile.role) && <ReviewBox id={dfr.id as string} />}
+        {status === "accepted" && office && canWrite && <ReopenBox id={dfr.id as string} />}
         {shown ? <DfrView content={shown.content} /> : null}
         {versions.length > 1 && (
           <nav aria-label={t("versions")} className="flex flex-wrap gap-2 text-sm">

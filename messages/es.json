@@ -1541,7 +1541,24 @@
     "staleTyping": "Este teléfono tiene cambios que escribió y no se guardaron, pero el reporte se actualizó después. ¿Usar sus cambios o descartarlos?",
     "useMyTyping": "Usar mis cambios",
     "discardTyping": "Descartarlos",
-    "editYourself": "Editarlo usted"
+    "editYourself": "Editarlo usted",
+    "reopen": {
+      "button": "Reabrir para cambios",
+      "title": "Reabrir este reporte aceptado",
+      "help": "Vuelve a edición para corregirlo; luego envíelo y acéptelo otra vez. La versión aceptada, su motivo y su nombre quedan en el historial.",
+      "reasonLabel": "¿Por qué lo reabre? (obligatorio)",
+      "confirm": "Reabrir reporte",
+      "cancel": "Cancelar",
+      "historyLabel": "Reabierto",
+      "historyLine": "Reabierto por {name} el {when}: {reason} (la versión {version} había sido aceptada por {acceptedBy}).",
+      "draftAfterReopen": "Reabierto para cambios: aún no aceptado de nuevo. Envíelo y luego acéptelo.",
+      "errors": {
+        "note": "Escriba por qué lo reabre.",
+        "state": "Este reporte ya no está aceptado. Recargue la página.",
+        "forbidden": "Solo la oficina (gerentes de proyecto y administradores) puede reabrir un reporte.",
+        "generic": "Algo salió mal. Inténtelo de nuevo."
+      }
+    }
   },
   "photos": {
     "title": "Fotos",
